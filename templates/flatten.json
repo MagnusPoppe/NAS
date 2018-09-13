@@ -1,0 +1,10 @@
+{
+  "name": "Flatten",
+  "type": "operation",
+  "parameters": {},
+  "initialCompatible": false,
+  "outputCompatible": false,
+  "possibleNext": [
+    "LinearLayer"
+  ]
+}

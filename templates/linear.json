@@ -1,0 +1,33 @@
+{
+  "name": "LinearLayer",
+  "type": "operation",
+  "parameters": {
+    "neurons": {
+      "type": "int",
+      "value": 10,
+      "min": 0,
+      "max": 5000
+    },
+    "activation": {
+      "type": "string",
+      "value": "relu",
+      "possibleValues": [
+        "relu",
+        "softmax",
+        "sigmoid",
+        "tanh"
+      ]
+    },
+    "bias": {
+      "type": "bool",
+      "value": true,
+      "probabilityTrue": 0.9
+    }
+  },
+  "initialCompatible": true,
+  "outputCompatible": true,
+  "possibleNext": [
+    "LinearLayer",
+    "Dropout"
+  ]
+}
