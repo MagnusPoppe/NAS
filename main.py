@@ -20,10 +20,7 @@ import network
 
 if __name__ == '__main__':
     def fix(data):
-        # return np.expand_dims(data, axis=0).transpose(1, 3, 2, 0)
-        arr = np.array([x.flatten() for x in data])
-        arr.shape = (arr.shape[0], arr.shape[1], 1)
-        return arr
+        return np.expand_dims(data, axis=0).transpose(1, 3, 2, 0)
 
     (x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
 
@@ -32,19 +29,20 @@ if __name__ == '__main__':
     y_val = y_train[50000:]
     x_val = x_val.astype('float32')
     x_val /= 255
-    x_val = np.reshape(x_val, (10000, 784))
 
     # TRAINING DATA:
     x_train = fix(x_train[:50000])
     y_train = y_train[:50000]
     x_train = x_train.astype('float32')
     x_train /= 255
-    x_train = np.reshape(x_train, (50000, 784))
 
+    # TEST DATA:
+    x_test = fix(x_test)
+    x_test = x_test.astype('float32')
+    x_test /= 255
 
     # GENERATING NETWORK/MODEL:
-    model = network.generate(inputs=(784,), outputs=10)
-
+    model = network.generate(inputs=x_train[0].shape, outputs=10)
 
     # DEFINING FUNCTIONS AND COMPILING
     sgd = keras.optimizers.Adam(lr=0.01)
@@ -56,11 +54,11 @@ if __name__ == '__main__':
     training = model.fit(
         x_train,
         keras.utils.to_categorical(y_train, num_classes=10),
-        epochs=3,
-        batch_size=128,
-        validation_data=(x_val, keras.utils.to_categorical(y_val, num_classes=10))
+        epochs=10,
+        batch_size=50,
+        validation_data=(
+            x_val, keras.utils.to_categorical(y_val, num_classes=10))
     )
-
 
     # TEST DATA:
     # x_test = fix(x_test)

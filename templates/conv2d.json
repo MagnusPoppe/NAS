@@ -6,7 +6,7 @@
       "type": "int",
       "value": 10,
       "min": 0,
-      "max": 5000
+      "max": 50
     },
     "kernelWidth": {
       "type": "int",

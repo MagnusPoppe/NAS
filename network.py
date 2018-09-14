@@ -1,9 +1,10 @@
 import copy
 import template_engine
-import frameworks
+import frameworks.keras_compatability as ML_framework
 import random
 
-def legal_modules(operations: dict, op_names: list, previous: dict, last:bool) -> list:
+
+def legal_operations(operations: dict, op_names: list, previous: dict, last: bool = False) -> list:
     """
     Filters the list of all components so it only includes possible components to
     use as the next operation in the network.
@@ -19,11 +20,14 @@ def legal_modules(operations: dict, op_names: list, previous: dict, last:bool) -
     else:
         legal = [op for op in op_names if operations[op]["initialCompatible"]]
     if last:
+        # TODO: This is all wrong! This does not check if this is the last operation
+        #       in the entire network, it checks if this is the last operation of the
+        #       module... A convolutional layer may be the last layer of any module...
         legal = [op for op in legal if operations[op]["outputCompatible"]]
     return legal
 
 
-def generate_random_module(operations: dict, op_names: list, op_count: int) -> dict:
+def generate_random_module(previous: dict, operations: dict, op_names: list, op_count: int) -> dict:
     """
     Generates a random module with some operations.
     :param operations: dict of all operations
@@ -34,23 +38,92 @@ def generate_random_module(operations: dict, op_names: list, op_count: int) -> d
 
     module = {"components": [], "type": "module"}
 
-    previous = None
     for o in range(op_count):
-        # Filtering list and selecting next operation:
-        legal_operations = legal_modules(operations, op_names, previous, last=(o == op_count-1))
-        selected_operation = legal_operations[random.randint(0, len(legal_operations))]
-
-        # Randomizing the parameters of the operation:
-        operation = copy.deepcopy(operations[selected_operation])
-        operation = template_engine.shuffle_parameters(operation)
-
         # Adding operation to module:
+        operation = add_random_operation(operations, op_names, previous)
         module["components"] += [operation]
         previous = operation
     return module
 
 
-def generate(inputs: tuple, outputs: int, template_folder="./templates"):
+def add_random_operation(operations: dict, op_names: list, previous: dict) -> dict:
+    # Filtering list and selecting next operation:
+    legal = legal_operations(operations, op_names, previous)
+    selected_operation = legal[random.randint(0, len(legal)-1)]
+
+    # Randomizing the parameters of the operation:
+    operation = copy.deepcopy(operations[selected_operation])
+    operation = template_engine.shuffle_parameters(operation)
+
+    # Adding operation to module:
+    return operation
+
+
+def add_operation_by_index(model: dict, index: int, operation: dict) -> dict:
+    # TODO: TEST HERE!
+    def place_operation(module: dict, ops_seen: int) -> dict:
+        for i, operation in enumerate(module["components"]):
+            if operation["type"] == "operation":
+                ops_seen += 1
+
+            elif operation["type"] == "module":
+                ops_seen = find_parent_module(operation, ops_seen)
+
+            if ops_seen == index:
+                comps = module["components"]
+                module["components"] = comps[:i] + [operation] + comps[i:]
+                return ops_seen + 1
+
+            elif ops_seen > index:
+                return ops_seen
+        return ops_seen
+
+    # Running placement algorithm:
+    place_operation(model, 0)
+    return model
+
+
+def list_modules(model: dict) -> list:
+    modules = []
+    for component in model["components"]:
+        if component["type"] == "module":
+            modules += [component] + list_modules(component)
+    return modules
+
+
+def list_operations(model: dict) -> list:
+    operations = []
+    for component in model["components"]:
+        if component["type"] == "operation":
+            operations += [component]
+        elif component["type"] == "module":
+            operations += list_operations(component)
+    return operations
+
+
+def make_valid(model: dict, operations: dict) -> dict:
+    op_names = list(model.keys())
+
+    def find_bridge_operation(previous: dict, operation: dict) -> dict:
+        # Search for a legal operation to bridge two illegal operations:
+        legal = legal_operations(operations, op_names, previous)
+        for legal_op in legal:
+            if operation["name"] in operations[legal_op]["possibleNext"]:
+                return operations[legal_op]
+        return None
+
+    model_operations = list_operations(model)
+
+    previous = model_operations[0]
+    for index, operation in enumerate(model_operations[1:]):
+        if operation["name"] not in previous["possibleNext"]:
+            model = add_operation_by_index(model, index+1, legal_operation)
+
+        previous = operation
+    return model
+
+
+def generate(inputs: tuple, outputs: int, template_folder: str = "./templates"):
     """
     Generates a complete network model
     :param inputs:
@@ -66,7 +139,17 @@ def generate(inputs: tuple, outputs: int, template_folder="./templates"):
     # Root node of the network:
     model = {"components": [], "type": "module"}
 
-    for m in range(3):
-        model["components"] += [generate_random_module(operations, op_names, 3)]
+    previous = operations["Conv2D"] if len(inputs) > 2 else operations["LinearLayer"]
+    template_engine.shuffle_parameters(previous)
 
-    return frameworks.keras.export(model, input_dimensions=inputs, classes=outputs)
+    model["components"] += [previous]
+
+    for m in range(3):
+        if len(model["components"]) > 0:
+            previous = list_operations(model)[-1]
+
+        model["components"] += [
+            generate_random_module(previous, operations, op_names, 3)
+        ]
+
+    return ML_framework.export(model, input_dimensions=inputs, classes=outputs)
