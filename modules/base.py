@@ -1,0 +1,5 @@
+class Base():
+
+    def __init__(self):
+        self.next = []  # len() > 1: represents a split in the graph
+        self.prev = []  # len() > 1: represents a merge in the graph

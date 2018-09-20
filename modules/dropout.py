@@ -1,5 +1,5 @@
 from modules.dense import Dense
-from modules.module import Operation
+from modules.operation import Operation
 from tensorflow import keras
 
 class Dropout(Operation):
