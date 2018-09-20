@@ -1,6 +1,8 @@
 {
   "name": "Dropout",
   "type": "operation",
+  "prev": [],
+  "next": [],
   "parameters": {
     "rate": {
       "type": "float",

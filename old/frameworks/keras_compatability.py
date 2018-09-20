@@ -26,6 +26,27 @@ def export(root: dict, input_dimensions: tuple, classes:int) -> keras.Sequential
     return model
 
 
+def assemble(root: dict) -> dict:
+
+    def asseble_module(module: dict) -> dict:
+        # TODO: HOW TO CREATE MAD CRAZY EVOLVED STRUCTURES:
+        # Create a new Sequential Model for all "splits".
+        # Create serial component for all single layer transfers.
+        # Create merges for where more than one previous exists.
+
+        def gather_operations(op):
+            ops = [to_keras(op)]
+            for next in op["next"]:
+                ops += [gather_operations(next)]
+            return ops
+
+        first = module["ops"][0]
+        operations = [gather_operations(op) for op in first["next"]]
+        module["model"] = keras.models.Sequential()
+
+    return asseble_module(root)
+
+
 def to_keras(operation):
     params = operation["parameters"]
 

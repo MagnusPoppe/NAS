@@ -1,6 +1,8 @@
 {
   "name": "LinearLayer",
   "type": "operation",
+  "prev": [],
+  "next": [],
   "parameters": {
     "neurons": {
       "type": "int",

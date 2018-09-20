@@ -1,0 +1,15 @@
+{
+  "name": "InputDense",
+  "type": "operation",
+  "prev": [],
+  "next": [],
+  "parameters": {
+    "shape": []
+  },
+  "initialCompatible": false,
+  "outputCompatible": false,
+  "possibleNext": [
+    "LinearLayer",
+    "Dropout"
+  ]
+}

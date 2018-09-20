@@ -1,6 +1,8 @@
 {
   "name": "Conv2D",
   "type": "operation",
+  "prev": [],
+  "next": [],
   "parameters": {
     "filters": {
       "type": "int",
@@ -39,7 +41,6 @@
   "initialCompatible": true,
   "outputCompatible": false,
   "possibleNext": [
-    "Conv2D",
-    "Flatten"
+    "Conv2D"
   ]
 }

@@ -1,0 +1,14 @@
+{
+  "name": "InputND",
+  "type": "operation",
+  "prev": [],
+  "next": [],
+  "parameters": {
+    "shape": []
+  },
+  "initialCompatible": false,
+  "outputCompatible": false,
+  "possibleNext": [
+    "Conv2D"
+  ]
+}

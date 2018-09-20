@@ -1,10 +1,10 @@
 import copy
-import template_engine
-import frameworks.keras_compatability as ML_framework
+from old import template_engine
+import old.frameworks.keras_compatability as ML_framework
 import random
 
 
-def legal_operations(operations: dict, op_names: list, previous: dict, last: bool = False) -> list:
+def legal_operations(operations: dict, op_names: list, previous: dict, next:dict=None) -> list:
     """
     Filters the list of all components so it only includes possible components to
     use as the next operation in the network.
@@ -19,11 +19,10 @@ def legal_operations(operations: dict, op_names: list, previous: dict, last: boo
         legal = [op for op in op_names if op in previous["possibleNext"]]
     else:
         legal = [op for op in op_names if operations[op]["initialCompatible"]]
-    if last:
-        # TODO: This is all wrong! This does not check if this is the last operation
-        #       in the entire network, it checks if this is the last operation of the
-        #       module... A convolutional layer may be the last layer of any module...
-        legal = [op for op in legal if operations[op]["outputCompatible"]]
+
+    if next:
+        legal = [op for op in legal if next["name"] in operations[op]["possibleNext"]]
+
     return legal
 
 
@@ -62,12 +61,12 @@ def add_random_operation(operations: dict, op_names: list, previous: dict) -> di
 def add_operation_by_index(model: dict, index: int, operation: dict) -> dict:
     # TODO: TEST HERE!
     def place_operation(module: dict, ops_seen: int) -> dict:
-        for i, operation in enumerate(module["components"]):
-            if operation["type"] == "operation":
+        for i, component in enumerate(module["components"]):
+            if component["type"] == "operation":
                 ops_seen += 1
 
-            elif operation["type"] == "module":
-                ops_seen = find_parent_module(operation, ops_seen)
+            elif component["type"] == "module":
+                ops_seen = place_operation(component, ops_seen)
 
             if ops_seen == index:
                 comps = module["components"]
@@ -81,6 +80,10 @@ def add_operation_by_index(model: dict, index: int, operation: dict) -> dict:
     # Running placement algorithm:
     place_operation(model, 0)
     return model
+
+
+def remove_operation_by_index():
+    pass
 
 
 def list_modules(model: dict) -> list:
@@ -117,13 +120,18 @@ def make_valid(model: dict, operations: dict) -> dict:
     previous = model_operations[0]
     for index, operation in enumerate(model_operations[1:]):
         if operation["name"] not in previous["possibleNext"]:
-            model = add_operation_by_index(model, index+1, legal_operation)
+
+            model = add_operation_by_index(
+                model,
+                index+1,
+                find_bridge_operation(previous, operation)
+            )
 
         previous = operation
     return model
 
 
-def generate(inputs: tuple, outputs: int, template_folder: str = "./templates"):
+def generate(inputs: tuple, outputs: int, template_folder: str = "./old/templates"):
     """
     Generates a complete network model
     :param inputs:
