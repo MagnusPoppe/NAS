@@ -5,8 +5,8 @@ from tensorflow import keras
 
 class Dense(Operation):
 
-    def __init__(self, ID, units, activation="ReLU", bias=True):
-        super().__init__(ID, [type(self)])
+    def __init__(self, ID, units, activation="relu", bias=True):
+        super().__init__(ID, [type(self), Dropout])
         self.units = units
         self.activation = activation
         self.bias = bias
@@ -50,3 +50,13 @@ class DenseL(Dense):
             ID="DenseL",
             units=random.randint(self._min_units, self._max_units)
         )
+
+
+class Dropout(Operation):
+
+    def __init__(self):
+        super().__init__("Dropout", [Dense])
+        self.rate = 0.5
+
+    def to_keras(self):
+        return keras.layers.Dropout(rate=self.rate)

@@ -10,10 +10,11 @@ class Operation(Base):
     Instances of this class should always have a parent module.
     """
 
-    def __init__(self, ID, compatibility):
+    def __init__(self, ID, compatible):
         super().__init__()
         self.ID = ID
-        self.compatibility = compatibility
+        self.model = None
+        self.compatible = compatible
 
     def __str__(self):
         return self.ID
