@@ -62,7 +62,6 @@ class Module(Base):
         in sequence.
         :return: tf.keras.model.Sequential
         """
-
         # TODO: Parse the whole graph to connect all ends.
 
         def compute_graph(current: Operation, model: keras.models.Sequential):
@@ -70,17 +69,17 @@ class Module(Base):
 
             # Merge case, only if all previous models has been completed:
             if len(current.prev) > 1 and all([x.model != None for x in current.prev]):
-                models = [x.model for x in current.prev]
-                concat = keras.layers.concatenate(models)
-                inn_shape = concat.output_shape
-                model.add(concat)
+                outputs = [op.model.output for op in current.prev]
+                concat = keras.layers.concatenate(outputs)
+                inn_shape = concat.shape
+
+                model.add(keras.layers.Dense(units=inn_shape[1].value)) # TODO: Only works with linear layers.
 
             # Split case:
             if len(current.next) > 1:
                 if not inn_shape:
                     inn_shape = input_shape if not current.prev else current.find_shape()
                 for op in current.next[1:]:
-                    # TODO: HVOR KOBLES FORRIGE MODELL INN I DENNE?
                     split_model = keras.models.Sequential()
                     split_model.add(model)
                     compute_graph(op, split_model)
