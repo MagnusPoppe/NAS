@@ -18,6 +18,9 @@ class Dense(Operation):
             use_bias=self.bias
         )
 
+    def find_shape(self):
+        return (None, self.units)
+
 
 class DenseS(Dense):
     _min_units = 10
@@ -60,3 +63,13 @@ class Dropout(Operation):
 
     def to_keras(self):
         return keras.layers.Dropout(rate=self.rate)
+
+    def find_shape(self):
+        shapes = [p.find_shape() for p in self.prev]
+        if len(shapes) == 1: return shapes[0]
+        elif len(shapes) > 1:
+            dims = shapes[0]
+            for shape in shapes[1:]:
+                for dim in range(len(shape)):
+                    if shape[dim] != None:
+                        dims[dim] += shape[dim]

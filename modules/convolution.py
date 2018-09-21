@@ -12,6 +12,7 @@ class Conv2D(Operation):
         self.strides = strides
         self.activation = activation
         self.bias = bias
+        # TODO self.shape =
 
     def to_keras(self):
         return keras.layers.Conv2D(

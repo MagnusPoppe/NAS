@@ -1,8 +1,10 @@
 from tensorflow import keras
 from modules.base import Base
+from modules.dense import Dropout
 from modules.operation import Operation
+import networkx as nx
 
-
+global_id = 1
 class Module(Base):
     """
     Module is a collection of one or more modules and operations
@@ -29,7 +31,30 @@ class Module(Base):
         return "Module [{}]".format(", ".join([str(c) for c in self.children]))
 
     def visualize(self):
-        pass
+        import matplotlib.pyplot as plt
+        G = nx.DiGraph()
+
+        def draw(prev, current):
+            if current.nodeID is None:
+                global global_id
+                current.nodeID = "{}: {}".format(global_id, current.ID)
+                global_id += 1
+
+            if prev:
+                G.add_node(current.nodeID)
+                G.add_edge(prev.nodeID, current.nodeID)
+            else:
+                G.add_node(current.nodeID)
+
+            if len(current.prev) <= 1 or all([x.nodeID != None for x in current.prev]):
+                for node in current.next:
+                    draw(current, node)
+
+        draw(prev=[], current=self.find_first())
+
+        plt.subplot(111)
+        nx.draw(G, with_labels=True, arrowsize=1, arrowstyle='fancy')
+        plt.show()
 
     def compile(self, input_shape):
         """
@@ -41,27 +66,29 @@ class Module(Base):
         # TODO: Parse the whole graph to connect all ends.
 
         def compute_graph(current: Operation, model: keras.models.Sequential):
-            shape = (current.prev[0].shape) if len(current.prev) == 1 else input_shape
+            inn_shape = None
 
             # Merge case, only if all previous models has been completed:
             if len(current.prev) > 1 and all([x.model != None for x in current.prev]):
-                concat = keras.layers.Concatenate([x.model for x in current.prev])
-                shape = concat.output_shape
+                models = [x.model for x in current.prev]
+                concat = keras.layers.concatenate(models)
+                inn_shape = concat.output_shape
                 model.add(concat)
-
 
             # Split case:
             if len(current.next) > 1:
+                if not inn_shape:
+                    inn_shape = input_shape if not current.prev else current.find_shape()
                 for op in current.next[1:]:
+                    # TODO: HVOR KOBLES FORRIGE MODELL INN I DENNE?
                     split_model = keras.models.Sequential()
-                    split_model.add(keras.layers.InputLayer(shape))
+                    split_model.add(model)
                     compute_graph(op, split_model)
 
             # Adding current node into compute graph:
             operation = current.to_keras()
             model.add(operation)
             current.model = model
-            current.shape = operation.output_shape
             if current.next and (len(current.prev) <= 1 or all([x.model != None for x in current.prev])):
                 compute_graph(current.next[0], model)
 
@@ -77,3 +104,7 @@ class Module(Base):
                     return on(p)
             return operation
         return on(self.children[0])
+
+    def get_ends(self):
+        start = self.find_first()
+
