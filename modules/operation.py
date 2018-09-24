@@ -13,7 +13,7 @@ class Operation(Base):
     def __init__(self, ID, compatible):
         super().__init__()
         self.ID = ID
-        self.model = None
+        self.keras_operation = None
         self.compatible = compatible
 
     def __str__(self):

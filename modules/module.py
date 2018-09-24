@@ -2,9 +2,10 @@ from tensorflow import keras
 from modules.base import Base
 from modules.dense import Dropout
 from modules.operation import Operation
-import networkx as nx
 
 global_id = 1
+
+
 class Module(Base):
     """
     Module is a collection of one or more modules and operations
@@ -31,7 +32,10 @@ class Module(Base):
         return "Module [{}]".format(", ".join([str(c) for c in self.children]))
 
     def visualize(self):
+        # Local imports. Server does not have TKinter and will crash on load.
         import matplotlib.pyplot as plt
+        import networkx as nx
+
         G = nx.DiGraph()
 
         def draw(prev, current):
@@ -62,6 +66,7 @@ class Module(Base):
         in sequence.
         :return: tf.keras.model.Sequential
         """
+
         # TODO: Parse the whole graph to connect all ends.
 
         def compute_graph(current: Operation, model: keras.models.Sequential):
@@ -69,11 +74,16 @@ class Module(Base):
 
             # Merge case, only if all previous models has been completed:
             if len(current.prev) > 1 and all([x.model != None for x in current.prev]):
-                outputs = [op.model.output for op in current.prev]
+                outputs = []
+                for op in current.prev:
+                    try:
+                        outputs += [op.model.layers[-1].output]
+                    except Exception as e:
+                        print(e)
+
                 concat = keras.layers.concatenate(outputs)
                 inn_shape = concat.shape
-
-                model.add(keras.layers.Dense(units=inn_shape[1].value)) # TODO: Only works with linear layers.
+                model.add(keras.layers.Dense(units=inn_shape[1].value))  # TODO: Only works with linear layers.
 
             # Split case:
             if len(current.next) > 1:
@@ -88,12 +98,14 @@ class Module(Base):
             operation = current.to_keras()
             model.add(operation)
             current.model = model
+            # Special case: If a merge happens, only continue when all earlier branches has finished.
             if current.next and (len(current.prev) <= 1 or all([x.model != None for x in current.prev])):
                 compute_graph(current.next[0], model)
 
         model = keras.models.Sequential()
         model.add(keras.layers.InputLayer(input_shape))
         compute_graph(self.find_first(), model)
+        self.model = model
         return model
 
     def find_first(self):
@@ -102,8 +114,8 @@ class Module(Base):
                 for p in operation.prev:
                     return on(p)
             return operation
+
         return on(self.children[0])
 
     def get_ends(self):
         start = self.find_first()
-
