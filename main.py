@@ -5,13 +5,13 @@ from modules.dense import DenseS, DenseM, DenseL, Dropout
 from modules.module import Module
 from tensorflow import keras
 
-operators2D =  [Conv3x3, Conv5x5]
+operators2D = [Conv3x3, Conv5x5]
 operators1D = [DenseS, DenseM, DenseL, Dropout]
 
-def random_sample(operators):
+def random_sample(collection):
     # Selecting a random operation and creating an instance of it.
-    selected = random.randint(0, len(operators) - 1)
-    return operators[selected]()
+    return collection[random.randint(0, len(collection) - 1)]
+
 
 def test_model(model):
     def fix(data):
@@ -61,13 +61,14 @@ def test_model(model):
 
 def keras_functional_api_proof_of_concept():
     input = keras.layers.Input(shape=(784,))
+
     # Creating main branch:
     main_layer1 = keras.layers.Dense(units=400, activation="relu")(input)
     main_layer2 = keras.layers.Dense(units=400, activation="relu")(main_layer1)
     main_layer3 = keras.layers.Dense(units=400, activation="relu")(main_layer2)
     main_layer4 = keras.layers.Dense(units=400, activation="relu")(main_layer3)
 
-    # Creating splitted branch:
+    # Creating branch:
     branch_layer1 = keras.layers.Dense(units=400, activation="relu")(main_layer2)
     branch_layer2 = keras.layers.Dense(units=400, activation="relu")(branch_layer1)
     branch_layer3 = keras.layers.Dense(units=400, activation="relu")(branch_layer2)
@@ -80,21 +81,19 @@ def keras_functional_api_proof_of_concept():
 
 
 if __name__ == '__main__':
-    # model = keras_functional_api_proof_of_concept()
-    # exit(0)
     root = Module()
 
-    # Adding operation to graph:
-    root += random_sample(operators1D)
-    root += random_sample(operators1D)
-    root += random_sample(operators1D)
-    root += random_sample(operators1D)
+    # Adding operations to graph:
+    root += random_sample(operators1D)()
+    root += random_sample(operators1D)()
+    root += random_sample(operators1D)()
+    root += random_sample(operators1D)()
 
     # Adding an alternative route to the graph
-    prev = root.children[2]
-    end = root.children[3]
+    prev = root.children[2]  # Second last
+    end = root.children[3]   # last
     for i in range(3):
-        op = random_sample(operators1D)
+        op = random_sample(operators1D)()
         prev.next += [op]
         op.prev += [prev]
         root.children += [op]
@@ -103,8 +102,11 @@ if __name__ == '__main__':
     end.prev += [op]
 
 
-    print(root)
-    # root.visualize()
+    root.insert(root.children[5], root.children[2], random_sample(operators1D)())
+    root.insert(root.children[0], root.children[-1], random_sample(operators1D)())
 
+    print(root)
+    root.visualize()
     model = root.compile(input_shape=(784,), classes=10)
+    keras.utils.plot_model(model, to_file='model.png')
     test_model(model)
