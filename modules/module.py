@@ -158,7 +158,7 @@ class Module(Base):
 
 
         out =  keras.layers.Dense(units=classes, activation="softmax")(end) if is_root else end
-        self.keras_operation = keras.models.Model(inputs=[input],outputs=[out])
+        self.keras_operation = keras.models.Model(inputs=[input],outputs=[out], name=self.ID)
         self.keras_tensor = self.keras_operation.layers[-1].output
         return self.keras_operation
 

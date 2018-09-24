@@ -59,41 +59,4 @@ def test_model(model):
     print("\n".join(["{}: {}".format(metric, score) for metric, score in zip(model.metrics_names, test_metrics)]))
 
 if __name__ == '__main__':
-    root = Module()
-
-    # Adding operations to graph:
-    root += random_sample(operators1D)()
-    root += random_sample(operators1D)()
-    root += random_sample(operators1D)()
-    root += random_sample(operators1D)()
-
-    # Adding an alternative route to the graph
-    prev = root.children[2]  # Second last
-    end = root.children[3]   # last
-    for i in range(3):
-        op = random_sample(operators1D)()
-        prev.next += [op]
-        op.prev += [prev]
-        root.children += [op]
-        prev = op
-    op.next += [end]
-    end.prev += [op]
-
-
-    # Testing insert operator
-    root.insert(root.children[5], root.children[2], random_sample(operators1D)())
-    root.insert(root.children[0], root.children[3], random_sample(operators1D)())
-
-    # Testing submodule operator
-    sub_module = Module().append(DenseS())    \
-        .append(random_sample(operators1D)()) \
-        .append(random_sample(operators1D)()) \
-        .append(random_sample(operators1D)())
-
-    root.insert(root.children[1], root.children[2], sub_module)
-
-    print(root)
-    # root.visualize()
-    model = root.compile(input=(784,), is_root=True, classes=10)
-    keras.utils.plot_model(model, to_file='model.png')
-    test_model(model)
+    pass
