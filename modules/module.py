@@ -19,17 +19,45 @@ class Module(Base):
 
     def __iadd__(self, other):
         if isinstance(other, Operation) or isinstance(other, Module):
-            if len(self.children) < 1:
-                self.children += [other]
-            else:
-                previous = self.children[-1]
-                previous.next += [other]
-                other.prev += [previous]
-                self.children += [other]
+            self.append(other)
         return self
 
     def __str__(self):
         return "Module [{}]".format(", ".join([str(c) for c in self.children]))
+
+    def append(self, op):
+        if len(self.children) < 1:
+            self.children += [op]
+        else:
+            previous = self.children[-1]
+            previous.next += [op]
+            op.prev += [previous]
+            self.children += [op]
+
+    def insert(self, first_node, second_node, operation):
+        """
+        Inserts operation between two nodes.
+        :param first_node:
+        :param second_node:
+        :param operation:
+        :return:
+        """
+        def is_before(node, target):
+            if node == target: return True
+            elif node.prev: return any([is_before(prev, target) for prev in node.prev])
+            else: return False
+
+        # 1. Switch if first_node after second_node (no cycles).
+        if is_before(first_node, second_node):
+            temp = second_node
+            second_node = first_node
+            first_node = temp
+
+        # 2. Connect fully.
+        first_node.next += [operation]
+        operation.prev += [first_node]
+        operation.next += [second_node]
+        second_node.prev += [operation]
 
     def visualize(self):
         # Local imports. Server does not have TKinter and will crash on load.
@@ -59,6 +87,12 @@ class Module(Base):
         plt.subplot(111)
         nx.draw(G, with_labels=True, arrowsize=1, arrowstyle='fancy')
         plt.show()
+
+    def find_first(self):
+        def on(operation):
+            if operation.prev: return on(operation.prev[0])
+            return operation
+        return on(self.children[0])
 
     def compile(self, input_shape, classes):
         """
@@ -103,9 +137,3 @@ class Module(Base):
 
         output = keras.layers.Dense(units=classes, activation="softmax")(last_op.keras_operation)
         return keras.models.Model(inputs=[input], outputs=[output])
-
-    def find_first(self):
-        def on(operation):
-            if operation.prev: return on(operation.prev[0])
-            return operation
-        return on(self.children[0])
