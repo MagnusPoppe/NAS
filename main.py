@@ -80,8 +80,8 @@ def keras_functional_api_proof_of_concept():
 
 
 if __name__ == '__main__':
-    model = keras_functional_api_proof_of_concept()
-    exit(0)
+    # model = keras_functional_api_proof_of_concept()
+    # exit(0)
     root = Module()
 
     # Adding operation to graph:
@@ -106,6 +106,5 @@ if __name__ == '__main__':
     print(root)
     # root.visualize()
 
-    model = root.compile(input_shape=(784,))
-    model.add(keras.layers.Dense(units=10, activation="softmax"))
+    model = root.compile(input_shape=(784,), classes=10)
     test_model(model)

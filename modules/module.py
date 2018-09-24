@@ -60,62 +60,52 @@ class Module(Base):
         nx.draw(G, with_labels=True, arrowsize=1, arrowstyle='fancy')
         plt.show()
 
-    def compile(self, input_shape):
+    def compile(self, input_shape, classes):
         """
         Converts the module's operations into actual keras operations
         in sequence.
-        :return: tf.keras.model.Sequential
+        :return: tf.keras.model.Model
         """
 
         # TODO: Parse the whole graph to connect all ends.
 
-        def compute_graph(current: Operation, model: keras.models.Sequential):
-            inn_shape = None
+        def compute_graph(current: Operation):
+            # Edge case, first node in network:
+            if len(current.prev) == 0:
+                operation = current.to_keras()(current.input)
 
-            # Merge case, only if all previous models has been completed:
-            if len(current.prev) > 1 and all([x.model != None for x in current.prev]):
-                outputs = []
-                for op in current.prev:
-                    try:
-                        outputs += [op.model.layers[-1].output]
-                    except Exception as e:
-                        print(e)
+            # Normal sequential add:
+            elif len(current.prev) == 1:
+                operation = current.to_keras()(current.prev[0].keras_operation)
 
-                concat = keras.layers.concatenate(outputs)
-                inn_shape = concat.shape
-                model.add(keras.layers.Dense(units=inn_shape[1].value))  # TODO: Only works with linear layers.
+            # More than one input, need to merge:
+            else:
+                if all(not op.keras_operation is None for op in current.prev):
+                    concat = keras.layers.concatenate([op.keras_operation for op in current.prev])
+                    operation = current.to_keras()(concat)
+                else:
+                    operation = current.to_keras()
 
-            # Split case:
-            if len(current.next) > 1:
-                if not inn_shape:
-                    inn_shape = input_shape if not current.prev else current.find_shape()
-                for op in current.next[1:]:
-                    split_model = keras.models.Sequential()
-                    split_model.add(model)
-                    compute_graph(op, split_model)
+            current.keras_operation = operation
+            last_layer = current
 
-            # Adding current node into compute graph:
-            operation = current.to_keras()
-            model.add(operation)
-            current.model = model
             # Special case: If a merge happens, only continue when all earlier branches has finished.
-            if current.next and (len(current.prev) <= 1 or all([x.model != None for x in current.prev])):
-                compute_graph(current.next[0], model)
+            if all(not op.keras_operation is None for op in current.prev):
+                for op in current.next:
+                    last_layer = compute_graph(op)
 
-        model = keras.models.Sequential()
-        model.add(keras.layers.InputLayer(input_shape))
-        compute_graph(self.find_first(), model)
-        self.model = model
-        return model
+            return last_layer
+
+        input = keras.layers.Input(shape=input_shape)
+        first_node = self.find_first()
+        first_node.input = input
+        last_op = compute_graph(first_node)
+
+        output = keras.layers.Dense(units=classes, activation="softmax")(last_op.keras_operation)
+        return keras.models.Model(inputs=[input], outputs=[output])
 
     def find_first(self):
         def on(operation):
-            if operation.prev:
-                for p in operation.prev:
-                    return on(p)
+            if operation.prev: return on(operation.prev[0])
             return operation
-
         return on(self.children[0])
-
-    def get_ends(self):
-        start = self.find_first()
