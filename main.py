@@ -58,28 +58,6 @@ def test_model(model):
     test_metrics = model.evaluate(x_test, keras.utils.to_categorical(y_test, num_classes=10), verbose=0)
     print("\n".join(["{}: {}".format(metric, score) for metric, score in zip(model.metrics_names, test_metrics)]))
 
-
-def keras_functional_api_proof_of_concept():
-    input = keras.layers.Input(shape=(784,))
-
-    # Creating main branch:
-    main_layer1 = keras.layers.Dense(units=400, activation="relu")(input)
-    main_layer2 = keras.layers.Dense(units=400, activation="relu")(main_layer1)
-    main_layer3 = keras.layers.Dense(units=400, activation="relu")(main_layer2)
-    main_layer4 = keras.layers.Dense(units=400, activation="relu")(main_layer3)
-
-    # Creating branch:
-    branch_layer1 = keras.layers.Dense(units=400, activation="relu")(main_layer2)
-    branch_layer2 = keras.layers.Dense(units=400, activation="relu")(branch_layer1)
-    branch_layer3 = keras.layers.Dense(units=400, activation="relu")(branch_layer2)
-
-    # Merging:
-    concat = keras.layers.concatenate([main_layer4, branch_layer3])
-    output = keras.layers.Dense(units=10, activation="softmax")(concat)
-
-    return keras.models.Model(inputs=[input], outputs=[output])
-
-
 if __name__ == '__main__':
     root = Module()
 
@@ -102,11 +80,20 @@ if __name__ == '__main__':
     end.prev += [op]
 
 
+    # Testing insert operator
     root.insert(root.children[5], root.children[2], random_sample(operators1D)())
-    root.insert(root.children[0], root.children[-1], random_sample(operators1D)())
+    root.insert(root.children[0], root.children[3], random_sample(operators1D)())
+
+    # Testing submodule operator
+    sub_module = Module().append(DenseS())    \
+        .append(random_sample(operators1D)()) \
+        .append(random_sample(operators1D)()) \
+        .append(random_sample(operators1D)())
+
+    root.insert(root.children[1], root.children[2], sub_module)
 
     print(root)
-    root.visualize()
-    model = root.compile(input_shape=(784,), classes=10)
+    # root.visualize()
+    model = root.compile(input=(784,), is_root=True, classes=10)
     keras.utils.plot_model(model, to_file='model.png')
     test_model(model)

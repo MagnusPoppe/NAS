@@ -16,6 +16,7 @@ class Module(Base):
     def __init__(self):
         super().__init__()
         self.children = []
+        self.keras_operation = None
 
     def __iadd__(self, other):
         if isinstance(other, Operation) or isinstance(other, Module):
@@ -33,6 +34,7 @@ class Module(Base):
             previous.next += [op]
             op.prev += [previous]
             self.children += [op]
+        return self
 
     def insert(self, first_node, second_node, operation):
         """
@@ -58,6 +60,7 @@ class Module(Base):
         operation.prev += [first_node]
         operation.next += [second_node]
         second_node.prev += [operation]
+        return self
 
     def visualize(self):
         # Local imports. Server does not have TKinter and will crash on load.
@@ -94,46 +97,68 @@ class Module(Base):
             return operation
         return on(self.children[0])
 
-    def compile(self, input_shape, classes):
+    def to_keras(self):
+        return self.compile(None)
+
+    def compile(self, input, is_root=False, classes=0):
         """
         Converts the module's operations into actual keras operations
         in sequence.
+        :param input: shape tuple
         :return: tf.keras.model.Model
         """
 
-        # TODO: Parse the whole graph to connect all ends.
-
-        def compute_graph(current: Operation):
-            # Edge case, first node in network:
-            if len(current.prev) == 0:
-                operation = current.to_keras()(current.input)
-
-            # Normal sequential add:
-            elif len(current.prev) == 1:
-                operation = current.to_keras()(current.prev[0].keras_operation)
-
-            # More than one input, need to merge:
-            else:
-                if all(not op.keras_operation is None for op in current.prev):
-                    concat = keras.layers.concatenate([op.keras_operation for op in current.prev])
-                    operation = current.to_keras()(concat)
+        def _connect(current, previous):
+            if isinstance(current, Module):
+                if isinstance(previous, keras.layers.Concatenate):
+                    input_tensor = previous
                 else:
-                    operation = current.to_keras()
+                    input_tensor = previous.keras_tensor
+                current.keras_operation = current.compile(input=tuple(input_tensor.shape), is_root=False)
+                current.keras_tensor = current.keras_operation(input_tensor)
 
-            current.keras_operation = operation
-            last_layer = current
+            else: # must me of type: Operation
+                current.keras_operation = current.to_keras()
+                if isinstance(previous, Operation) or isinstance(previous, Module):
+                    current.keras_tensor = current.keras_operation(previous.keras_tensor)
+                else:
+                    current.keras_tensor = current.keras_operation(previous)
+            return current
 
-            # Special case: If a merge happens, only continue when all earlier branches has finished.
-            if all(not op.keras_operation is None for op in current.prev):
-                for op in current.next:
-                    last_layer = compute_graph(op)
+        queue = [self.find_first()]
+        input = keras.layers.Input(shape=input)
+        queue[0].input = input
+        ends = []
 
-            return last_layer
+        while len(queue) > 0:
+            current = queue.pop(0)
+            if current.keras_operation != None: continue # Edge case. Nodes may be queued multiple times.
 
-        input = keras.layers.Input(shape=input_shape)
-        first_node = self.find_first()
-        first_node.input = input
-        last_op = compute_graph(first_node)
+            if len(current.prev) == 0:
+                prev = input
+            elif len(current.prev) == 1 and current.prev[0].keras_operation is not None:
+                prev = current.prev[0]
+            elif len(current.prev) >= 2 and all(not op.keras_operation is None for op in current.prev):
+                try:
+                    prev = keras.layers.concatenate([op.keras_tensor for op in current.prev])
+                except Exception as e:
+                    print(e)
+            else:  # Previous does not exist or is not ready. Add back in queue...
+                queue.append(current); continue
 
-        output = keras.layers.Dense(units=classes, activation="softmax")(last_op.keras_operation)
-        return keras.models.Model(inputs=[input], outputs=[output])
+            # Connecting node to previous layer:
+            current = _connect(current, prev)
+
+            if current.next: queue += [n for n in current.next]
+            else: ends += [current]
+
+        # Handling multiple ends for the network:
+        if len(set(ends)) > 1: end = keras.layers.concatenate([op.keras_tensor for op in set(ends)])
+        else: end = ends[0].keras_tensor
+
+
+        out =  keras.layers.Dense(units=classes, activation="softmax")(end) if is_root else end
+        self.keras_operation = keras.models.Model(inputs=[input],outputs=[out])
+        self.keras_tensor = self.keras_operation.layers[-1].output
+        return self.keras_operation
+
