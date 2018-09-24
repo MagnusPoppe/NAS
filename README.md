@@ -2,11 +2,15 @@
 Proof of concept for automatically assembling networks. Further work will include creating an evolutionary algorithm for finding neural network architectures.
 
 ### Progress: 
+**Representation:**
 - [x] Create representation for modelling neural networks.
-- [ ] Add 2D operations into representation
-- [x] Convert to keras model
-- [x] Test working on training set
-- [ ] Write EA for optimizing architecture
+- [ ] Add modules as possible operations to use (Functionality for hierarchies).
+- [ ] Add 2D operations into representation.
+- [x] Convert to keras model.
+- [x] Test working on training set.
+
+**Search Algorithm:**
+- [ ] Write EA for optimizing architecture.
 - [ ] Test on Cifar10 to compare with other papers.
 - [ ] Test idea about pre-trained models.
 
