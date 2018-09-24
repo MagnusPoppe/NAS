@@ -11,11 +11,10 @@ class Module(Base):
     Module is a collection of one or more modules and operations
     """
 
-    ID = ""  # Should be set random by the app.
-
-    def __init__(self):
+    def __init__(self, ID=""):
         super().__init__()
         self.children = []
+        self.ID = ID
         self.keras_operation = None
 
     def __iadd__(self, other):
@@ -100,7 +99,7 @@ class Module(Base):
     def to_keras(self):
         return self.compile(None)
 
-    def compile(self, input, is_root=False, classes=0):
+    def compile(self, input_shape, is_root=False, classes=0):
         """
         Converts the module's operations into actual keras operations
         in sequence.
@@ -108,25 +107,19 @@ class Module(Base):
         :return: tf.keras.model.Model
         """
 
-        def _connect(current, previous):
+        def _connect(current, previous_tensor):
             if isinstance(current, Module):
-                if isinstance(previous, keras.layers.Concatenate):
-                    input_tensor = previous
+                if "input" in previous_tensor.name:
+                    current.keras_operation = current.compile(previous_tensor, is_root=False)
                 else:
-                    input_tensor = previous.keras_tensor
-                current.keras_operation = current.compile(input=tuple(input_tensor.shape), is_root=False)
-                current.keras_tensor = current.keras_operation(input_tensor)
-
-            else: # must me of type: Operation
+                    current.keras_operation = current.compile(tuple(previous_tensor.shape), is_root=False)
+            else: # must be of type: Operation
                 current.keras_operation = current.to_keras()
-                if isinstance(previous, Operation) or isinstance(previous, Module):
-                    current.keras_tensor = current.keras_operation(previous.keras_tensor)
-                else:
-                    current.keras_tensor = current.keras_operation(previous)
+            current.keras_tensor = current.keras_operation(previous_tensor)
             return current
 
         queue = [self.find_first()]
-        input = keras.layers.Input(shape=input)
+        input = keras.layers.Input(shape=input_shape) if isinstance(input_shape, tuple) else input_shape
         queue[0].input = input
         ends = []
 
@@ -137,12 +130,9 @@ class Module(Base):
             if len(current.prev) == 0:
                 prev = input
             elif len(current.prev) == 1 and current.prev[0].keras_operation is not None:
-                prev = current.prev[0]
+                prev = current.prev[0].keras_tensor
             elif len(current.prev) >= 2 and all(not op.keras_operation is None for op in current.prev):
-                try:
-                    prev = keras.layers.concatenate([op.keras_tensor for op in current.prev])
-                except Exception as e:
-                    print(e)
+                prev = keras.layers.concatenate([op.keras_tensor for op in current.prev])
             else:  # Previous does not exist or is not ready. Add back in queue...
                 queue.append(current); continue
 

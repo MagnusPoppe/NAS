@@ -9,7 +9,7 @@ from modules.module import Module
 
 class TestModuleCompile(unittest.TestCase):
 
-    def test_module_compiles_sequential_model(self):
+    def test_A_module_compiles_sequential_model(self):
         root = Module()
         root.ID = "Root"
 
@@ -17,10 +17,10 @@ class TestModuleCompile(unittest.TestCase):
         root += random_sample(operators1D)()
         root += random_sample(operators1D)()
 
-        model = root.compile(input=(784,), is_root=True, classes=10)
+        model = root.compile(input_shape=(784,), is_root=True, classes=10)
         self.assertTrue(isinstance(model, keras.models.Model), "Does not compile sequential model.")
 
-    def test_module_compiles_with_branches(self):
+    def test_B_module_compiles_with_branches(self):
         root = Module()
         root.ID = "Root"
 
@@ -37,10 +37,52 @@ class TestModuleCompile(unittest.TestCase):
         root.insert(branch_start, branch_end, branch_op1)
         root.insert(branch_op1, branch_end, branch_op2)
 
-        model = root.compile(input=(784,), is_root=True, classes=10)
+        model = root.compile(input_shape=(784,), is_root=True, classes=10)
         self.assertTrue(isinstance(model, keras.models.Model), "Does not compile model with branches.")
 
-    def test_complex_module_works_with_keras(self):
+    def test_C_module_compiles_with_single_sub_module(self):
+        root = Module()
+        root.ID = "Root"
+
+        # Adding operations to graph:
+        root += random_sample(operators1D)()
+        root += random_sample(operators1D)()
+        root += Module(ID = "sub-module1").append(DenseS()) \
+            .append(random_sample(operators1D)()) \
+            .append(random_sample(operators1D)()) \
+            .append(random_sample(operators1D)())
+
+        branch_start = root.children[0]
+        branch_op1 = random_sample(operators1D)()
+        branch_op2 = random_sample(operators1D)()
+        branch_end = root.children[1] # This is a module.
+
+        root.insert(branch_start, branch_end, branch_op1)
+        root.insert(branch_op1, branch_end, branch_op2)
+
+        model = root.compile(input_shape=(784,), is_root=True, classes=10)
+        self.assertTrue(isinstance(model, keras.models.Model), "Does not compile model with branches.")
+
+    def test_D_module_compiles_with_only_sub_modules(self):
+
+        # Testing submodule operator
+        sub_module1 = Module().append(DenseS()) \
+            .append(random_sample(operators1D)()) \
+            .append(random_sample(operators1D)()) \
+            .append(random_sample(operators1D)())
+        sub_module1.ID = "sub-module1"
+
+        sub_module2 = Module().append(DenseS()) \
+            .append(random_sample(operators1D)()) \
+            .append(random_sample(operators1D)()) \
+            .append(random_sample(operators1D)())
+        sub_module2.ID = "sub-module2"
+
+        root = Module().append(sub_module1).append(sub_module2)
+        model = root.compile(input_shape=(784,), is_root=True, classes=10)
+        run_keras_model(model)
+
+    def test_E_complex_module_works_with_keras(self):
         root = Module()
         root.ID = "Root"
 
@@ -75,7 +117,7 @@ class TestModuleCompile(unittest.TestCase):
 
         root.insert(root.children[1], root.children[2], sub_module)
 
-        model = root.compile(input=(784,), is_root=True, classes=10)
+        model = root.compile(input_shape=(784,), is_root=True, classes=10)
         keras.utils.plot_model(model, to_file='tested_model.png')
 
         try:
