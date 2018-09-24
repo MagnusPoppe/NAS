@@ -4,7 +4,7 @@ Proof of concept for automatically assembling networks. Further work will includ
 ### Progress: 
 **Representation:**
 - [x] Create representation for modelling neural networks.
-- [ ] Add modules as possible operations to use (Functionality for hierarchies).
+- [x] Add modules as possible operations to use (Functionality for hierarchies).
 - [ ] Add 2D operations into representation.
 - [x] Convert to keras model.
 - [x] Test working on training set.
