@@ -28,6 +28,10 @@ class Module(Base):
     def append(self, op):
         if len(self.children) == 0:
             self.children += [op]
+        elif len(self.children) == 1:
+            self.children[0].next += [op]
+            op.prev += [self.children[0]]
+            self.children += [op]
         else:
             previous = self.children[-1]
             previous.next += [op]
@@ -96,8 +100,36 @@ class Module(Base):
             return operation
         return on(self.children[0])
 
+    def find_last(self):
+        def find_end(comp:Base, seen) -> list:
+            ends = []
+            if comp in seen: return ends
+            else:
+                seen += [comp]
+                if comp.next:
+                    for next_module in comp.next:
+                        ends += find_end(next_module, seen)
+                else:
+                    ends += [comp]
+                return ends
+
+        return find_end(self.children[0], [])
+
     def to_keras(self):
         return self.compile(None)
+
+    def decompile(self):
+        def remove_keras_ops(module):
+            module.keras_operation = None
+            module.keras_tensor = None
+            for child in module.children:
+                if isinstance(child, Operation):
+                    module.keras_operation = None
+                    module.keras_tensor = None
+                elif isinstance(child, Module):
+                    remove_keras_ops(child)
+        remove_keras_ops(self)
+
 
     def compile(self, input_shape, is_root=False, classes=0):
         """
@@ -122,33 +154,37 @@ class Module(Base):
         input = keras.layers.Input(shape=input_shape) if isinstance(input_shape, tuple) else input_shape
         queue[0].input = input
         ends = []
+        processed = []
 
         while len(queue) > 0:
             current = queue.pop(0)
-            if current.keras_operation != None: continue # Edge case. Nodes may be queued multiple times.
+            if current in processed: continue # Edge case. Nodes may be queued multiple times.
 
+            # Trying to find the previous output tensor:
             if len(current.prev) == 0:
+                # First node has previous tensor as input layer
                 prev = input
             elif len(current.prev) == 1 and current.prev[0].keras_operation is not None:
+                # Only one previous node:
                 prev = current.prev[0].keras_tensor
             elif len(current.prev) >= 2 and all(not op.keras_operation is None for op in current.prev):
+                # Multiple previous nodes. Needs Concatinate layer.
+                # NOTE: Requires all previous operations to be created.
                 prev = keras.layers.concatenate([op.keras_tensor for op in current.prev])
-            else:  # Previous does not exist or is not ready. Add back in queue...
+            else:
+                # Is not ready. Add back in queue...
                 queue.append(current); continue
+            processed += [current]
 
             # Connecting node to previous layer:
-            current = _connect(current, prev)
+            current = _connect(current, prev) # --> recursive call if current is type Module
 
             if current.next: queue += [n for n in current.next]
             else: ends += [current]
 
         # Handling multiple ends for the network:
-        try:
-            if len(set(ends)) > 1: end = keras.layers.concatenate([op.keras_tensor for op in set(ends)])
-            else: end = ends[0].keras_tensor
-        except IndexError as e:
-            self.keras_operation = None
-            return
+        if len(set(ends)) > 1: end = keras.layers.concatenate([op.keras_tensor for op in set(ends)])
+        else: end = ends[0].keras_tensor
 
         out =  keras.layers.Dense(units=classes, activation="softmax")(end) if is_root else end
         self.keras_operation = keras.models.Model(inputs=[input],outputs=[out], name=self.ID)

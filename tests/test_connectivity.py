@@ -44,25 +44,17 @@ class TestModuleConnectivity(unittest.TestCase):
 
 
     def test_mutation_operator(self):
-        def find_end(module: Module) -> list:
-            try:
-                if module.marked:
-                    return []
-            except AttributeError as e:
-                pass
-            module.marked = True
-            ends = []
-            for next_module in module.next:
-                ends += find_end(next_module)
 
-            return ends
-
-        individs = [Module() for _ in range(10)]
-
-        for individ in individs:
-            for _ in range(10):
-                individ = mutate(individ)
-            self.assertGreater(len(find_end(individ)), 0, msg="Cycles found in mutated Module...")
+        for mutations in [2, 3, 10, 50]:
+            individs = [Module() for _ in range(10)]
+            for individ in individs:
+                for _ in range(mutations):
+                    individ = mutate(individ)
+                self.assertGreater(
+                    a=len(individ.find_last()),
+                    b=0,
+                    msg="Cycles found after mutating Module {} times...".format(mutations)
+                )
 
 
 

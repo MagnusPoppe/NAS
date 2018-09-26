@@ -15,37 +15,41 @@ def random_sample(collection):
     # Selecting a random operation and creating an instance of it.
     return collection[random.randint(0, len(collection) - 1)]
 
-def init_population(individs=10):
+def init_population(individs=10, compile_args=((784,), True, 10)):
     population = []
     for i in range(individs):
         root = Module()
         for _ in range(random.randint(1, 10)):
-            root = mutate(root)
+            root = mutate(root, compilation=False)
         population += [root]
+        root.compile(*compile_args)
     return population
 
-def mutate(module:Module) -> Module:
+def mutate(module:Module, compilation=True, compile_parameters =((784,), True, 10)) -> Module:
     op = random_sample(operators1D)()
     selected = random.uniform(0,1)
     if selected < 0.5 or len(module.children) <= 3:
-        return module.append(op)
+        mutated = module.append(op)
     else:
-        children = list(range(len(module.children))) # uten tilbakelegging
-        return module.insert(
-            second_node=module.children[children.pop(random.randint(1, len(children)-2))],
-            first_node=module.children[children.pop(random.randint(1, len(children)-2))],
+        children = list(range(0, len(module.children))) # uten tilbakelegging
+        mutated = module.insert(
+            first_node=module.children[children.pop(random.randint(0, len(children)-1))],
+            second_node=module.children[children.pop(random.randint(0, len(children)-1))],
             operation=op
         )
+    if compilation:
+        mutated.decompile()
+        mutated.compile(*compile_parameters)
+    return mutated
 
 def tournament(population, size):
-    selected = []
     individs = np.array(range(len(population)))
     np.random.shuffle(individs)
     individs = individs[:size]
     for i, j in zip(individs[:int(len(individs) / 2)], individs[int(len(individs) / 2):]):
         yield population[i] if (population[i].fitness > population[j].fitness) else population[j]
 
-def mnist_configure(compile_parameters =((784,), True, 10)):
+def mnist_configure(): # -> (function, function):
     def fix(data):
         return np.reshape(data, (len(data), 784))
 
@@ -72,18 +76,11 @@ def mnist_configure(compile_parameters =((784,), True, 10)):
     sgd = keras.optimizers.Adam(lr=0.01)
     loss = keras.losses.categorical_crossentropy
 
-    def train(population, epochs=5):
-        print("Running training for {} epochs on {} individs".format(epochs, len(population)))
+    def train(population: list, epochs=5):
+        print("Running training for {} epochs on {} models".format(epochs, len(population)))
         for individ in population:
-            model = individ.compile(*compile_parameters)
-
-            # TODO: FIX THIS...
-            if model is None:
-                individ.fitness = 0.0
-                continue
-
+            model = individ.keras_operation
             model.compile(loss=loss, optimizer=sgd, metrics=['accuracy'])
-
 
             # RUNNING TRAINING:
             metrics = model.fit(
@@ -96,19 +93,15 @@ def mnist_configure(compile_parameters =((784,), True, 10)):
                     x_val, keras.utils.to_categorical(y_val, num_classes=10)
                 )
             )
-            _, individ.fitness = metrics
+            individ.fitness =  metrics.history['acc'][-1]
 
-    def evaluate(population):
+    def evaluate(population: list):
+        print("Evaluating {} models".format(len(population)))
         for individ in population:
-            model = individ.compile(*compile_parameters)
-
-            if model is None:
-                individ.fitness = 0.0
-                continue
-
+            model = individ.keras_operation
             model.compile(loss=loss, optimizer=sgd, metrics=['accuracy'])
             metrics = model.evaluate(x_test, keras.utils.to_categorical(y_test, num_classes=10), verbose=0)
-            _, individ.fitness = metrics
+            individ.fitness = metrics[1]  # Accuracy
 
     return train, evaluate
 
@@ -127,7 +120,7 @@ def evolve_architecture(generations, individs, train, fitness, selection):
         children = []
         for selected in selection(population, size=int(individs/2)):
 
-            selected = mutate(selected)  # TODO: Module.copy?
+            selected = mutate(selected)  # TODO: Module.copy before mutation?
                                          # TODO: crossover
             fitness([selected])          # TODO: Make parallel...
             children += [selected]
