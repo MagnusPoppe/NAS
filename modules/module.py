@@ -26,7 +26,7 @@ class Module(Base):
         return "Module [{}]".format(", ".join([str(c) for c in self.children]))
 
     def append(self, op):
-        if len(self.children) < 1:
+        if len(self.children) == 0:
             self.children += [op]
         else:
             previous = self.children[-1]
@@ -143,9 +143,12 @@ class Module(Base):
             else: ends += [current]
 
         # Handling multiple ends for the network:
-        if len(set(ends)) > 1: end = keras.layers.concatenate([op.keras_tensor for op in set(ends)])
-        else: end = ends[0].keras_tensor
-
+        try:
+            if len(set(ends)) > 1: end = keras.layers.concatenate([op.keras_tensor for op in set(ends)])
+            else: end = ends[0].keras_tensor
+        except IndexError as e:
+            self.keras_operation = None
+            return
 
         out =  keras.layers.Dense(units=classes, activation="softmax")(end) if is_root else end
         self.keras_operation = keras.models.Model(inputs=[input],outputs=[out], name=self.ID)
