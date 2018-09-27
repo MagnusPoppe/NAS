@@ -20,6 +20,10 @@ class TestModuleCompile(unittest.TestCase):
 
         cp = copy(original)
 
+        for i, child in enumerate(cp.children):
+            self.assertTrue(child.ID == original.children[i].ID)
+
+
         original.compile((784,), 10)
         cp.compile((784,), 10)
 
@@ -27,4 +31,17 @@ class TestModuleCompile(unittest.TestCase):
 
         keras.utils.plot_model(original.keras_operation, to_file=original.ID+".png")
         keras.utils.plot_model(cp.keras_operation, to_file=cp.ID+".png")
+
+    def test_module_decode(self):
+        original = Module(ID="Original") \
+            .append(operators1D[0]()) \
+            .append(operators1D[0]()) \
+            .append(operators1D[0]()) \
+            .append(operators1D[0]())
+
+        original.insert(original.children[1], original.children[2], operators1D[1]())
+        original.insert(original.children[3], original.children[2], operators1D[1]())
+        original.insert(original.children[4], original.children[2], operators1D[1]())
+
+        original.decode()
 

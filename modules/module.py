@@ -28,30 +28,33 @@ class Module(Base):
         return "Module [{}]".format(", ".join([str(c) for c in self.children]))
 
     def __copy__(self):
-        new_mod = Module()
-        new_mod.ID = self.ID + "_copy"
+        """ Does not retain connectivity on module level. """
+        new_mod = Module(self.ID + "_copy")
         new_mod.nodeID = self.nodeID
-        for child in self.children:
-            new_mod.children += [copy(child)]
+        new_mod.children += [copy(child) for child in self.children]
+
+        # Copying connectivity for all children:
         for i, child in enumerate(self.children):
             nexts = [self.children.index(cn) for cn in child.next]
             prevs = [self.children.index(cp) for cp in child.prev]
-            new_mod.children[i].next += [new_mod.children[n] for n in nexts]
-            new_mod.children[i].prev += [new_mod.children[p] for p in prevs]
+            try: new_mod.children[i].next += [new_mod.children[n] for n in nexts]
+            except ValueError as e:
+                raise (e)
+            try: new_mod.children[i].prev += [new_mod.children[p] for p in prevs]
+            except ValueError as e:
+                raise (e)
         return new_mod
 
     def append(self, op):
-        if len(self.children) == 0:
-            self.children += [op]
-        elif len(self.children) == 1:
+        if len(self.children) == 1:
             self.children[0].next += [op]
             op.prev += [self.children[0]]
-            self.children += [op]
-        else:
+        elif len(self.children) > 1:
             previous = self.children[-1]
             previous.next += [op]
             op.prev += [previous]
-            self.children += [op]
+
+        self.children += [op]
         return self
 
     def insert(self, first_node, second_node, operation):
@@ -216,6 +219,38 @@ class Module(Base):
             raise e
         self.keras_tensor = self.keras_operation.layers[-1].output
         return self.keras_operation
+
+    def decode(self):
+        # 1. Create all keras operations and initialize rankings to negative number:
+        for node in self.children:
+            node.keras_operation = node.to_keras()  # --> Recursive if node is Module
+            node.rank = -1
+
+        # 2. Rank all operations using breadth-first:
+        queue = [self.find_first()]
+        rank = 0
+        while queue:
+            node = queue.pop(0)
+
+            # Should wait to queue next nodes if one or more previous nodes are "unprocessed"
+            if (not node.prev) or all(_prev.rank >= 0 for _prev in node.prev):
+                queue += [_next for _next in node.next]
+                node.rank = rank
+                rank +=1
+
+        # 3. Connect operations together:
+        from operator import attrgetter
+        for node in sorted(self.children, key=attrgetter('number')):
+            if len(node.prev) == 0:
+                # TODO: Input layer
+                pass
+            elif len(node.prev) == 1:
+                # TODO: Regular input
+                pass
+            elif len(node.prev) >= 2:
+                # TODO: Concatenation of all inputs
+                pass
+
 
     def remove(self, child: Base):
         # Removing from list:

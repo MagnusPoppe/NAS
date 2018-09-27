@@ -1,4 +1,4 @@
-import copy
+from copy import copy
 import random
 from operator import attrgetter
 
@@ -21,7 +21,7 @@ def init_population(individs=10, compile_args=((784,), 10)):
     for i in range(individs):
         root = Module()
         for _ in range(random.randint(1, 10)):
-            root = mutate(root, compilation=False)
+            root = mutate(root, compilation=False, training=False)
         root.compile(*compile_args)
         population += [root]
     return population
@@ -38,19 +38,19 @@ def mutate(module:Module, compilation=True, compile_parameters =((784,), 10), tr
     # Selecting where to place operator:
     selected = random.uniform(0,1)
     if selected < 0.3 or len(module.children) <= 3:
-        mutated = module.append(op)
+        mutated = copy(module).append(op)
     elif selected < 0.6:
         children = list(range(0, len(module.children))) # uten tilbakelegging
-        mutated = module.insert(
+        mutated = copy(module).insert(
             first_node=module.children[children.pop(random.randint(0, len(children)-1))],
             second_node=module.children[children.pop(random.randint(0, len(children)-1))],
             operation=op
         )
     elif selected < 0.8:
-        mutated = module # TODO: Copy...
+        mutated = copy(module)
         mutated.remove(random_sample(module.children))
     else:
-        mutated = module # TODO: Copy...
+        mutated = copy(module)
         mutated.compile(*compile_parameters)
         if training:
             module.fitness = train([module])
