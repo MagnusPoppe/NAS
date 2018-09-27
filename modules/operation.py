@@ -19,6 +19,9 @@ class Operation(Base):
     def __str__(self):
         return self.ID
 
+    def __copy__(self):
+        raise NotImplementedError("Copy function not yet implemented...")
+
     def to_keras(self):
         """
         Converts the operation into a keras operation compatible with
