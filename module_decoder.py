@@ -4,10 +4,9 @@ from tensorflow import keras
 
 from modules.base import Base
 from modules.module import Module
-from modules.operation import Operation
 
 
-def decode(module:Module, in_shape:tuple=(784,), classes:int=10, is_root:bool=True):
+def assemble(module:Module, in_shape:tuple=(784,), classes:int=10, is_root:bool=True):
 
     # 1. Rank and sort all child operations using breadth-first:
     rank_children(module)
@@ -44,7 +43,7 @@ def connect_operation_to_previous(node: Base, previous: list, input_layer: keras
         previous_output = keras.layers.concatenate([_prev.keras_tensor for _prev in previous])
 
     if isinstance(node, Module):
-        return decode(node, in_shape=previous_output.shape, is_root=False)(previous_output)
+        return assemble(node, in_shape=previous_output.shape, is_root=False)(previous_output)
 
     # else: Operation
     return node.to_keras()(previous_output)

@@ -6,7 +6,7 @@ from operator import attrgetter
 from tensorflow import keras
 
 from main import random_sample, operators1D, mutate
-from module_decoder import decode, rank_children
+from module_decoder import assemble, rank_children
 from modules.module import Module
 
 
@@ -50,7 +50,7 @@ class TestModuleCompile(unittest.TestCase):
             .append(operators1D[0]())
 
         module_1.insert(module_1.children[1], module_1.children[2], operators1D[1]())
-        module_1.keras_tensor = decode(module_1, in_shape=(784,), classes=10)
+        module_1.keras_tensor = assemble(module_1, in_shape=(784,), classes=10)
 
         keras.utils.plot_model(module_1.keras_operation, "decode.png")
 
@@ -65,14 +65,14 @@ class TestModuleCompile(unittest.TestCase):
             .append(operators1D[0]()) \
             .append(operators1D[0]())
         module_2.insert(module_2.children[0], module_2.children[2], operators1D[1]())
-        module_2.keras_tensor = decode(module_2, in_shape=(784,), classes=10)
+        module_2.keras_tensor = assemble(module_2, in_shape=(784,), classes=10)
 
         keras.utils.plot_model(module_2.keras_operation, "decode.png")
 
         for _ in range(3):
             mutated = mutate(module_2, compilation=False, training=False)
 
-        mutated.keras_tensor = decode(mutated, in_shape=(784,), classes=10)
+        mutated.keras_tensor = assemble(mutated, in_shape=(784,), classes=10)
 
         keras.utils.plot_model(mutated.keras_operation, "mutated_decode.png")
 

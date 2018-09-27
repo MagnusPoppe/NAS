@@ -3,7 +3,7 @@ from copy import copy, deepcopy
 import random
 from operator import attrgetter
 
-from module_decoder import decode
+from module_decoder import assemble
 from modules.convolution import Conv5x5, Conv3x3
 from modules.dense import DenseS, DenseM, DenseL, Dropout
 from modules.module import Module
@@ -24,7 +24,7 @@ def init_population(individs=10, compile_args=((784,), 10)):
         root = Module()
         for _ in range(random.randint(1, 5)):
             root = mutate(root, compilation=False, training=False, make_copy=False)
-        root.keras_tensor = decode(root, *compile_args)
+        root.keras_tensor = assemble(root, *compile_args)
         population += [root]
     return population
 
@@ -59,12 +59,12 @@ def mutate(module:Module, compilation=True, compile_parameters =((784,), 10), tr
 
     else:
         if training:
-            mutated.keras_tensor = decode(mutated, *compile_parameters)
+            mutated.keras_tensor = assemble(mutated, *compile_parameters)
             mutated.fitness = train([mutated])
 
     # Compiles keras model from module:
     if compilation:
-        mutated.keras_tensor = decode(mutated, *compile_parameters)
+        mutated.keras_tensor = assemble(mutated, *compile_parameters)
     return mutated
 
 def tournament(population, size):
@@ -175,7 +175,7 @@ if __name__ == '__main__':
         selection=tournament
     )
 
-    best.keras_tensor = decode(best, *compile_args)
+    best.keras_tensor = assemble(best, *compile_args)
     keras.utils.plot_model(best.keras_operation, to_file='best_model.png')
     print("Training complete. ",
           "--> Accuracy of the best architecture was {} %".format(best.fitness),
