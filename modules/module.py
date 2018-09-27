@@ -139,20 +139,3 @@ class Module(Base):
                 return ends
 
         return find_end(self.children[0], [])
-
-    def remove_encoding(self):
-        def remove_keras_ops(module):
-            module.keras_operation = None
-            module.keras_tensor = None
-            try: module.input = None
-            except AttributeError: pass
-
-            for child in module.children:
-                if isinstance(child, Operation):
-                    try: module.input = None
-                    except AttributeError: pass
-                    module.keras_operation = None
-                    module.keras_tensor = None
-                elif isinstance(child, Module):
-                    remove_keras_ops(child)
-        remove_keras_ops(self)
