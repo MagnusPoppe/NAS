@@ -1,4 +1,5 @@
-from copy import copy
+from copy import deepcopy
+from operator import attrgetter
 
 from tensorflow import keras
 from modules.base import Base
@@ -27,22 +28,18 @@ class Module(Base):
     def __str__(self):
         return "Module [{}]".format(", ".join([str(c) for c in self.children]))
 
-    def __copy__(self):
+    def __deepcopy__(self, memodict={}):
         """ Does not retain connectivity on module level. """
         new_mod = Module(self.ID + "_copy")
         new_mod.nodeID = self.nodeID
-        new_mod.children += [copy(child) for child in self.children]
+        new_mod.children += [deepcopy(child) for child in self.children]
 
         # Copying connectivity for all children:
         for i, child in enumerate(self.children):
-            nexts = [self.children.index(cn) for cn in child.next]
-            prevs = [self.children.index(cp) for cp in child.prev]
-            try: new_mod.children[i].next += [new_mod.children[n] for n in nexts]
-            except ValueError as e:
-                raise (e)
-            try: new_mod.children[i].prev += [new_mod.children[p] for p in prevs]
-            except ValueError as e:
-                raise (e)
+            for cn in child.next:
+                new_mod.children[i].next += [new_mod.children[self.children.index(cn)]]
+            for cp in child.prev:
+                new_mod.children[i].prev += [new_mod.children[self.children.index(cp)]]
         return new_mod
 
     def append(self, op):
@@ -83,6 +80,15 @@ class Module(Base):
         second_node.prev += [operation]
         self.children += [operation]
         return self
+
+    def remove(self, child: Base):
+        # Removing from list:
+        index = self.children.index(child)
+        self.children.pop(index)
+
+        # Cutting ties:
+        for p in child.next: p.prev.remove(child)
+        for p in child.prev: p.next.remove(child)
 
     def visualize(self):
         # Local imports. Server does not have TKinter and will crash on load.
@@ -134,10 +140,7 @@ class Module(Base):
 
         return find_end(self.children[0], [])
 
-    def to_keras(self):
-        return self.compile(None)
-
-    def decompile(self):
+    def remove_encoding(self):
         def remove_keras_ops(module):
             module.keras_operation = None
             module.keras_tensor = None
@@ -153,113 +156,3 @@ class Module(Base):
                 elif isinstance(child, Module):
                     remove_keras_ops(child)
         remove_keras_ops(self)
-
-
-    def compile(self, input_shape, classes=0, is_root=False):
-        """
-        Converts the module's operations into actual keras operations
-        in sequence.
-        :param input: shape tuple
-        :return: tf.keras.model.Model
-        """
-
-        def _connect(current, previous_tensor):
-            if isinstance(current, Module):
-                if "input" in previous_tensor.name:
-                    current.keras_operation = current.compile(previous_tensor, is_root=True)
-                else:
-                    current.keras_operation = current.compile(tuple(previous_tensor.shape), is_root=True)
-            else: # must be of type: Operation
-                current.keras_operation = current.to_keras()
-            current.keras_tensor = current.keras_operation(previous_tensor)
-            return current
-
-        self.decompile()
-
-        queue = [self.find_first()]
-        input = keras.layers.Input(shape=input_shape) if isinstance(input_shape, tuple) else input_shape
-        queue[0].input = input
-        ends = []
-        processed = []
-
-        while len(queue) > 0:
-            current = queue.pop(0)
-            if current in processed: continue # Edge case. Nodes may be queued multiple times.
-
-            # Trying to find the previous output tensor:
-            if len(current.prev) == 0:
-                # First node has previous tensor as input layer
-                prev = input
-            elif len(current.prev) == 1 and current.prev[0].keras_operation is not None:
-                # Only one previous node:
-                prev = current.prev[0].keras_tensor
-            elif len(current.prev) >= 2 and all(not op.keras_operation is None for op in current.prev):
-                # Multiple previous nodes. Needs Concatinate layer.
-                # NOTE: Requires all previous operations to be created.
-                prev = keras.layers.concatenate([op.keras_tensor for op in current.prev])
-            else:
-                # Is not ready. Add back in queue...
-                queue.append(current); continue
-            processed += [current]
-
-            # Connecting node to previous layer:
-            current = _connect(current, prev) # --> recursive call if current is type Module
-
-            if current.next: queue += [n for n in current.next]
-            else: ends += [current]
-
-        # Handling multiple ends for the network:
-        if len(set(ends)) > 1: end = keras.layers.concatenate([op.keras_tensor for op in set(ends)])
-        else: end = ends[0].keras_tensor
-
-        out =  keras.layers.Dense(units=classes, activation="softmax")(end) if not is_root else end
-        try:
-            self.keras_operation = keras.models.Model(inputs=[input],outputs=[out])
-        except ValueError as e:
-            raise e
-        self.keras_tensor = self.keras_operation.layers[-1].output
-        return self.keras_operation
-
-    def decode(self):
-        # 1. Create all keras operations and initialize rankings to negative number:
-        for node in self.children:
-            node.keras_operation = node.to_keras()  # --> Recursive if node is Module
-            node.rank = -1
-
-        # 2. Rank all operations using breadth-first:
-        queue = [self.find_first()]
-        rank = 0
-        while queue:
-            node = queue.pop(0)
-
-            # Should wait to queue next nodes if one or more previous nodes are "unprocessed"
-            if (not node.prev) or all(_prev.rank >= 0 for _prev in node.prev):
-                queue += [_next for _next in node.next]
-                node.rank = rank
-                rank +=1
-
-        # 3. Connect operations together:
-        from operator import attrgetter
-        for node in sorted(self.children, key=attrgetter('number')):
-            if len(node.prev) == 0:
-                # TODO: Input layer
-                pass
-            elif len(node.prev) == 1:
-                # TODO: Regular input
-                pass
-            elif len(node.prev) >= 2:
-                # TODO: Concatenation of all inputs
-                pass
-
-
-    def remove(self, child: Base):
-        # Removing from list:
-        index = self.children.index(child)
-        self.children.pop(index)
-
-        # Cutting ties:
-        for p in child.next: p.prev.remove(child)
-        for p in child.prev: p.next.remove(child)
-
-
-

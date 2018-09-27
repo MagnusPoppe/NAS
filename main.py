@@ -1,7 +1,9 @@
-from copy import copy
+import time
+from copy import copy, deepcopy
 import random
 from operator import attrgetter
 
+from module_decoder import decode
 from modules.convolution import Conv5x5, Conv3x3
 from modules.dense import DenseS, DenseM, DenseL, Dropout
 from modules.module import Module
@@ -20,14 +22,17 @@ def init_population(individs=10, compile_args=((784,), 10)):
     population = []
     for i in range(individs):
         root = Module()
-        for _ in range(random.randint(1, 10)):
-            root = mutate(root, compilation=False, training=False)
-        root.compile(*compile_args)
+        for _ in range(random.randint(1, 5)):
+            root = mutate(root, compilation=False, training=False, make_copy=False)
+        root.keras_tensor = decode(root, *compile_args)
         population += [root]
     return population
 
-def mutate(module:Module, compilation=True, compile_parameters =((784,), 10), training=True) -> Module:
+def mutate(module:Module, compilation=True, compile_parameters =((784,), 10), training=True, make_copy=True) -> Module:
     global registered_modules
+
+
+    mutated = deepcopy(module) if make_copy else module
 
     # Selecting what module to mutate in:
     if random.uniform(0,1) < 0.9 or not registered_modules:
@@ -37,27 +42,29 @@ def mutate(module:Module, compilation=True, compile_parameters =((784,), 10), tr
 
     # Selecting where to place operator:
     selected = random.uniform(0,1)
+
     if selected < 0.3 or len(module.children) <= 3:
-        mutated = copy(module).append(op)
+        mutated.append(op)
+
     elif selected < 0.6:
-        children = list(range(0, len(module.children))) # uten tilbakelegging
-        mutated = copy(module).insert(
-            first_node=module.children[children.pop(random.randint(0, len(children)-1))],
-            second_node=module.children[children.pop(random.randint(0, len(children)-1))],
+        children = list(range(0, len(mutated.children))) # uten tilbakelegging
+        mutated.insert(
+            first_node=mutated.children[children.pop(random.randint(0, len(children)-1))],
+            second_node=mutated.children[children.pop(random.randint(0, len(children)-1))],
             operation=op
         )
+
     elif selected < 0.8:
-        mutated = copy(module)
-        mutated.remove(random_sample(module.children))
+        mutated.remove(random_sample(mutated.children))
+
     else:
-        mutated = copy(module)
-        mutated.compile(*compile_parameters)
         if training:
-            module.fitness = train([module])
+            mutated.keras_tensor = decode(mutated, *compile_parameters)
+            mutated.fitness = train([mutated])
 
     # Compiles keras model from module:
     if compilation:
-        mutated.compile(*compile_parameters)
+        mutated.keras_tensor = decode(mutated, *compile_parameters)
     return mutated
 
 def tournament(population, size):
@@ -67,7 +74,7 @@ def tournament(population, size):
     for i, j in zip(individs[:int(len(individs) / 2)], individs[int(len(individs) / 2):]):
         yield population[i] if (population[i].fitness > population[j].fitness) else population[j]
 
-def mnist_configure(): # -> (function, function):
+def mnist_configure(classes): # -> (function, function):
     def fix(data):
         return np.reshape(data, (len(data), 784))
 
@@ -95,7 +102,8 @@ def mnist_configure(): # -> (function, function):
     loss = keras.losses.categorical_crossentropy
 
     def train(population: list, epochs=5):
-        print("Running training for {} epochs on {} models".format(epochs, len(population)))
+        print("--> Running training for {} epochs on {} models ".format(epochs, len(population)), end="")
+        started = time.time()
         for individ in population:
             model = individ.keras_operation
             model.compile(loss=loss, optimizer=sgd, metrics=['accuracy'])
@@ -103,22 +111,23 @@ def mnist_configure(): # -> (function, function):
             # RUNNING TRAINING:
             metrics = model.fit(
                 x_train,
-                keras.utils.to_categorical(y_train, num_classes=10),
+                keras.utils.to_categorical(y_train, num_classes=classes),
                 epochs=epochs,
                 batch_size=64,
                 verbose=0,
                 validation_data=(
-                    x_val, keras.utils.to_categorical(y_val, num_classes=10)
+                    x_val, keras.utils.to_categorical(y_val, num_classes=classes)
                 )
             )
             individ.fitness = metrics.history['acc'][-1]
+        print("(elapsed time: {})".format(time.time()-started))
 
     def evaluate(population: list):
-        print("Evaluating {} models".format(len(population)))
+        print("--> Evaluating {} models".format(len(population)))
         for individ in population:
             model = individ.keras_operation
             model.compile(loss=loss, optimizer=sgd, metrics=['accuracy'])
-            metrics = model.evaluate(x_test, keras.utils.to_categorical(y_test, num_classes=10), verbose=0)
+            metrics = model.evaluate(x_test, keras.utils.to_categorical(y_test, num_classes=classes), verbose=0)
             individ.fitness = metrics[1]  # Accuracy
 
     return train, evaluate
@@ -134,25 +143,29 @@ def evolve_architecture(generations, individs, train, fitness, selection):
     population.sort(key=attrgetter('fitness'))
 
     for generation in range(generations):
-        print("Population best at {} generation: {}".format(generation, population[0].fitness))
-        train(population, epochs=3)
+        print("\nGeneration {}".format(generation))
+        train(population, epochs=10)
         registered_modules += [individ for individ in population if individ not in registered_modules]
         children = []
+
         for selected in selection(population, size=int(individs/2)):
-            selected = mutate(selected)  # TODO: Module.copy before mutation?
-                                         # TODO: crossover
-            fitness([selected])          # TODO: Make parallel...
+            selected = mutate(selected)
+            # TODO: crossover
+            fitness([selected])
             children += [selected]
 
         # kill bad children
         population += children
         population.sort(key=attrgetter('fitness'))
         population = population[len(population)-individs:]
+        print("--> Population best at {} generation: {}".format(generation, population[0].fitness))
     return population[0]
 
 if __name__ == '__main__':
     print("Evolving architecture")
-    train, evaluate = mnist_configure()
+    start_time = time.time()
+    train, evaluate = mnist_configure(classes=10)
+    compile_args = ((784,), 10)
 
     best = evolve_architecture(
         generations=100,
@@ -161,4 +174,11 @@ if __name__ == '__main__':
         train=train,
         selection=tournament
     )
-    keras.utils.plot_model(best.compile((784,), classes=10), to_file='best_model.png')
+
+    best.keras_tensor = decode(best, *compile_args)
+    keras.utils.plot_model(best.keras_operation, to_file='best_model.png')
+    print("Training complete. ",
+          "--> Accuracy of the best architecture was {} %".format(best.fitness),
+          "--> Image of best architecture can be found at ./best_model.png",
+          "--> Total elapsed time: {}".format(time.time()-start_time)
+    )

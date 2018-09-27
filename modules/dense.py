@@ -11,12 +11,19 @@ class Dense(Operation):
         self.activation = activation
         self.bias = bias
 
-    def __copy__(self):
+    def __deepcopy__(self, memodict={}):
         """ Does not retain connectivity """
         new_dense = Dense(self.ID, self.units, self.activation, self.bias)
-        new_dense.nodeID = self.nodeID
-        new_dense.compatible = self.compatible
-        return new_dense
+        return self.transfer_values(new_dense)
+
+    def transfer_values(self, other):
+        other.nodeID = self.nodeID
+        other.compatible = self.compatible
+        other.ID = self.ID
+        other.units = self.units
+        other.activation = self.activation
+        other.bias = self.bias
+        return other
 
     def to_keras(self):
         return keras.layers.Dense(
@@ -39,6 +46,8 @@ class DenseS(Dense):
             units=random.randint(self._min_units, self._max_units)
         )
 
+    def __copy__(self):
+        return self.transfer_values(DenseS())
 
 class DenseM(Dense):
     _min_units = 30
@@ -50,6 +59,8 @@ class DenseM(Dense):
             units=random.randint(self._min_units, self._max_units)
         )
 
+    def __deepcopy__(self, memodict={}):
+        return self.transfer_values(DenseM())
 
 class DenseL(Dense):
     _min_units = 100
@@ -61,6 +72,8 @@ class DenseL(Dense):
             units=random.randint(self._min_units, self._max_units)
         )
 
+    def __deepcopy__(self, memodict={}):
+        return self.transfer_values(DenseL())
 
 class Dropout(Operation):
 
@@ -68,7 +81,7 @@ class Dropout(Operation):
         super().__init__("Dropout", [Dense])
         self.rate = 0.5
 
-    def __copy__(self):
+    def __deepcopy__(self, memodict={}):
         """ Does not retain connectivity """
         new_dropout = Dropout()
         new_dropout.ID = self.ID
