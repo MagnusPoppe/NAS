@@ -1,3 +1,5 @@
+from copy import copy
+
 from tensorflow import keras
 from modules.base import Base
 from modules.dense import Dropout
@@ -24,6 +26,19 @@ class Module(Base):
 
     def __str__(self):
         return "Module [{}]".format(", ".join([str(c) for c in self.children]))
+
+    def __copy__(self):
+        new_mod = Module()
+        new_mod.ID = self.ID + "_copy"
+        new_mod.nodeID = self.nodeID
+        for child in self.children:
+            new_mod.children += [copy(child)]
+        for i, child in enumerate(self.children):
+            nexts = [self.children.index(cn) for cn in child.next]
+            prevs = [self.children.index(cp) for cp in child.prev]
+            new_mod.children[i].next += [new_mod.children[n] for n in nexts]
+            new_mod.children[i].prev += [new_mod.children[p] for p in prevs]
+        return new_mod
 
     def append(self, op):
         if len(self.children) == 0:
@@ -63,6 +78,7 @@ class Module(Base):
         operation.prev += [first_node]
         operation.next += [second_node]
         second_node.prev += [operation]
+        self.children += [operation]
         return self
 
     def visualize(self):
@@ -122,8 +138,13 @@ class Module(Base):
         def remove_keras_ops(module):
             module.keras_operation = None
             module.keras_tensor = None
+            try: module.input = None
+            except AttributeError: pass
+
             for child in module.children:
                 if isinstance(child, Operation):
+                    try: module.input = None
+                    except AttributeError: pass
                     module.keras_operation = None
                     module.keras_tensor = None
                 elif isinstance(child, Module):
@@ -131,7 +152,7 @@ class Module(Base):
         remove_keras_ops(self)
 
 
-    def compile(self, input_shape, is_root=False, classes=0):
+    def compile(self, input_shape, classes=0, is_root=False):
         """
         Converts the module's operations into actual keras operations
         in sequence.
@@ -142,13 +163,15 @@ class Module(Base):
         def _connect(current, previous_tensor):
             if isinstance(current, Module):
                 if "input" in previous_tensor.name:
-                    current.keras_operation = current.compile(previous_tensor, is_root=False)
+                    current.keras_operation = current.compile(previous_tensor, is_root=True)
                 else:
-                    current.keras_operation = current.compile(tuple(previous_tensor.shape), is_root=False)
+                    current.keras_operation = current.compile(tuple(previous_tensor.shape), is_root=True)
             else: # must be of type: Operation
                 current.keras_operation = current.to_keras()
             current.keras_tensor = current.keras_operation(previous_tensor)
             return current
+
+        self.decompile()
 
         queue = [self.find_first()]
         input = keras.layers.Input(shape=input_shape) if isinstance(input_shape, tuple) else input_shape
@@ -186,8 +209,22 @@ class Module(Base):
         if len(set(ends)) > 1: end = keras.layers.concatenate([op.keras_tensor for op in set(ends)])
         else: end = ends[0].keras_tensor
 
-        out =  keras.layers.Dense(units=classes, activation="softmax")(end) if is_root else end
-        self.keras_operation = keras.models.Model(inputs=[input],outputs=[out], name=self.ID)
+        out =  keras.layers.Dense(units=classes, activation="softmax")(end) if not is_root else end
+        try:
+            self.keras_operation = keras.models.Model(inputs=[input],outputs=[out])
+        except ValueError as e:
+            raise e
         self.keras_tensor = self.keras_operation.layers[-1].output
         return self.keras_operation
+
+    def remove(self, child: Base):
+        # Removing from list:
+        index = self.children.index(child)
+        self.children.pop(index)
+
+        # Cutting ties:
+        for p in child.next: p.prev.remove(child)
+        for p in child.prev: p.next.remove(child)
+
+
 

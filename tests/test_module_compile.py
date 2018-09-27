@@ -17,7 +17,7 @@ class TestModuleCompile(unittest.TestCase):
         root += random_sample(operators1D)()
         root += random_sample(operators1D)()
 
-        model = root.compile(input_shape=(784,), is_root=True, classes=10)
+        model = root.compile(input_shape=(784,), classes=10)
         self.assertTrue(isinstance(model, keras.models.Model), "Does not compile sequential model.")
 
     def test_B_module_compiles_with_branches(self):
@@ -37,7 +37,7 @@ class TestModuleCompile(unittest.TestCase):
         root.insert(branch_start, branch_end, branch_op1)
         root.insert(branch_op1, branch_end, branch_op2)
 
-        model = root.compile(input_shape=(784,), is_root=True, classes=10)
+        model = root.compile(input_shape=(784,), classes=10)
         self.assertTrue(isinstance(model, keras.models.Model), "Does not compile model with branches.")
 
     def test_C_module_compiles_with_single_sub_module(self):
@@ -60,7 +60,7 @@ class TestModuleCompile(unittest.TestCase):
         root.insert(branch_start, branch_end, branch_op1)
         root.insert(branch_op1, branch_end, branch_op2)
 
-        model = root.compile(input_shape=(784,), is_root=True, classes=10)
+        model = root.compile(input_shape=(784,), classes=10)
         self.assertTrue(isinstance(model, keras.models.Model), "Does not compile model with branches.")
 
     def test_D_module_compiles_with_only_sub_modules(self):
@@ -79,7 +79,7 @@ class TestModuleCompile(unittest.TestCase):
         sub_module2.ID = "sub-module2"
 
         root = Module().append(sub_module1).append(sub_module2)
-        model = root.compile(input_shape=(784,), is_root=True, classes=10)
+        model = root.compile(input_shape=(784,), classes=10)
         run_keras_model(model)
 
     def test_E_complex_module_works_with_keras(self):
@@ -117,7 +117,7 @@ class TestModuleCompile(unittest.TestCase):
 
         root.insert(root.children[1], root.children[2], sub_module)
 
-        model = root.compile(input_shape=(784,), is_root=True, classes=10)
+        model = root.compile(input_shape=(784,), classes=10)
         keras.utils.plot_model(model, to_file='tested_model.png')
 
         try:

@@ -11,6 +11,13 @@ class Dense(Operation):
         self.activation = activation
         self.bias = bias
 
+    def __copy__(self):
+        """ Does not retain connectivity """
+        new_dense = Dense(self.ID, self.units, self.activation, self.bias)
+        new_dense.nodeID = self.nodeID
+        new_dense.compatible = self.compatible
+        return new_dense
+
     def to_keras(self):
         return keras.layers.Dense(
             units=self.units,
@@ -60,6 +67,14 @@ class Dropout(Operation):
     def __init__(self):
         super().__init__("Dropout", [Dense])
         self.rate = 0.5
+
+    def __copy__(self):
+        """ Does not retain connectivity """
+        new_dropout = Dropout()
+        new_dropout.ID = self.ID
+        new_dropout.compatible = self.compatible
+        new_dropout.rate = self.rate
+        return new_dropout
 
     def to_keras(self):
         return keras.layers.Dropout(rate=self.rate)

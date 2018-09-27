@@ -42,6 +42,24 @@ class TestModuleConnectivity(unittest.TestCase):
             self.assertTrue(op2 in op1.next and op2 in op3.prev, "Operation not placed between nodes")
             self.assertTrue(op1 in op3.prev and op3 in op1.next, "Previous structure broke after insert.")
 
+    def test_module_children_fully_connected(self):
+        def has_strays(comp, parent, seen):
+            if comp in seen:
+                return False
+            seen += [comp]
+
+            if comp not in parent.children:
+                return True
+            else:
+                return any([has_strays(n, parent, seen) for n in comp.next + comp.prev])
+
+
+        module = Module()
+        for _ in range(40):
+            module = mutate(module, training=False, compilation=False)
+        module.compile((784, ), 10)
+
+        self.assertFalse(has_strays(module.children[0], module, []), "Graph not fully connected...")
 
     def test_mutation_operator(self):
 
