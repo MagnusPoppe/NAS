@@ -62,13 +62,9 @@ class Module(Base):
         :param operation:
         :return:
         """
-        def is_before(node, target):
-            if node == target: return True
-            elif node.prev: return any([is_before(prev, target) for prev in node.prev])
-            else: return False
 
         # 1. Switch if first_node after second_node (no cycles).
-        if is_before(first_node, second_node):
+        if _is_before(first_node, second_node):
             temp = second_node
             second_node = first_node
             first_node = temp
@@ -80,6 +76,16 @@ class Module(Base):
         second_node.prev += [operation]
         self.children += [operation]
         return self
+
+    def connect(self, first_node, second_node):
+        if _is_before(first_node, second_node):
+            temp = second_node
+            second_node = first_node
+            first_node = temp
+
+        # 2. Connect fully.
+        first_node.next += [second_node]
+        second_node.prev += [first_node]
 
     def remove(self, child: Base):
         # 1. Removing from list:
@@ -139,3 +145,8 @@ class Module(Base):
                 return ends
 
         return find_end(self.children[0], [])
+
+def _is_before(node, target):
+    if node == target: return True
+    elif node.prev: return any([_is_before(prev, target) for prev in node.prev])
+    else: return False
