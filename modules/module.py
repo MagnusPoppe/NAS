@@ -82,11 +82,11 @@ class Module(Base):
         return self
 
     def remove(self, child: Base):
-        # Removing from list:
+        # 1. Removing from list:
         index = self.children.index(child)
         self.children.pop(index)
 
-        # Cutting ties:
+        # 2. Cut all ties:
         for p in child.next: p.prev.remove(child)
         for p in child.prev: p.next.remove(child)
 

@@ -35,10 +35,12 @@ def mutate(module:Module, compilation=True, compile_parameters =((784,), 10), tr
     mutated = deepcopy(module) if make_copy else module
 
     # Selecting what module to mutate in:
-    if random.uniform(0,1) < 0.9 or not registered_modules:
+    if random.uniform(0,1) < 0.5 or not registered_modules:
         op = random_sample(operators1D)()
+        print("--> Performing operation mutation")
     else:
-        op = random_sample(registered_modules)
+        print("--> Performing module mutation")
+        op = deepcopy(random_sample(registered_modules))
 
     # Selecting where to place operator:
     selected = random.uniform(0,1)
@@ -102,7 +104,7 @@ def mnist_configure(classes): # -> (function, function):
     loss = keras.losses.categorical_crossentropy
 
     def train(population: list, epochs=5):
-        print("--> Running training for {} epochs on {} models ".format(epochs, len(population)), end="")
+        print("--> Running training for {} epochs on {} models ".format(epochs, len(population)), end="", flush=True)
         started = time.time()
         for individ in population:
             model = individ.keras_operation
@@ -144,22 +146,24 @@ def evolve_architecture(generations, individs, train, fitness, selection):
 
     for generation in range(generations):
         print("\nGeneration {}".format(generation))
-        train(population, epochs=10)
+        train(population, epochs=2)
         registered_modules += [individ for individ in population if individ not in registered_modules]
+
         children = []
-
-        for selected in selection(population, size=int(individs/2)):
+        for selected in selection(population, size=individs):
             selected = mutate(selected)
-            # TODO: crossover
-            fitness([selected])
             children += [selected]
+            # TODO: crossover
 
-        # kill bad children
+        fitness(children)
+
+        # Elitism:
         population += children
         population.sort(key=attrgetter('fitness'))
         population = population[len(population)-individs:]
-        print("--> Population best at {} generation: {}".format(generation, population[0].fitness))
-    return population[0]
+
+        print("--> Population best at generation {}: {}".format(generation, population[-1].fitness))
+    return population[-2]
 
 if __name__ == '__main__':
     print("Evolving architecture")
@@ -168,7 +172,7 @@ if __name__ == '__main__':
     compile_args = ((784,), 10)
 
     best = evolve_architecture(
-        generations=100,
+        generations=10,
         individs=10,
         fitness=evaluate,
         train=train,

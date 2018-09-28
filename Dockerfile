@@ -11,4 +11,4 @@ WORKDIR /src
 
 # Ready to run: 
 # RUN python tests.py
-CMD python main.py
+CMD python -u main.py

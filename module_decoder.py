@@ -14,7 +14,8 @@ def assemble(module:Module, in_shape:tuple=(784,), classes:int=10, is_root:bool=
 
     # 2. Connect keras operations together:
     input = keras.layers.Input(shape=in_shape)
-    if len(in_shape) > 3: raise Exception("Too many dimensions in input...")
+    if len(in_shape) > 2:
+        print(Exception("Too many dimensions in input..."))
     for node in operations:
         node.keras_tensor = connect_operation_to_previous(node, node.prev, input)
 
