@@ -1,5 +1,9 @@
+# IDE:
 .idea/*
 .idea/misc.xml
 .idea/modules.xml
 .idea/workspace.xml
 .vscode/*
+
+# Project:
+results/

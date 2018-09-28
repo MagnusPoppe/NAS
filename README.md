@@ -1,4 +1,4 @@
-# EA-architecture-search
+-# EA-architecture-search
 Proof of concept for automatically assembling networks. Further work will include creating an evolutionary algorithm for finding neural network architectures.
 
 ### Progress: 
@@ -10,7 +10,7 @@ Proof of concept for automatically assembling networks. Further work will includ
 - [x] Test working on training set.
 
 **Search Algorithm:**
-- [ ] Write EA for optimizing architecture.
+- [x] Write EA for optimizing architecture.
 - [ ] Test on Cifar10 to compare with other papers.
 - [ ] Test idea about pre-trained models.
 
