@@ -139,18 +139,18 @@ def evolve_architecture(generations, individs, train, fitness, selection):
     # population fitness
     fitness(population)
     population.sort(key=attrgetter('fitness'))
+    registered_modules += population
 
     for generation in range(generations):
         print("\nGeneration {}".format(generation))
         train(population, epochs=2)
-        registered_modules += [individ for individ in population if individ not in registered_modules]
 
         children = []
         for selected in selection(population, size=individs):
             selected = mutate(selected)
             children += [selected]
             # TODO: crossover
-
+        registered_modules += children
         fitness(children)
 
         # Elitism:
@@ -159,7 +159,35 @@ def evolve_architecture(generations, individs, train, fitness, selection):
         population = population[len(population)-individs:]
 
         print("--> Population best at generation {}: {}".format(generation, population[-1].fitness))
-    return population[-2]
+    return population
+
+
+def output_stats(population, _time=None, plot_folder="./results"):
+
+    import os
+    os.makedirs(plot_folder, exist_ok=True)
+
+    print("--> Accuracy of the best architecture was {} %".format(population[-1].fitness))
+    print("--> Plots of different network architectures can be found under {}".format(plot_folder))
+    if time:
+        print("--> Total elapsed time: {}".format(time.time() - _time))
+
+    def plot_model(individ, img_name):
+        keras.utils.plot_model(individ.keras_operation, to_file='{}/{}.png'.format(plot_folder, img_name))
+
+    # Find biggest/smallest architecture:
+    biggest = None
+    smallest = None
+    for individ in population:
+        if not biggest or len(individ.children) > len(biggest.children):
+            biggest = individ
+        elif not smallest or len(individ.children) < len(biggest.children):
+            smallest = individ
+
+    plot_model(population[0], "lowest_accuracy")
+    plot_model(population[-1], "highest_accuracy")
+    if smallest: plot_model(smallest, "smallest_architecture")
+    if biggest:  plot_model(biggest,  "biggest_architecture")
 
 if __name__ == '__main__':
     print("Evolving architecture")
@@ -167,18 +195,13 @@ if __name__ == '__main__':
     train, evaluate = mnist_configure(classes=10)
     compile_args = ((784,), 10)
 
-    best = evolve_architecture(
-        generations=10,
+    popultation = evolve_architecture(
+        generations=1,
         individs=10,
         fitness=evaluate,
         train=train,
         selection=tournament
     )
+    print("\nTraining complete.")
+    output_stats(popultation, start_time)
 
-    best.keras_tensor = assemble(best, *compile_args)
-    keras.utils.plot_model(best.keras_operation, to_file='best_model.png')
-    print("Training complete. ",
-          "--> Accuracy of the best architecture was {} %".format(best.fitness),
-          "--> Image of best architecture can be found at ./best_model.png",
-          "--> Total elapsed time: {}".format(time.time()-start_time)
-    )
