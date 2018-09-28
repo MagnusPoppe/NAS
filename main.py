@@ -30,16 +30,12 @@ def init_population(individs=10, compile_args=((784,), 10)):
 
 def mutate(module:Module, compilation=True, compile_parameters =((784,), 10), training=True, make_copy=True) -> Module:
     global registered_modules
-
-
     mutated = deepcopy(module) if make_copy else module
 
     # Selecting what module to mutate in:
     if random.uniform(0,1) < 0.5 or not registered_modules:
         op = random_sample(operators1D)()
-        print("--> Performing operation mutation")
     else:
-        print("--> Performing module mutation")
         op = deepcopy(random_sample(registered_modules))
 
     # Selecting where to place operator:
