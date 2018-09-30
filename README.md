@@ -1,4 +1,4 @@
-# EA-architecture-search
+# Evolutionary algorithm Neural Architecture Search
 Proof of concept for automatically assembling networks. This application creates several neural network models and evolves them to find the optimal architecture for any given classification task. 
 
 ### Genotype: 
