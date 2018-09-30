@@ -1,5 +1,6 @@
 import time
 
+import tensorflow as tf
 from tensorflow import keras
 import numpy as np
 
@@ -36,14 +37,14 @@ def mnist_configure(classes): # -> (function, function):
         started = time.time()
         for individ in population:
             model = individ.keras_operation
-            model.compile(loss=loss, optimizer=sgd, metrics=['accuracy'])
 
             # RUNNING TRAINING:
+            model.compile(loss=loss, optimizer=sgd, metrics=['accuracy'])
             metrics = model.fit(
                 x_train,
                 keras.utils.to_categorical(y_train, num_classes=classes),
                 epochs=epochs,
-                batch_size=64,
+                batch_size=256,
                 verbose=0,
                 validation_data=(
                     x_val, keras.utils.to_categorical(y_val, num_classes=classes)

@@ -3,5 +3,5 @@
   <component name="JavaScriptSettings">
     <option name="languageLevel" value="ES6" />
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="Remote Python 3.5.2 Docker (tensorflow-test:latest)" project-jdk-type="Python SDK" />
+  <component name="ProjectRootManager" version="2" project-jdk-name="Remote Python 3.6.4 (sftp://magnus@192.168.1.2:22/anaconda3/bin/python)" project-jdk-type="Python SDK" />
 </project>

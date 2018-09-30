@@ -16,6 +16,7 @@ def evolve_architecture(generations, individs, train, fitness, selection):
 
     # initializing population
     population = init_population(individs)
+    train(population, epochs=30)
 
     # population fitness
     fitness(population)
@@ -26,15 +27,15 @@ def evolve_architecture(generations, individs, train, fitness, selection):
         print("\nGeneration {}".format(generation))
         children = []
         for selected in selection(population, size=individs):
-            selected = mutate(selected, modules = seen_modules)
+            selected = mutate(selected, modules=seen_modules)
             children += [selected]
             # TODO: crossover
 
             seen_modules += children
 
         # Elitism:
+        train(children, epochs=30)
         population += children
-        train(population, epochs=5)
         population.sort(key=attrgetter('fitness'))
         population = population[len(population)-individs:]
 
