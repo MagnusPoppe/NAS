@@ -11,12 +11,12 @@ def random_sample(collection):
     # Selecting a random operation and creating an instance of it.
     return collection[random.randint(0, len(collection) - 1)]
 
-def evolve_architecture(generations, individs, train, fitness, selection):
+def evolve_architecture(generations, individs, train, fitness, selection, epochs, batch_size):
     seen_modules = []
 
     # initializing population
     population = init_population(individs)
-    train(population, epochs=30)
+    train(population, epochs, batch_size)
 
     # population fitness
     fitness(population)
@@ -34,7 +34,7 @@ def evolve_architecture(generations, individs, train, fitness, selection):
             seen_modules += children
 
         # Elitism:
-        train(children, epochs=30)
+        train(children, epochs, batch_size)
         population += children
         population.sort(key=attrgetter('fitness'))
         population = population[len(population)-individs:]
@@ -53,7 +53,9 @@ if __name__ == '__main__':
         individs=10,
         fitness=evaluate,
         train=train,
-        selection=tournament
+        selection=tournament,
+        epochs=15,
+        batch_size=256
     )
     print("\nTraining complete.")
     output_stats(popultation, start_time)
