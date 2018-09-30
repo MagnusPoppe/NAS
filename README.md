@@ -1,20 +1,15 @@
--# EA-architecture-search
-Proof of concept for automatically assembling networks. Further work will include creating an evolutionary algorithm for finding neural network architectures.
+# EA-architecture-search
+Proof of concept for automatically assembling networks. This application creates several neural network models and evolves them to find the optimal architecture for any given classification task. 
 
-### Progress: 
-**Representation:**
-- [x] Create representation for modelling neural networks.
-- [x] Add modules as possible operations to use (Functionality for hierarchies).
-- [ ] Add 2D operations into representation.
-- [x] Convert to keras model.
-- [x] Test working on training set.
-
-**Search Algorithm:**
-- [x] Write EA for optimizing architecture.
-- [ ] Test on Cifar10 to compare with other papers.
-- [ ] Test idea about pre-trained models.
-
-The algorithm can now branch out and merge branches inside the network. This makes for some complex architectures.
+### Genotype: 
+The genotype selected for this project is an acyclic directed graph containing either layers/operations or other acyclic directed graphs of the same type. This is then a hierarchy of operations ordered by the graph. 
 
 
-![keras plot](https://github.com/MagnusPoppe/EA-architecture-search/blob/master/model_keras_graphviz.png?raw=true)
+![Genotype illustration](https://github.com/MagnusPoppe/EA-architecture-search/blob/master/model_images/genotype.png?raw=true)
+
+
+The Genotype is decoded into a phenotype (keras model) using a breadth first based algorithm. 
+
+**Work progress can be followed from the trello board:**
+
+https://trello.com/b/oQ66wUbx
