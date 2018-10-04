@@ -29,8 +29,8 @@ def training(func, population: list, epochs: int, batch_size: int, classes:int):
     for i, individ in enumerate(population):
         individ.save_model()
         parameters += [(individ.get_store(), epochs, batch_size, classes, devices[i])]
+        individ.fitness = func(parameters[i])
 
-    fitness = func(parameters[0])
     # pool = mp.Pool(processes=2)
     # result = pool.map(func, parameters)
     # pool.close()#

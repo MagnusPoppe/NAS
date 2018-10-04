@@ -1,6 +1,7 @@
 from copy import deepcopy
 from operator import attrgetter
 
+from mnist_dataset import load_session, save_session
 from modules.base import Base
 from modules.dense import Dropout
 from modules.operation import Operation
@@ -60,7 +61,12 @@ class Module(Base):
         return self.keras_operation
 
     def save_model(self):
-        self.keras_operation.save(self.get_store() + "model.h5")
+        import tensorflow as tf
+        from tensorflow import keras
+        with load_session(self.get_store() + "sessions") as sess:
+            self.keras_operation.save(self.get_store() + "model.h5")
+            save_session(self.get_store() + "sessions", sess)
+
 
     def append(self, op):
         if len(self.children) == 1:

@@ -54,7 +54,7 @@ if __name__ == '__main__':
         eval_func=evaluate,
         train_func=train,
         generations=10,
-        individs=2,
+        individs=1,
         selection=tournament,
         epochs=1,
         batch_size=256,
