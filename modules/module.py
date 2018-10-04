@@ -19,6 +19,7 @@ class Module(Base):
         self.children = []
         self.ID = ID
         self.keras_operation = None
+        self.sess = None
 
     def __iadd__(self, other):
         if isinstance(other, Operation) or isinstance(other, Module):
