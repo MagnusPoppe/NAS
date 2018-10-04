@@ -1,9 +1,4 @@
-from copy import deepcopy
-from operator import attrgetter
-
-from tensorflow import keras
 from modules.base import Base
-from modules.dense import Dropout
 from modules.operation import Operation
 
 global_id = 1
@@ -31,6 +26,8 @@ class Module(Base):
 
     def __deepcopy__(self, memodict={}):
         """ Does not retain connectivity on module level. """
+        from copy import deepcopy
+
         new_mod = Module(self.ID + "_copy")
         new_mod.nodeID = self.nodeID
         new_mod.children += [deepcopy(child) for child in self.children]
