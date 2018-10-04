@@ -67,6 +67,7 @@ def mnist_configure(classes): # -> (function, function):
         print("--> Evaluating {} models".format(len(population)))
         for individ in population:
             with individ.sess as sess:
+                keras.backend.set_session(sess)
                 sess.run(tf.global_variables_initializer())
                 model = individ.keras_operation
                 model.compile(loss=loss, optimizer=sgd, metrics=['accuracy'])

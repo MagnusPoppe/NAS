@@ -54,7 +54,7 @@ if __name__ == '__main__':
         fitness=evaluate,
         train=train,
         selection=tournament,
-        epochs=15,
+        epochs=1,
         batch_size=256
     )
     print("\nTraining complete.")
