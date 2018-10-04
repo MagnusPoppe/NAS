@@ -1,6 +1,36 @@
 import os
 import time
 
+def load_session(session_dir=None):
+    import tensorflow as tf
+    from tensorflow import keras
+    import os
+
+    if os.path.exists(session_dir):
+        sess = tf.Session()
+        saver = tf.train.import_meta_graph(os.path.join(session_dir, "checkpoint.ckpt.meta"))
+        saver.restore(
+            sess=sess,
+            save_path=os.path.join(session_dir, "checkpoint.ckpt")
+        )
+    else:
+        os.makedirs(session_dir, exist_ok=True)
+        sess = tf.Session(config=tf.ConfigProto(
+            gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.5, allow_growth=True),
+        ))
+
+    # graph = tf.Graph().as_default()
+    sess.run(tf.global_variables_initializer())
+    keras.backend.set_session(sess)
+    return sess
+
+
+def save_session(session_dir, session):
+    import tensorflow as tf
+    os.makedirs(session_dir, exist_ok=True)
+    saver = tf.train.Saver()
+    saver.save(session, os.path.join(session_dir, "checkpoint.ckpt"))
+
 
 def _fix(data):
     import numpy as np
@@ -60,37 +90,6 @@ def train(args) -> float:
         save_session(session_folder, sess)
         tf.keras.backend.clear_session()
     return metrics.history['val_acc'][-1]
-
-
-def load_session(session_dir=None):
-    import tensorflow as tf
-    from tensorflow import keras
-    import os
-
-    if os.path.exists(session_dir):
-        sess = tf.Session()
-        saver = tf.train.import_meta_graph(os.path.join(session_dir, "checkpoint.ckpt.meta"))
-        saver.restore(
-            sess=sess,
-            save_path=os.path.join(session_dir, "checkpoint.ckpt")
-        )
-    else:
-        os.makedirs(session_dir, exist_ok=True)
-        sess = tf.Session(config=tf.ConfigProto(
-            gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.5, allow_growth=True),
-        ))
-
-    # graph = tf.Graph().as_default()
-    sess.run(tf.global_variables_initializer())
-    keras.backend.set_session(sess)
-    return sess
-
-def save_session(session_dir, session):
-    import tensorflow as tf
-    os.makedirs(session_dir, exist_ok=True)
-    saver = tf.train.Saver()
-    saver.save(session, os.path.join(session_dir, "checkpoint.ckpt"))
-
 
 def evaluate(model, folder, classes=10) -> float:
     import tensorflow as tf
