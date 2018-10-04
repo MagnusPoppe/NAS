@@ -1,6 +1,6 @@
 import unittest
 
-from main import random_sample, operators1D, mutate
+from main import random_sample, operators1D, random_mutation
 from modules.module import Module
 
 
@@ -56,7 +56,7 @@ class TestModuleConnectivity(unittest.TestCase):
 
         module = Module()
         for _ in range(40):
-            module = mutate(module, training=False, compilation=False)
+            module = random_mutation(module, training=False, compilation=False)
         module.compile((784, ), 10)
 
         self.assertFalse(has_strays(module.children[0], module, []), "Graph not fully connected...")
@@ -67,7 +67,7 @@ class TestModuleConnectivity(unittest.TestCase):
             individs = [Module() for _ in range(10)]
             for individ in individs:
                 for _ in range(mutations):
-                    individ = mutate(individ)
+                    individ = random_mutation(individ)
                 self.assertGreater(
                     a=len(individ.find_last()),
                     b=0,

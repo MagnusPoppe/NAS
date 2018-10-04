@@ -9,7 +9,7 @@ from modules.module import Module
 # Vi vil at en node kan muteres til å bli koblet til en annen node uten
 # at det lages en ekstra node i mellom...
 
-def mutate(module:Module, compilation=True, compile_parameters =((784,), 10), make_copy=True, modules=None) -> Module:
+def random_mutation(module:Module, compilation=True, compile_parameters =((784,), 10), make_copy=True, modules=None) -> Module:
 
     mutated = deepcopy(module) if make_copy else module
 

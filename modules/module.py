@@ -1,11 +1,10 @@
 from copy import deepcopy
 from operator import attrgetter
 
-from tensorflow import keras
 from modules.base import Base
 from modules.dense import Dropout
 from modules.operation import Operation
-
+import time
 global_id = 1
 
 
@@ -17,8 +16,10 @@ class Module(Base):
     def __init__(self, ID=""):
         super().__init__()
         self.children = []
-        self.ID = ID
+        self.ID = "module_{}".format(time.time())
         self.keras_operation = None
+        self.saved_model = None
+        self.saved_weights = None
 
     def __iadd__(self, other):
         if isinstance(other, Operation) or isinstance(other, Module):
@@ -41,6 +42,25 @@ class Module(Base):
             for cp in child.prev:
                 new_mod.children[i].prev += [new_mod.children[self.children.index(cp)]]
         return new_mod
+
+    def get_store(self):
+        path = "./results/{}/".format(self.ID)
+        import os
+        if not os.path.exists(path):
+            os.makedirs(path, exist_ok=True)
+        return path
+
+
+    def get_model(self):
+        if not self.saved_model:
+            raise Exception("Trying to save non-decoded module")
+
+        from tensorflow import keras
+        self.keras_operation = keras.models.load_model(self.get_store()+ "model.h5")
+        return self.keras_operation
+
+    def save_model(self):
+        self.keras_operation.save(self.get_store() + "model.h5")
 
     def append(self, op):
         if len(self.children) == 1:

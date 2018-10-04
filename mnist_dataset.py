@@ -1,67 +1,100 @@
+import os
 import time
 
-import tensorflow as tf
-from tensorflow import keras
-import numpy as np
+
+def _fix(data):
+    import numpy as np
+    return np.reshape(data, (len(data), 784))
 
 
-def mnist_configure(classes): # -> (function, function):
-    def fix(data):
-        return np.reshape(data, (len(data), 784))
+def train(args) -> float:
+    folder, epochs, batch_size, classes, device_name = args
+    # Loading Model:
+    import json
+    import tensorflow as tf
+    from tensorflow import keras
 
-    (x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
+    model = keras.models.load_model(folder + "model.h5")
+
+    (x_train, y_train), (_, _) = keras.datasets.mnist.load_data()
 
     # VALIDATION DATA:
-    x_val = fix(x_train[50000:])
+    x_val = _fix(x_train[50000:])
     y_val = y_train[50000:]
     x_val = x_val.astype('float32')
     x_val /= 255
 
     # TRAINING DATA:
-    x_train = fix(x_train[:50000])
+    x_train = _fix(x_train[:50000])
     y_train = y_train[:50000]
     x_train = x_train.astype('float32')
     x_train /= 255
 
-    # TEST DATA:
-    x_test = fix(x_test)
-    x_test = x_test.astype('float32')
-    x_test /= 255
 
     # Converting to one-hot targets:
     y_train = keras.utils.to_categorical(y_train, num_classes=classes)
     y_val = keras.utils.to_categorical(y_val, num_classes=classes)
-    y_test = keras.utils.to_categorical(y_test, num_classes=classes)
 
     # DEFINING FUNCTIONS AND COMPILING
     sgd = keras.optimizers.Adam(lr=0.01)
     loss = keras.losses.categorical_crossentropy
 
-    def train(population: list, epochs=5, batch_size=64):
-        print("--> Running training for {} epochs on {} models ".format(epochs, len(population)), end="", flush=True)
-        started = time.time()
-        for individ in population:
-            model = individ.keras_operation
+    # RUNNING TRAINING:
+    sess = get_session(folder)
+    keras.backend.set_session(sess)
+    model.compile(loss=loss, optimizer=sgd, metrics=['accuracy'])
+    with tf.device(device_name):
+        metrics = model.fit(
+            x_train,
+            y_train,
+            epochs=epochs,
+            batch_size=batch_size,
+            verbose=0,
+            validation_data=(x_val, y_val)
+        )
+    print("    - Trained model...")
+    os.makedirs(os.path.join(folder, "sessions"))
+    tf.train.Saver().save(sess, os.path.join(folder, "sessions", "{}.ckpt".format(time.time())))
+    sess.close()
+    return metrics.history['val_acc'][-1]
 
-            # RUNNING TRAINING:
-            model.compile(loss=loss, optimizer=sgd, metrics=['accuracy'])
-            metrics = model.fit(
-                x_train,
-                y_train,
-                epochs=epochs,
-                batch_size=batch_size,
-                verbose=0,
-                validation_data=(x_val, y_val)
+
+def get_session(session_dir=None):
+    import tensorflow as tf
+    import os
+
+    if session_dir and os.path.exists(session_dir + "sessions"):
+        sess = tf.Session()
+        session_files = sorted([f for f in os.listdir(os.path.join(session_dir, "sessions")) if "index" in f])
+        if session_files:
+            tf.train.Saver().restore(
+                sess=sess,
+                save_path=os.path.join(session_dir, "sessions", session_files[-1])
             )
-            individ.fitness = metrics.history['val_acc'][-1]
-        print("(elapsed time: {})".format(time.time()-started))
+    else:
+        sess = tf.Session(config=tf.ConfigProto(
+            gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.5, allow_growth=True),
+            device_count={'GPU': 1, 'CPU': 2}
+        ))
+    sess.run(tf.global_variables_initializer())
+    return sess
 
-    def evaluate(population: list):
-        print("--> Evaluating {} models".format(len(population)))
-        for individ in population:
-            model = individ.keras_operation
-            model.compile(loss=loss, optimizer=sgd, metrics=['accuracy'])
-            metrics = model.evaluate(x_test, y_test, verbose=0)
-            individ.fitness = metrics[1]  # Accuracy
 
-    return train, evaluate
+def evaluate(model, folder, classes=10) -> float:
+    from tensorflow import keras
+    (_, _), (x_test, y_test) = keras.datasets.mnist.load_data()
+
+    # TEST DATA:
+    x_test = _fix(x_test)
+    x_test = x_test.astype('float32')
+    x_test /= 255
+    y_test = keras.utils.to_categorical(y_test, num_classes=classes)
+
+    # DEFINING FUNCTIONS AND COMPILING
+    sgd = keras.optimizers.Adam(lr=0.01)
+    loss = keras.losses.categorical_crossentropy
+    with get_session(folder) as sess:
+        keras.backend.set_session(sess)
+        model.compile(loss=loss, optimizer=sgd, metrics=['accuracy'])
+        metrics = model.evaluate(x_test, y_test, verbose=0)
+    return metrics[1] # Accuracy

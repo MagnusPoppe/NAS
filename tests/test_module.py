@@ -5,7 +5,7 @@ from operator import attrgetter
 
 from tensorflow import keras
 
-from main import random_sample, operators1D, mutate
+from main import random_sample, operators1D, random_mutation
 from module_decoder import assemble, rank_children
 from modules.module import Module
 
@@ -70,7 +70,7 @@ class TestModuleCompile(unittest.TestCase):
         keras.utils.plot_model(module_2.keras_operation, "decode.png")
 
         for _ in range(3):
-            mutated = mutate(module_2, compilation=False, training=False)
+            mutated = random_mutation(module_2, compilation=False, training=False)
 
         mutated.keras_tensor = assemble(mutated, in_shape=(784,), classes=10)
 

@@ -15,17 +15,17 @@ def random_sample(collection):
     return collection[random.randint(0, len(collection) - 1)]
 
 
-def output_stats(population, _time=None, plot_folder="./results"):
+def output_stats(population, _time=None):
     import os
-    os.makedirs(plot_folder, exist_ok=True)
-
     print("--> Accuracy of the best architecture was {} %".format(population[-1].fitness))
-    print("--> Plots of different network architectures can be found under {}".format(plot_folder))
+    print("--> Plots of different network architectures can be found in module store")
     if _time:
         print("--> Total elapsed time: {}".format(time.time() - _time))
 
     def plot_model(individ, img_name):
-        keras.utils.plot_model(individ.keras_operation, to_file='{}/{}.png'.format(plot_folder, img_name))
+        path = individ.get_store() + "plots"
+        os.makedirs(path, exist_ok=True)
+        keras.utils.plot_model(individ.keras_operation, to_file='{}/{}.png'.format(path, img_name))
 
     # Find biggest/smallest architecture:
     biggest = None
