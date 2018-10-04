@@ -35,27 +35,31 @@ def train(args) -> float:
     y_train = keras.utils.to_categorical(y_train, num_classes=classes)
     y_val = keras.utils.to_categorical(y_val, num_classes=classes)
 
-    # DEFINING FUNCTIONS AND COMPILING
-    sgd = keras.optimizers.Adam(lr=0.01)
-    loss = keras.losses.categorical_crossentropy
 
     # RUNNING TRAINING:
-    sess = get_session(folder)
-    keras.backend.set_session(sess)
-    model.compile(loss=loss, optimizer=sgd, metrics=['accuracy'])
-    with tf.device(device_name):
-        metrics = model.fit(
-            x_train,
-            y_train,
-            epochs=epochs,
-            batch_size=batch_size,
-            verbose=0,
-            validation_data=(x_val, y_val)
+    with get_session(folder) as sess:
+        sess.run(tf.global_variables_initializer())
+        keras.backend.set_session(sess)
+
+        # DEFINING FUNCTIONS AND COMPILING
+        os.makedirs(os.path.join(folder, "sessions"))
+        model.compile(
+            loss=keras.losses.categorical_crossentropy,
+            optimizer=keras.optimizers.Adam(lr=0.01),
+            metrics=['accuracy']
         )
-    print("    - Trained model...")
-    os.makedirs(os.path.join(folder, "sessions"))
-    tf.train.Saver().save(sess, os.path.join(folder, "sessions", "{}.ckpt".format(time.time())))
-    sess.close()
+        with tf.device(device_name):
+            metrics = model.fit(
+                x_train,
+                y_train,
+                epochs=epochs,
+                batch_size=batch_size,
+                verbose=0,
+                validation_data=(x_val, y_val)
+            )
+        print("    - Trained model...")
+        saver = tf.train.Saver(sharded=True)
+        saver.save(sess, os.path.join(folder, "sessions", "checkpoint.ckpt"))
     return metrics.history['val_acc'][-1]
 
 
@@ -65,22 +69,21 @@ def get_session(session_dir=None):
 
     if session_dir and os.path.exists(session_dir + "sessions"):
         sess = tf.Session()
-        session_files = sorted([f for f in os.listdir(os.path.join(session_dir, "sessions")) if "index" in f])
-        if session_files:
-            tf.train.Saver().restore(
-                sess=sess,
-                save_path=os.path.join(session_dir, "sessions", session_files[-1])
-            )
+        saver = tf.train.Saver()
+        saver = tf.train.import_meta_graph(os.path.join(session_dir, "sessions", "checkpoint.ckpt.meta"))
+        saver.restore(
+            sess=sess,
+            save_path=os.path.join(session_dir, "sessions", "checkpoint.ckpt")
+        )
     else:
         sess = tf.Session(config=tf.ConfigProto(
             gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.5, allow_growth=True),
-            device_count={'GPU': 1, 'CPU': 2}
         ))
-    sess.run(tf.global_variables_initializer())
     return sess
 
 
 def evaluate(model, folder, classes=10) -> float:
+    import tensorflow as tf
     from tensorflow import keras
     (_, _), (x_test, y_test) = keras.datasets.mnist.load_data()
 
@@ -94,7 +97,8 @@ def evaluate(model, folder, classes=10) -> float:
     sgd = keras.optimizers.Adam(lr=0.01)
     loss = keras.losses.categorical_crossentropy
     with get_session(folder) as sess:
+        sess.run(tf.global_variables_initializer())
         keras.backend.set_session(sess)
         model.compile(loss=loss, optimizer=sgd, metrics=['accuracy'])
         metrics = model.evaluate(x_test, y_test, verbose=0)
-    return metrics[1] # Accuracy
+    return metrics[1]  # Accuracy

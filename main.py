@@ -54,9 +54,9 @@ if __name__ == '__main__':
         eval_func=evaluate,
         train_func=train,
         generations=10,
-        individs=10,
+        individs=2,
         selection=tournament,
-        epochs=15,
+        epochs=1,
         batch_size=256,
         classes=10
     )
