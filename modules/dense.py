@@ -1,4 +1,5 @@
 import random
+import time
 
 from modules.operation import Operation
 
@@ -6,7 +7,7 @@ from modules.operation import Operation
 class Dropout(Operation):
 
     def __init__(self):
-        super().__init__("Dropout", [Dense])
+        super().__init__("Dropout-{}".format(time.time()), [Dense])
         self.rate = 0.5
 
     def __deepcopy__(self, memodict={}):
@@ -34,7 +35,7 @@ class Dropout(Operation):
 class Dense(Operation):
 
     def __init__(self, ID, units, activation="relu", bias=True):
-        super().__init__(ID, [type(self), Dropout])
+        super().__init__("{}-{}".format(ID, time.time()), [type(self), Dropout])
         self.units = units
         self.activation = activation
         self.bias = bias

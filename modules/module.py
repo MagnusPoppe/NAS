@@ -6,7 +6,7 @@ from modules.operation import Operation
 
 global_id = 1
 
-with open("./resources/names.json", "r") as file:
+with open("./resources/names.json", "r", encoding="utf-8") as file:
     names = json.load(file)
 
 class Module(Base):
@@ -20,6 +20,7 @@ class Module(Base):
         self.children = []
         self.keras_operation = None
         self.sess = None
+        self.predecessor = None
 
         # Identity and version-control:
         self.name = random_sample_remove(names)
@@ -43,9 +44,11 @@ class Module(Base):
         new_mod.nodeID = self.nodeID
         new_mod.version_number = self.version_number+1
         new_mod.name = self.name
-        new_mod.ID = "{} v{}".format(new_mod.name, new_mod.version_number)
-        new_mod.children += [deepcopy(child) for child in self.children]
         new_mod.logs = deepcopy(self.logs)
+        new_mod.ID = "{} v{}".format(new_mod.name, new_mod.version_number)
+
+        new_mod.predecessor = self
+        new_mod.children += [deepcopy(child) for child in self.children]
 
         # Copying connectivity for all children:
         for i, child in enumerate(self.children):

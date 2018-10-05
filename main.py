@@ -3,8 +3,9 @@ import random
 from operator import attrgetter
 from evolutionary_operations.mutation import mutate
 from evolutionary_operations.selection import tournament, init_population
-from helpers import output_stats
+from output import output_stats
 from mnist_dataset import mnist_configure
+from output import generation_finished_print
 
 
 def random_sample(collection):
@@ -22,32 +23,26 @@ def evolve_architecture(generations, individs, train, fitness, selection, epochs
     fitness(population)
     population.sort(key=attrgetter('fitness'))
     seen_modules += population
-    try:
-        for generation in range(generations):
-            print("\nGeneration {}".format(generation))
-            children = []
-            for selected in selection(population, size=individs):
-                selected = mutate(selected, modules=seen_modules)
-                children += [selected]
-                # TODO: crossover
+    for generation in range(generations):
 
-                seen_modules += children
+        print("\nGeneration {}".format(generation))
+        children = []
+        for selected in selection(population, size=individs):
+            selected = mutate(selected, modules=seen_modules)
+            children += [selected]
+            # TODO: crossover
 
-            # Elitism:
-            train(children, epochs, batch_size)
-            population += children
-            population.sort(key=attrgetter('fitness'))
-            population = population[len(population)-individs:]
+            seen_modules += children
 
-            print("--> Generation {} Results: \n"
-                  "    - Best: {} % Accuracy ({})\n"
-                  "    - Runner up: {} % Accuracy ({})"
-                  .format(generation,
-                          population[-1].fitness, population[-1].ID,
-                          population[-2].fitness, population[-2].ID)
-              )
-    except KeyboardInterrupt as e: pass
-    finally: return population
+        # Elitism:
+        train(children, epochs, batch_size)
+        population += children
+        population.sort(key=attrgetter('fitness'))
+        population = population[len(population)-individs:]
+
+        generation_finished_print(generation, population)
+    return population
+
 
 if __name__ == '__main__':
     print("Evolving architecture")
@@ -56,7 +51,7 @@ if __name__ == '__main__':
     compile_args = ((784,), 10)
 
     popultation = evolve_architecture(
-        generations=10,
+        generations=50,
         individs=10,
         fitness=evaluate,
         train=train,
