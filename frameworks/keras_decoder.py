@@ -26,7 +26,7 @@ def assemble(module:Module, in_shape:tuple=(784,), classes:int=10, is_root:bool=
 
 
 def connect_operation_to_previous(node: Base, previous: list, input_layer: keras.layers.Input):
-    """ Connects a module or an Operation to its previous nodes. This performs
+    """ Connects a (module / operation) to its previous nodes. This performs
         a recursive call to decode if the node is type Module. Then applies
         the keras operation.
         :returns: The output tensor of this operation
@@ -40,7 +40,6 @@ def connect_operation_to_previous(node: Base, previous: list, input_layer: keras
     else:
         # Concatenation of all inputs
         previous_output = keras.layers.concatenate([_prev.keras_tensor for _prev in previous])
-
     if isinstance(node, Module):
         return assemble(node, in_shape=previous_output.shape, is_root=False)(previous_output)
 

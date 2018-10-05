@@ -37,6 +37,12 @@ def mnist_configure(classes): # -> (function, function):
     sgd = keras.optimizers.Adam(lr=0.01)
     loss = keras.losses.categorical_crossentropy
 
+    session = tf.Session(config=tf.ConfigProto(
+        gpu_options=tf.GPUOptions(allow_growth=True)
+    ))
+    keras.backend.set_session(session)
+    session.run(tf.global_variables_initializer())
+
     def train(population: list, epochs=5, batch_size=64):
         print("--> Running training for {} epochs on {} models ".format(epochs, len(population)), end="", flush=True)
         started = time.time()
@@ -44,12 +50,6 @@ def mnist_configure(classes): # -> (function, function):
             model = individ.keras_operation
 
             # RUNNING TRAINING:
-            if not individ.sess:
-                individ.sess = tf.Session(config=tf.ConfigProto(
-                    gpu_options=tf.GPUOptions(allow_growth=True)
-                ))
-            individ.sess.run(tf.global_variables_initializer())
-            keras.backend.set_session(individ.sess)
             model.compile(loss=loss, optimizer=sgd, metrics=['accuracy'])
             metrics = model.fit(
                 x_train,
@@ -66,12 +66,9 @@ def mnist_configure(classes): # -> (function, function):
     def evaluate(population: list):
         print("--> Evaluating {} models".format(len(population)))
         for individ in population:
-            with individ.sess as sess:
-                keras.backend.set_session(sess)
-                sess.run(tf.global_variables_initializer())
-                model = individ.keras_operation
-                model.compile(loss=loss, optimizer=sgd, metrics=['accuracy'])
-                metrics = model.evaluate(x_test, y_test, verbose=0)
-                individ.fitness = metrics[1]  # Accuracy
+            model = individ.keras_operation
+            model.compile(loss=loss, optimizer=sgd, metrics=['accuracy'])
+            metrics = model.evaluate(x_test, y_test, verbose=0)
+            individ.fitness = metrics[1]  # Accuracy
 
     return train, evaluate

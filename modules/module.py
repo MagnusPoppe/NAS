@@ -90,7 +90,13 @@ class Module(Base):
         index = self.children.index(child)
         self.children.pop(index)
 
-        # 2. Cut all ties:
+        # 2. Fully connect all previous to all next
+        for n in child.next:
+            for p in child.prev:
+                n.prev += [p]
+                p.next += [n]
+
+        # 3. Cut all ties:
         for p in child.next: p.prev.remove(child)
         for p in child.prev: p.next.remove(child)
 
