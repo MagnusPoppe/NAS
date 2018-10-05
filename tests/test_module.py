@@ -1,12 +1,11 @@
-import random
 import unittest
 from copy import deepcopy
 from operator import attrgetter
 
 from tensorflow import keras
 
-from main import random_sample, operators1D, mutate
-from module_decoder import assemble, rank_children
+from main import operators1D, mutate
+from frameworks.module_decoder import assemble, rank_children
 from modules.module import Module
 
 

@@ -1,7 +1,35 @@
 import random
 
 from modules.operation import Operation
-from tensorflow import keras
+
+
+class Dropout(Operation):
+
+    def __init__(self):
+        super().__init__("Dropout", [Dense])
+        self.rate = 0.5
+
+    def __deepcopy__(self, memodict={}):
+        """ Does not retain connectivity """
+        new_dropout = Dropout()
+        new_dropout.ID = self.ID
+        new_dropout.compatible = self.compatible
+        new_dropout.rate = self.rate
+        return new_dropout
+
+    def to_keras(self):
+        from tensorflow import keras
+        return keras.layers.Dropout(rate=self.rate)
+
+    def find_shape(self):
+        shapes = [p.find_shape() for p in self.prev]
+        if len(shapes) == 1: return shapes[0]
+        elif len(shapes) > 1:
+            dims = shapes[0]
+            for shape in shapes[1:]:
+                for dim in range(len(shape)):
+                    if shape[dim] != None:
+                        dims[dim] += shape[dim]
 
 class Dense(Operation):
 
@@ -26,6 +54,7 @@ class Dense(Operation):
         return other
 
     def to_keras(self):
+        from tensorflow import keras
         return keras.layers.Dense(
             units=self.units,
             activation=self.activation,
@@ -74,30 +103,3 @@ class DenseL(Dense):
 
     def __deepcopy__(self, memodict={}):
         return self.transfer_values(DenseL())
-
-class Dropout(Operation):
-
-    def __init__(self):
-        super().__init__("Dropout", [Dense])
-        self.rate = 0.5
-
-    def __deepcopy__(self, memodict={}):
-        """ Does not retain connectivity """
-        new_dropout = Dropout()
-        new_dropout.ID = self.ID
-        new_dropout.compatible = self.compatible
-        new_dropout.rate = self.rate
-        return new_dropout
-
-    def to_keras(self):
-        return keras.layers.Dropout(rate=self.rate)
-
-    def find_shape(self):
-        shapes = [p.find_shape() for p in self.prev]
-        if len(shapes) == 1: return shapes[0]
-        elif len(shapes) > 1:
-            dims = shapes[0]
-            for shape in shapes[1:]:
-                for dim in range(len(shape)):
-                    if shape[dim] != None:
-                        dims[dim] += shape[dim]

@@ -2,7 +2,7 @@ import random
 from copy import deepcopy
 
 from helpers import random_sample, operators1D
-from module_decoder import assemble
+from frameworks.keras_decoder import assemble
 from modules.module import Module
 
 # TODO: Som i resnet, legg til en skip connection.

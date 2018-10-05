@@ -37,6 +37,12 @@ def mnist_configure(classes): # -> (function, function):
     sgd = keras.optimizers.Adam(lr=0.01)
     loss = keras.losses.categorical_crossentropy
 
+    session = tf.Session(config=tf.ConfigProto(
+        gpu_options=tf.GPUOptions(allow_growth=True)
+    ))
+    keras.backend.set_session(session)
+    session.run(tf.global_variables_initializer())
+
     def train(population: list, epochs=5, batch_size=64):
         print("--> Running training for {} epochs on {} models ".format(epochs, len(population)), end="", flush=True)
         started = time.time()
@@ -54,6 +60,7 @@ def mnist_configure(classes): # -> (function, function):
                 validation_data=(x_val, y_val)
             )
             individ.fitness = metrics.history['val_acc'][-1]
+
         print("(elapsed time: {})".format(time.time()-started))
 
     def evaluate(population: list):

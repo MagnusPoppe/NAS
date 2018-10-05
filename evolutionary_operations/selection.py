@@ -3,7 +3,7 @@ import random
 import numpy as np
 
 from evolutionary_operations.mutation import mutate
-from module_decoder import assemble
+from frameworks.keras_decoder import assemble
 from modules.module import Module
 
 

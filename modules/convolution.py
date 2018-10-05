@@ -1,6 +1,6 @@
 from modules.dense import Dense
 from modules.operation import Operation
-from tensorflow import keras
+
 
 
 class Conv2D(Operation):
@@ -15,6 +15,7 @@ class Conv2D(Operation):
         # TODO self.shape =
 
     def to_keras(self):
+        from tensorflow import keras
         return keras.layers.Conv2D(
             filters=self.filters,
             kernel_size=self.kernel,

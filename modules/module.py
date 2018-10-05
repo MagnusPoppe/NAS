@@ -1,9 +1,4 @@
-from copy import deepcopy
-from operator import attrgetter
-
-from tensorflow import keras
 from modules.base import Base
-from modules.dense import Dropout
 from modules.operation import Operation
 
 global_id = 1
@@ -19,6 +14,7 @@ class Module(Base):
         self.children = []
         self.ID = ID
         self.keras_operation = None
+        self.sess = None
 
     def __iadd__(self, other):
         if isinstance(other, Operation) or isinstance(other, Module):
@@ -30,6 +26,8 @@ class Module(Base):
 
     def __deepcopy__(self, memodict={}):
         """ Does not retain connectivity on module level. """
+        from copy import deepcopy
+
         new_mod = Module(self.ID + "_copy")
         new_mod.nodeID = self.nodeID
         new_mod.children += [deepcopy(child) for child in self.children]
@@ -92,7 +90,13 @@ class Module(Base):
         index = self.children.index(child)
         self.children.pop(index)
 
-        # 2. Cut all ties:
+        # 2. Fully connect all previous to all next
+        for n in child.next:
+            for p in child.prev:
+                n.prev += [p]
+                p.next += [n]
+
+        # 3. Cut all ties:
         for p in child.next: p.prev.remove(child)
         for p in child.prev: p.next.remove(child)
 

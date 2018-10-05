@@ -4,7 +4,7 @@ from tensorflow import keras
 
 from modules.base import Base
 from modules.module import Module
-
+from frameworks.common import rank_children
 
 def assemble(module:Module, in_shape:tuple=(784,), classes:int=10, is_root:bool=True):
 
@@ -26,7 +26,7 @@ def assemble(module:Module, in_shape:tuple=(784,), classes:int=10, is_root:bool=
 
 
 def connect_operation_to_previous(node: Base, previous: list, input_layer: keras.layers.Input):
-    """ Connects a module or an Operation to its previous nodes. This performs
+    """ Connects a (module / operation) to its previous nodes. This performs
         a recursive call to decode if the node is type Module. Then applies
         the keras operation.
         :returns: The output tensor of this operation
@@ -40,28 +40,8 @@ def connect_operation_to_previous(node: Base, previous: list, input_layer: keras
     else:
         # Concatenation of all inputs
         previous_output = keras.layers.concatenate([_prev.keras_tensor for _prev in previous])
-
     if isinstance(node, Module):
         return assemble(node, in_shape=previous_output.shape, is_root=False)(previous_output)
 
     # else: Operation
     return node.to_keras()(previous_output)
-
-
-def rank_children(module: Module) -> Module:
-    """ Ranks all children of module in breadth first order. This
-        makes sorting all nodes after Keras operations possible.
-    """
-    for node in module.children:
-        node.rank = -1
-
-    queue = [module.find_first()]
-    rank = 0
-    while queue:
-        node = queue.pop(0) # type: Base
-
-        # Should wait to queue next nodes if one or more previous nodes are "unprocessed"
-        if (not node.prev) or all(_prev.rank >= 0 for _prev in node.prev):
-            queue += [_next for _next in node.next]
-            node.rank = rank
-            rank += 1

@@ -39,7 +39,9 @@ def evolve_architecture(generations, individs, train, fitness, selection, epochs
         population.sort(key=attrgetter('fitness'))
         population = population[len(population)-individs:]
 
-        print("--> Population best at generation {}: {}".format(generation, population[-1].fitness))
+        print("--> Generation {} best: {} % Accuracy ({})"
+              .format(generation, population[-1].fitness, population[-1].ID)
+          )
     return population
 
 if __name__ == '__main__':
@@ -50,11 +52,11 @@ if __name__ == '__main__':
 
     popultation = evolve_architecture(
         generations=10,
-        individs=10,
+        individs=100,
         fitness=evaluate,
         train=train,
         selection=tournament,
-        epochs=15,
+        epochs=1,
         batch_size=256
     )
     print("\nTraining complete.")
