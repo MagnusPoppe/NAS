@@ -22,27 +22,32 @@ def evolve_architecture(generations, individs, train, fitness, selection, epochs
     fitness(population)
     population.sort(key=attrgetter('fitness'))
     seen_modules += population
+    try:
+        for generation in range(generations):
+            print("\nGeneration {}".format(generation))
+            children = []
+            for selected in selection(population, size=individs):
+                selected = mutate(selected, modules=seen_modules)
+                children += [selected]
+                # TODO: crossover
 
-    for generation in range(generations):
-        print("\nGeneration {}".format(generation))
-        children = []
-        for selected in selection(population, size=individs):
-            selected = mutate(selected, modules=seen_modules)
-            children += [selected]
-            # TODO: crossover
+                seen_modules += children
 
-            seen_modules += children
+            # Elitism:
+            train(children, epochs, batch_size)
+            population += children
+            population.sort(key=attrgetter('fitness'))
+            population = population[len(population)-individs:]
 
-        # Elitism:
-        train(children, epochs, batch_size)
-        population += children
-        population.sort(key=attrgetter('fitness'))
-        population = population[len(population)-individs:]
-
-        print("--> Generation {} best: {} % Accuracy ({})"
-              .format(generation, population[-1].fitness, population[-1].ID)
-          )
-    return population
+            print("--> Generation {} Results: \n"
+                  "    - Best: {} % Accuracy ({})\n"
+                  "    - Runner up: {} % Accuracy ({})"
+                  .format(generation,
+                          population[-1].fitness, population[-1].ID,
+                          population[-2].fitness, population[-2].ID)
+              )
+    except KeyboardInterrupt as e: pass
+    finally: return population
 
 if __name__ == '__main__':
     print("Evolving architecture")
@@ -59,5 +64,5 @@ if __name__ == '__main__':
         epochs=30,
         batch_size=256
     )
-    print("\nTraining complete.")
+    print("\n\nTraining complete.")
     output_stats(popultation, start_time)

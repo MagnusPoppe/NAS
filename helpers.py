@@ -27,13 +27,15 @@ def output_stats(population, _time=None, plot_folder="./results"):
     import os
     os.makedirs(plot_folder, exist_ok=True)
 
-    print("--> Accuracy of the best architecture was {} %".format(population[-1].fitness))
+    print("--> Accuracy of the best architecture was {} % ({})".format(population[-1].fitness, population[-1].ID))
     print("--> Plots of different network architectures can be found under {}".format(plot_folder))
     if _time:
-        print("--> Total elapsed time: {}".format(time.time() - _time))
+        print("--> Total elapsed time: {}".format(int(time.time() - _time)))
 
     def plot_model(individ, img_name):
-        keras.utils.plot_model(individ.keras_operation, to_file='{}/{}.png'.format(plot_folder, img_name))
+        keras.utils.plot_model(individ.keras_operation, to_file='{}/{} ({}).png'.format(
+            plot_folder, img_name, individ.ID)
+       )
 
     # Find biggest/smallest architecture:
     biggest = None
