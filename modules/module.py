@@ -1,18 +1,26 @@
+import json
+
+from helpers import random_sample_remove
 from modules.base import Base
 from modules.operation import Operation
 
 global_id = 1
 
+with open("./resources/names.json", "r") as file:
+    names = json.load(file)
 
 class Module(Base):
     """
     Module is a collection of one or more modules and operations
     """
 
-    def __init__(self, ID=""):
+    def __init__(self):
+        global names
         super().__init__()
         self.children = []
-        self.ID = ID
+        self.name = random_sample_remove(names)
+        self.version_number = 0
+        self.ID = "{} v{}".format(self.name, self.version_number)
         self.keras_operation = None
         self.sess = None
 
@@ -28,8 +36,10 @@ class Module(Base):
         """ Does not retain connectivity on module level. """
         from copy import deepcopy
 
-        new_mod = Module(self.ID + "_copy")
+        new_mod = Module()
         new_mod.nodeID = self.nodeID
+        new_mod.version_number = self.version_number+1
+        new_mod.ID = "{} v{}".format(self.ID, new_mod.version_number)
         new_mod.children += [deepcopy(child) for child in self.children]
 
         # Copying connectivity for all children:

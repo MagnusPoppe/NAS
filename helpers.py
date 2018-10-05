@@ -15,6 +15,14 @@ def random_sample(collection):
     return collection[random.randint(0, len(collection) - 1)]
 
 
+def random_sample_remove(collection):
+    # Selecting a random operation and creating an instance of it.
+    # Then deletes the sample
+    index = random.randint(0, len(collection) - 1)
+    elem = collection.pop(index)
+    return elem
+
+
 def output_stats(population, _time=None, plot_folder="./results"):
     import os
     os.makedirs(plot_folder, exist_ok=True)

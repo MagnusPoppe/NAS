@@ -61,7 +61,7 @@ def mnist_configure(classes): # -> (function, function):
             )
             individ.fitness = metrics.history['val_acc'][-1]
 
-        print("(elapsed time: {})".format(time.time()-started))
+        print("(elapsed time: {} sec)".format(time.time()-started))
 
     def evaluate(population: list):
         print("--> Evaluating {} models".format(len(population)))

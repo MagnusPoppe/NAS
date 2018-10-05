@@ -52,11 +52,11 @@ if __name__ == '__main__':
 
     popultation = evolve_architecture(
         generations=10,
-        individs=100,
+        individs=10,
         fitness=evaluate,
         train=train,
         selection=tournament,
-        epochs=1,
+        epochs=30,
         batch_size=256
     )
     print("\nTraining complete.")
