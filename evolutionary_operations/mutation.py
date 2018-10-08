@@ -9,9 +9,11 @@ from modules.module import Module
 # Vi vil at en node kan muteres til å bli koblet til en annen node uten
 # at det lages en ekstra node i mellom...
 
-def mutate(module:Module, compilation=True, compile_parameters =((784,), 10), make_copy=True, modules=None) -> Module:
 
-    mutated = deepcopy(module) if make_copy else module
+def mutate(module:Module, in_shape:tuple, classes:int, modules:list=None, compilation:bool=True) -> Module:
+
+    # Never overwrite older module.
+    mutated = deepcopy(module) if compilation else module
 
     # Selecting what module to mutate in:
     if random.uniform(0,1) < 0.5 or not modules:
@@ -36,16 +38,17 @@ def mutate(module:Module, compilation=True, compile_parameters =((784,), 10), ma
     elif selected < 1.0:
         mutated.remove(random_sample(mutated.children))
 
-    # Compiles keras model from module:
+    # Compiles keras model from module (not done in init phase):
     if compilation:
         if random.uniform(0, 1) < 0.2 or not module.predecessor:
-            mutated.keras_tensor = assemble(mutated, *compile_parameters, is_root=True)
+            mutated.keras_tensor = assemble(mutated, in_shape, classes, is_root=True)
         else:
-            mutated = transfer_predecessor_weights(mutated, *compile_parameters)
             print("--> {} got its weights transferred from predecessor".format(module.ID))
+            mutated = transfer_predecessor_weights(mutated, in_shape, classes)
     return mutated
 
-def transfer_predecessor_weights(module: Module, in_shape: tuple, classes: int):
+
+def transfer_predecessor_weights(module: Module, in_shape: tuple, classes: int) -> Module:
     """ Transfers the weights from one module to its successor. This requires
         compatibility with changes made to the successor. Some types of changes
         will change weight matrix sizes.
@@ -56,12 +59,13 @@ def transfer_predecessor_weights(module: Module, in_shape: tuple, classes: int):
     """
     predecessor = module.predecessor
     module.keras_tensor = assemble(module, in_shape, classes)
-    for child in predecessor.children:
-        for c in module.children:
-            if c.ID == child.ID:
+    for predecessor_child in predecessor.children:
+        for child in module.children:
+            if child.ID == predecessor_child.ID:
                 try:
-                    c.keras_operation.set_weights(child.keras_operation.get_weights())
+                    child.keras_operation.set_weights(predecessor_child.keras_operation.get_weights())
                 except ValueError:
                     print("    - Incompatible weights.")
+                    print("    - Object type: {}".format(type(child.keras_operation)))
                     break
     return module

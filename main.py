@@ -1,8 +1,11 @@
+import gc
 import time
 import random
 from operator import attrgetter
+
+from evolutionary_operations.initialization import init_population
 from evolutionary_operations.mutation import mutate
-from evolutionary_operations.selection import tournament, init_population
+from evolutionary_operations.selection import tournament, trash_bad_modules
 from output import output_stats
 from mnist_dataset import mnist_configure
 from output import generation_finished_print
@@ -12,11 +15,11 @@ def random_sample(collection):
     # Selecting a random operation and creating an instance of it.
     return collection[random.randint(0, len(collection) - 1)]
 
-def evolve_architecture(generations, individs, train, fitness, selection, epochs, batch_size):
+def evolve_architecture(generations, individs, train, fitness, selection, epochs, batch_size, in_shape, classes):
     seen_modules = []
 
     # initializing population
-    population = init_population(individs)
+    population = init_population(individs, in_shape, classes)
     train(population, epochs, batch_size)
 
     # population fitness
@@ -27,8 +30,8 @@ def evolve_architecture(generations, individs, train, fitness, selection, epochs
 
         print("\nGeneration {}".format(generation))
         children = []
-        for selected in selection(population, size=individs):
-            selected = mutate(selected, modules=seen_modules)
+        for selected in selection(population, individs):
+            selected = mutate(selected, in_shape, classes, modules=seen_modules)
             children += [selected]
             # TODO: crossover
 
@@ -41,6 +44,10 @@ def evolve_architecture(generations, individs, train, fitness, selection, epochs
         population = population[len(population)-individs:]
 
         generation_finished_print(generation, population)
+
+        if generation % 10 == 0:
+            trash_bad_modules(seen_modules, evaluate, modules_to_keep=10)
+            gc.collect()
     return population
 
 
@@ -48,7 +55,6 @@ if __name__ == '__main__':
     print("Evolving architecture")
     start_time = time.time()
     train, evaluate = mnist_configure(classes=10)
-    compile_args = ((784,), 10)
 
     popultation = evolve_architecture(
         generations=50,
@@ -57,7 +63,9 @@ if __name__ == '__main__':
         train=train,
         selection=tournament,
         epochs=30,
-        batch_size=256
+        batch_size=256,
+        in_shape=(784,),
+        classes=10
     )
     print("\n\nTraining complete.")
     output_stats(popultation, start_time)
