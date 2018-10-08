@@ -1,6 +1,6 @@
 import json
 
-from helpers import random_sample_remove
+from helpers import random_sample_remove, random_sample
 from modules.base import Base
 from modules.operation import Operation
 
@@ -63,7 +63,8 @@ class Module(Base):
             self.children[0].next += [op]
             op.prev += [self.children[0]]
         elif len(self.children) > 1:
-            previous = self.children[-1]
+            previous_nodes = self.find_last()
+            previous = previous_nodes[0] if len(previous_nodes) == 1 else random_sample(previous_nodes)
             previous.next += [op]
             op.prev += [previous]
 
@@ -122,6 +123,11 @@ class Module(Base):
         # 3. Cut all ties:
         for p in child.next: p.prev.remove(child)
         for p in child.prev: p.next.remove(child)
+
+        # 4. Remove duplicate connections
+        for node in child.next: node.next = list(set(node.next))
+        for node in child.prev: node.prev = list(set(node.prev))
+
         self.logs += ["Removed {}".format(child)]
 
     def visualize(self):

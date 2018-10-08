@@ -6,9 +6,8 @@ from operator import attrgetter
 from evolutionary_operations.initialization import init_population
 from evolutionary_operations.mutation import mutate
 from evolutionary_operations.selection import tournament, trash_bad_modules
-from output import output_stats
+from output import output_stats, generation_finished_print
 from mnist_dataset import mnist_configure
-from output import generation_finished_print
 
 
 def random_sample(collection):
@@ -19,7 +18,7 @@ def evolve_architecture(generations, individs, train, fitness, selection, epochs
     seen_modules = []
 
     # initializing population
-    population = init_population(individs, in_shape, classes)
+    population = init_population(individs, in_shape, classes, 1, 5)
     train(population, epochs, batch_size)
 
     # population fitness
@@ -43,7 +42,7 @@ def evolve_architecture(generations, individs, train, fitness, selection, epochs
         seen_modules += children
         generation_finished_print(generation, population)
 
-        if generation % 5 == 0:
+        if generation % 10 == 0:
             seen_modules = trash_bad_modules(seen_modules, evaluate, modules_to_keep=10)
             gc.collect()
     return population
@@ -60,7 +59,7 @@ if __name__ == '__main__':
         fitness=evaluate,
         train=train,
         selection=tournament,
-        epochs=1,
+        epochs=30,
         batch_size=256,
         in_shape=(784,),
         classes=10

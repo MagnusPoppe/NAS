@@ -39,7 +39,10 @@ def connect_operation_to_previous(node: Base, previous: list, input_layer: keras
         previous_output = previous[0].keras_tensor
     else:
         # Concatenation of all inputs
-        previous_output = keras.layers.concatenate([_prev.keras_tensor for _prev in previous])
+        try:
+            previous_output = keras.layers.concatenate([_prev.keras_tensor for _prev in previous])
+        except AttributeError as e:
+            raise(e)
     if isinstance(node, Module):
         return assemble(node, in_shape=previous_output.shape, is_root=False)(previous_output)
 

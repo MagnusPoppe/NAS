@@ -24,8 +24,10 @@ def mutate(module:Module, in_shape:tuple, classes:int, modules:list=None, compil
     # Selecting where to place operator:
     selected = random.uniform(0,1)
 
-    if selected < 0.3 or len(module.children) <= 3:
+    action = "None"
+    if len(module.children) <= 3:
         mutated.append(op)
+        action = "Append"
 
     elif selected < 0.6:
         children = list(range(0, len(mutated.children))) # uten tilbakelegging
@@ -34,9 +36,11 @@ def mutate(module:Module, in_shape:tuple, classes:int, modules:list=None, compil
             second_node=mutated.children[children.pop(random.randint(0, len(children)-1))],
             operation=op
         )
+        action="Insert"
 
     elif selected < 1.0:
         mutated.remove(random_sample(mutated.children))
+        action="Remove"
 
     # Compiles keras model from module (not done in init phase):
     if compilation:
@@ -67,5 +71,7 @@ def transfer_predecessor_weights(module: Module, in_shape: tuple, classes: int) 
                 except ValueError:
                     print("    - Incompatible weights.")
                     print("    - Object type: {}".format(type(child.keras_operation)))
+                    if len(child.prev) > 1:
+                        print("    - Previous layer was concatination")
                     break
     return module
