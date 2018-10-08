@@ -33,9 +33,6 @@ def evolve_architecture(generations, individs, train, fitness, selection, epochs
         for selected in selection(population, individs):
             selected = mutate(selected, in_shape, classes, modules=seen_modules)
             children += [selected]
-            # TODO: crossover
-
-            seen_modules += children
 
         # Elitism:
         train(children, epochs, batch_size)
@@ -43,10 +40,11 @@ def evolve_architecture(generations, individs, train, fitness, selection, epochs
         population.sort(key=attrgetter('fitness'))
         population = population[len(population)-individs:]
 
+        seen_modules += children
         generation_finished_print(generation, population)
 
-        if generation % 10 == 0:
-            trash_bad_modules(seen_modules, evaluate, modules_to_keep=10)
+        if generation % 5 == 0:
+            seen_modules = trash_bad_modules(seen_modules, evaluate, modules_to_keep=10)
             gc.collect()
     return population
 
@@ -62,7 +60,7 @@ if __name__ == '__main__':
         fitness=evaluate,
         train=train,
         selection=tournament,
-        epochs=30,
+        epochs=1,
         batch_size=256,
         in_shape=(784,),
         classes=10
