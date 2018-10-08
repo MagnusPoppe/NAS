@@ -38,5 +38,30 @@ def mutate(module:Module, compilation=True, compile_parameters =((784,), 10), ma
 
     # Compiles keras model from module:
     if compilation:
-        mutated.keras_tensor = assemble(mutated, *compile_parameters, is_root=True)
+        if random.uniform(0, 1) < 0.2 or not module.predecessor:
+            mutated.keras_tensor = assemble(mutated, *compile_parameters, is_root=True)
+        else:
+            mutated = transfer_predecessor_weights(mutated, *compile_parameters)
+            print("--> {} got its weights transferred from predecessor".format(module.ID))
     return mutated
+
+def transfer_predecessor_weights(module: Module, in_shape: tuple, classes: int):
+    """ Transfers the weights from one module to its successor. This requires
+        compatibility with changes made to the successor. Some types of changes
+        will change weight matrix sizes.
+
+        These problems raise ValueError. (anomaly)
+         - ValueError is ignored.
+         - Module / Operation keeps its random initialized weights.
+    """
+    predecessor = module.predecessor
+    module.keras_tensor = assemble(module, in_shape, classes)
+    for child in predecessor.children:
+        for c in module.children:
+            if c.ID == child.ID:
+                try:
+                    c.keras_operation.set_weights(child.keras_operation.get_weights())
+                except ValueError:
+                    print("    - Incompatible weights.")
+                    break
+    return module

@@ -6,7 +6,7 @@ from modules.operation import Operation
 
 global_id = 1
 
-with open("./resources/names.json", "r") as file:
+with open("./resources/names.json", "r", encoding="utf-8") as file:
     names = json.load(file)
 
 class Module(Base):
@@ -18,11 +18,15 @@ class Module(Base):
         global names
         super().__init__()
         self.children = []
+        self.keras_operation = None
+        self.sess = None
+        self.predecessor = None
+
+        # Identity and version-control:
         self.name = random_sample_remove(names)
         self.version_number = 0
         self.ID = "{} v{}".format(self.name, self.version_number)
-        self.keras_operation = None
-        self.sess = None
+        self.logs = []
 
     def __iadd__(self, other):
         if isinstance(other, Operation) or isinstance(other, Module):
@@ -39,7 +43,11 @@ class Module(Base):
         new_mod = Module()
         new_mod.nodeID = self.nodeID
         new_mod.version_number = self.version_number+1
-        new_mod.ID = "{} v{}".format(self.ID, new_mod.version_number)
+        new_mod.name = self.name
+        new_mod.logs = deepcopy(self.logs)
+        new_mod.ID = "{} v{}".format(new_mod.name, new_mod.version_number)
+
+        new_mod.predecessor = self
         new_mod.children += [deepcopy(child) for child in self.children]
 
         # Copying connectivity for all children:
@@ -83,6 +91,10 @@ class Module(Base):
         operation.next += [second_node]
         second_node.prev += [operation]
         self.children += [operation]
+
+        self.logs += ["Inserted node {} between {} and {}".format(
+            operation, first_node, second_node
+        )]
         return self
 
     def connect(self, first_node, second_node):
@@ -94,6 +106,7 @@ class Module(Base):
         # 2. Connect fully.
         first_node.next += [second_node]
         second_node.prev += [first_node]
+        self.logs += ["Connected {} to {}".format(first_node, second_node)]
 
     def remove(self, child: Base):
         # 1. Removing from list:
@@ -109,6 +122,7 @@ class Module(Base):
         # 3. Cut all ties:
         for p in child.next: p.prev.remove(child)
         for p in child.prev: p.next.remove(child)
+        self.logs += ["Removed {}".format(child)]
 
     def visualize(self):
         # Local imports. Server does not have TKinter and will crash on load.

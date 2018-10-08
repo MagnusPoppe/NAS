@@ -3,8 +3,9 @@ import random
 from operator import attrgetter
 from evolutionary_operations.mutation import mutate
 from evolutionary_operations.selection import tournament, init_population
-from helpers import output_stats
+from output import output_stats
 from mnist_dataset import mnist_configure
+from output import generation_finished_print
 
 
 def random_sample(collection):
@@ -22,8 +23,8 @@ def evolve_architecture(generations, individs, train, fitness, selection, epochs
     fitness(population)
     population.sort(key=attrgetter('fitness'))
     seen_modules += population
-
     for generation in range(generations):
+
         print("\nGeneration {}".format(generation))
         children = []
         for selected in selection(population, size=individs):
@@ -39,10 +40,9 @@ def evolve_architecture(generations, individs, train, fitness, selection, epochs
         population.sort(key=attrgetter('fitness'))
         population = population[len(population)-individs:]
 
-        print("--> Generation {} best: {} % Accuracy ({})"
-              .format(generation, population[-1].fitness, population[-1].ID)
-          )
+        generation_finished_print(generation, population)
     return population
+
 
 if __name__ == '__main__':
     print("Evolving architecture")
@@ -51,7 +51,7 @@ if __name__ == '__main__':
     compile_args = ((784,), 10)
 
     popultation = evolve_architecture(
-        generations=10,
+        generations=50,
         individs=10,
         fitness=evaluate,
         train=train,
@@ -59,5 +59,5 @@ if __name__ == '__main__':
         epochs=30,
         batch_size=256
     )
-    print("\nTraining complete.")
+    print("\n\nTraining complete.")
     output_stats(popultation, start_time)

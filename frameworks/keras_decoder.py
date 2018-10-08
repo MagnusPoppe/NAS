@@ -44,4 +44,5 @@ def connect_operation_to_previous(node: Base, previous: list, input_layer: keras
         return assemble(node, in_shape=previous_output.shape, is_root=False)(previous_output)
 
     # else: Operation
-    return node.to_keras()(previous_output)
+    node.keras_operation = node.to_keras()
+    return node.keras_operation(previous_output)
