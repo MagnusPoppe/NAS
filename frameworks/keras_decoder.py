@@ -36,7 +36,11 @@ def connect_operation_to_previous(node: Base, previous: list, input_layer: keras
         previous_output = input_layer
     elif len(previous) == 1:
         # Regular input
-        previous_output = previous[0].keras_tensor
+        try:
+            previous_output = previous[0].keras_tensor
+        except AttributeError as e:
+            raise(e)
+
     else:
         # Concatenation of all inputs
         try:

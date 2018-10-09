@@ -135,7 +135,7 @@ def insert(module, first, last, op, between=False) -> Module:
         if last in first.next: first.next.remove(last)
         if first in last.prev: last.prev.remove(first)
     module.logs += ["Insert-between mutation" if between else "Insert mutation"]
-    module.logs[-1] += "for {}".format(op)
+    module.logs[-1] += " for {} between {} and {}".format(op, first, last)
     return module
 
 
@@ -158,21 +158,16 @@ def remove(module, op) -> Module:
         return new_list
 
 
-    if not op.next or not op.prev:
+    if op.next and op.prev:
         module.children.remove(op)
-
         # Connecting ops previous nodes to its next nodes, bypassing it self:
         for prev_op in op.prev:
             for next_op in op.next:
-                prev_op.next += [next_op]
-                next_op.prev += [prev_op]
+                if next_op not in prev_op.next:
+                    prev_op.next += [next_op]
+                if prev_op not in next_op.prev:
+                    next_op.prev += [prev_op]
 
-        # Remove duplicated connections if any:
-        for prev_op in op.prev:
-            prev_op.next = remove_duplicates(prev_op.next)
-
-        for next_op in op.next:
-            next_op.prev = remove_duplicates(next_op.prev)
 
         # Removing ties between op and its previous and next nodes:
         for prev_op in op.prev:
@@ -181,17 +176,18 @@ def remove(module, op) -> Module:
         for next_op in op.next:
             next_op.prev.remove(op)
             op.next.remove(next_op)
+    elif len(op.next) == 1:
+        # Can only delete first node when it has a single connection forwards.
+        module.children.remove(op)
+        op.next[0].prev.remove(op)
+        op.next = []
+    elif len(op.prev) == 1:
+        # Can only delete last node when it has a single connection backwards.
+        module.children.remove(op)
+        op.prev[0].next.remove(op)
+        op.prev = []
 
-        for _op in module.children:
-            for _prev in _op.prev:
-                if _prev not in module.children:
-                    print("fuck!")
-            for _next in _op.next:
-                if _next not in module.children:
-                    print("fuck!")
-
-        module.logs += ["Remove mutation for {}".format(op)]
-    else: pass
+    module.logs += ["Remove mutation for {}".format(op)]
 
     return module
 
