@@ -28,11 +28,6 @@ class Module(Base):
         self.ID = "{} v{}".format(self.name, self.version_number)
         self.logs = []
 
-    def __iadd__(self, other):
-        if isinstance(other, Operation) or isinstance(other, Module):
-            self.append(other)
-        return self
-
     def __str__(self):
         return "Module [{}]".format(", ".join([str(c) for c in self.children]))
 
@@ -52,83 +47,14 @@ class Module(Base):
 
         # Copying connectivity for all children:
         for i, child in enumerate(self.children):
-            for cn in child.next:
-                new_mod.children[i].next += [new_mod.children[self.children.index(cn)]]
-            for cp in child.prev:
-                new_mod.children[i].prev += [new_mod.children[self.children.index(cp)]]
+            try:
+                for cn in child.next:
+                    new_mod.children[i].next += [new_mod.children[self.children.index(cn)]]
+                for cp in child.prev:
+                    new_mod.children[i].prev += [new_mod.children[self.children.index(cp)]]
+            except ValueError as e:
+                raise e
         return new_mod
-
-    def append(self, op):
-        if len(self.children) == 1:
-            self.children[0].next += [op]
-            op.prev += [self.children[0]]
-        elif len(self.children) > 1:
-            previous_nodes = self.find_last()
-            previous = previous_nodes[0] if len(previous_nodes) == 1 else random_sample(previous_nodes)
-            previous.next += [op]
-            op.prev += [previous]
-
-        self.children += [op]
-        return self
-
-    def insert(self, first_node, second_node, operation):
-        """
-        Inserts operation between two nodes.
-        :param first_node:
-        :param second_node:
-        :param operation:
-        :return:
-        """
-
-        # 1. Switch if first_node after second_node (no cycles).
-        if _is_before(first_node, second_node):
-            temp = second_node
-            second_node = first_node
-            first_node = temp
-
-        # 2. Connect fully.
-        first_node.next += [operation]
-        operation.prev += [first_node]
-        operation.next += [second_node]
-        second_node.prev += [operation]
-        self.children += [operation]
-
-        self.logs += ["Inserted node {} between {} and {}".format(
-            operation, first_node, second_node
-        )]
-        return self
-
-    def connect(self, first_node, second_node):
-        if _is_before(first_node, second_node):
-            temp = second_node
-            second_node = first_node
-            first_node = temp
-
-        # 2. Connect fully.
-        first_node.next += [second_node]
-        second_node.prev += [first_node]
-        self.logs += ["Connected {} to {}".format(first_node, second_node)]
-
-    def remove(self, child: Base):
-        # 1. Removing from list:
-        index = self.children.index(child)
-        self.children.pop(index)
-
-        # 2. Fully connect all previous to all next
-        for n in child.next:
-            for p in child.prev:
-                n.prev += [p]
-                p.next += [n]
-
-        # 3. Cut all ties:
-        for p in child.next: p.prev.remove(child)
-        for p in child.prev: p.next.remove(child)
-
-        # 4. Remove duplicate connections
-        for node in child.next: node.next = list(set(node.next))
-        for node in child.prev: node.prev = list(set(node.prev))
-
-        self.logs += ["Removed {}".format(child)]
 
     def visualize(self):
         # Local imports. Server does not have TKinter and will crash on load.
@@ -179,8 +105,3 @@ class Module(Base):
                 return ends
 
         return find_end(self.children[0], [])
-
-def _is_before(node, target):
-    if node == target: return True
-    elif node.prev: return any([_is_before(prev, target) for prev in node.prev])
-    else: return False
