@@ -1,8 +1,8 @@
 import unittest
 import os
-
 os.chdir("..")
 
+# from evolutionary_operations.initialization import init_population
 from modules.module import Module
 from modules import dense
 
@@ -95,13 +95,11 @@ class TestMutationOperator(unittest.TestCase):
             expected_prev = 1 if i > 0 else 0
             self.assertEqual(len(op.prev), expected_prev, "Next list contained wrong number of children")
 
-    def test_remove_node_fully_connected(self):
-        # Initial model should look like:
-        # op1 -> op2    ->     op3
+    def test_remove_node_single_connections(self):
+        # Initial model:                   Final model:
+        # op1 -> op2    ->     op3         op1 -> op2    ->     op3
         #          \          /
         #           -> op4 ->
-        # Final model:
-        # op1 -> op2    ->     op3
 
         op4 = dense.Dropout()
         self.module = mutation.insert(self.module, self.op2, self.op3, op=op4, between=False)
@@ -129,33 +127,53 @@ class TestMutationOperator(unittest.TestCase):
         check_for_duplicates(self, self.op3.prev, "Found duplicate in list self.op3.prev...")
         check_for_duplicates(self, self.op2.next, "Found duplicate in list self.op2.next...")
 
+    def test_remove_node_multi_connections(self):
+        # Initial model:                   Final model:
+        # op1 -> op2    ->     op3         op1     ->     op3
+        #          \          /               \          /
+        #           -> op4 ->                  -> op4 ->
+
+        # Setup:
+        op4 = dense.Dropout()
+        self.module = mutation.insert(self.module, self.op2, self.op3, op=op4, between=False)
+
+        # Performing action:
+        self.module = mutation.remove(self.module, op=self.op2)
+
+        # Testing if all connected nodes children of module
+        for child in self.module.children:
+            for node in child.prev:
+                self.assertIn(node, self.module.children)
+            for node in child.next:
+                self.assertIn(node, self.module.children)
+
+        # Testing each of the connections manually:
+        self.assertEqual(len(self.op1.prev), 0, "Wrong number of nodes connected to op1.prev")
+        self.assertEqual(len(self.op1.next), 2, "Wrong number of nodes connected to op1.next")
+        self.assertEqual(len(op4.prev), 1, "Wrong number of nodes connected to op4.prev")
+        self.assertEqual(len(op4.next), 1, "Wrong number of nodes connected to op4.next")
+        self.assertEqual(len(self.op3.prev), 2, "Wrong number of nodes connected to op3.prev")
+        self.assertEqual(len(self.op3.next), 0, "Wrong number of nodes connected to op3.next")
+
+        self.assertEqual(len(self.op2.next) + len(self.op2.prev), 0, "Removed node was not emptied")
+
     def test_remove_last_node(self):
-        # Initial model should look like:
-        # op1 -> op2    ->     op3
-        #          \          /
-        #           -> op4 ->
-        # Final model:
-        # op1 -> op2    ->     op3
-        #          \          /
-        #           -> op4 ->
+        # Initial model should look like:     Final model (no changes):
+        # op1 -> op2    ->     op3            op1 -> op2    ->     op3
+        #          \          /                        \          /
+        #           -> op4 ->                           -> op4 ->
+
         op4 = dense.Dropout()
         self.module = mutation.insert(self.module, self.op2, self.op3, op=op4, between=False)
         self.module = mutation.remove(self.module, op=self.op3)
         self.assertIn(self.op3, self.module.children, "op3 was removed when illegal to remove.")
         self.assertEqual(len(self.op3.prev), 2, "op3 was disconnected from its previous...")
 
-        # Initial model should look like:
-        # op1 -> op2    ->     op3
-        #          \          /
-        #           -> op4 ->
-        # middel step model:
-        # op1 -> op2    ->     op3 -> op5
-        #          \          /
-        #           -> op4 ->
-        # final step model:
-        # op1 -> op2    ->     op3
-        #          \          /
-        #           -> op4 ->
+        # Initial model:                 middel step model:                 final step model:
+        # op1 -> op2    ->     op3       op1 -> op2    ->     op3 -> op5    op1 -> op2    ->     op3
+        #          \          /                   \          /                       \          /
+        #           -> op4 ->                      -> op4 ->                          -> op4 ->
+
         # Adding a node to the end will make deletion possible:
         op5 = dense.Dropout()
         self.module = mutation.append(self.module, op5)
@@ -168,16 +186,25 @@ class TestMutationOperator(unittest.TestCase):
 
 
     def test_remove_first_node(self):
-        # final step model:
-        # op2    ->     op3
-        #   \          /
-        #    -> op4 ->
-        # Adding a node to the end will make deletion possible:
+        # Initial model:                     final step model:
+        # op1 -> op2    ->     op3           op2    ->     op3
+        #          \          /                \          /
+        #           -> op4 ->                   -> op4 ->
+
         self.module = mutation.remove(self.module, self.op1)
         self.assertEqual(len(self.op1.next), 0, "first node's next was not emptied")
         self.assertEqual(len(self.op2.prev), 0, "New first node has previous ties.")
         self.assertNotIn(self.op1, self.module.children, "Op1 was not removed from children.")
         self.assertEqual(self.module.find_first(), self.op2, "Op2 was expected to be the first node but was not.")
 
-    # def test_stress_test_initialization
-    #     pass
+    # def test_stress_test_initialization(self):
+    #     for _ in range(0, 10, 1):
+    #         population = init_population(100, (784,), 10, 1, 100)
+#
+    #         for individ in population:
+    #             # Testing if all connected nodes children of module
+    #             for child in individ.children:
+    #                 for node in child.prev:
+    #                     self.assertIn(node, individ.children, "Not fully connected!")
+    #                 for node in child.next:
+    #                     self.assertIn(node, individ.children, "Not fully connected!")

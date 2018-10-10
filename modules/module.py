@@ -50,6 +50,9 @@ class Module(Base):
             try:
                 for cn in child.next:
                     new_mod.children[i].next += [new_mod.children[self.children.index(cn)]]
+            except ValueError as e:
+                raise e
+            try:
                 for cp in child.prev:
                     new_mod.children[i].prev += [new_mod.children[self.children.index(cp)]]
             except ValueError as e:

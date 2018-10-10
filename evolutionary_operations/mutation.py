@@ -150,16 +150,9 @@ def safety_insert(first, last, module) -> tuple:
 
 
 def remove(module, op) -> Module:
-    def remove_duplicates(container: list):
-        new_list = []
-        for element in container:
-            if element not in new_list:
-                new_list += [element]
-        return new_list
-
-
     if op.next and op.prev:
         module.children.remove(op)
+        prevs, nexts = len(op.prev), len(op.next)
         # Connecting ops previous nodes to its next nodes, bypassing it self:
         for prev_op in op.prev:
             for next_op in op.next:
@@ -168,26 +161,28 @@ def remove(module, op) -> Module:
                 if prev_op not in next_op.prev:
                     next_op.prev += [prev_op]
 
-
         # Removing ties between op and its previous and next nodes:
         for prev_op in op.prev:
             prev_op.next.remove(op)
-            op.prev.remove(prev_op)
         for next_op in op.next:
             next_op.prev.remove(op)
-            op.next.remove(next_op)
+        op.prev = []
+        op.next = []
+        module.logs += ["Remove fully connected mutation for {} with  #prev={} #next={}".format(op, prevs, nexts)]
+
     elif len(op.next) == 1:
         # Can only delete first node when it has a single connection forwards.
         module.children.remove(op)
         op.next[0].prev.remove(op)
         op.next = []
+        module.logs += ["Remove first mutation for {}".format(op)]
     elif len(op.prev) == 1:
         # Can only delete last node when it has a single connection backwards.
         module.children.remove(op)
         op.prev[0].next.remove(op)
         op.prev = []
+        module.logs += ["Remove last mutation for {}".format(op)]
 
-    module.logs += ["Remove mutation for {}".format(op)]
 
     return module
 
@@ -199,7 +194,7 @@ def connect(module, first, last) -> Module:
     else:
         first.next += [last]
         last.prev += [first]
-    module.logs += ["Connect mutation"]
+    module.logs += ["Connect mutation between {} and {}".format(first, last)]
     return module
 
 
