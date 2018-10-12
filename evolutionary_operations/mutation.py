@@ -6,10 +6,6 @@ from frameworks.keras_decoder import assemble
 from modules.module import Module
 
 
-# TODO: Som i resnet, legg til en skip connection.
-# Vi vil at en node kan muteres til å bli koblet til en annen node uten
-# at det lages en ekstra node i mellom...
-
 def _generate_votes(weights: list) -> list:
     votes = []
     for operation, weight in weights:
@@ -19,11 +15,11 @@ def _generate_votes(weights: list) -> list:
 
 OPERATOR_WEIGHTS = [
     ("append", 2),
-    ("remove", 30),
-    ("insert", 5),
-    ("insert-between", 20),
     ("connect", 5),
-    ("identity", 1)
+    ("insert", 10),
+    ("insert-between", 10),
+    ("remove", 30),
+    ("identity", 20),
 ]
 
 votes = _generate_votes(OPERATOR_WEIGHTS)
@@ -99,12 +95,7 @@ def transfer_predecessor_weights(module: Module, in_shape: tuple, classes: int) 
             if child.ID == predecessor_child.ID:
                 try:
                     child.keras_operation.set_weights(predecessor_child.keras_operation.get_weights())
-                except ValueError:
-                    print("    - Incompatible weights.")
-                    print("    - Object type: {}".format(type(child.keras_operation)))
-                    if len(child.prev) > 1:
-                        print("    - Previous layer was concatination")
-                    break
+                except ValueError: break
     return module
 
 

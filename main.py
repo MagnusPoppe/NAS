@@ -18,7 +18,7 @@ def evolve_architecture(generations, individs, train, fitness, selection, epochs
     seen_modules = []
 
     # initializing population
-    population = init_population(individs, in_shape, classes, 10, 100)
+    population = init_population(individs, in_shape, classes, 2, 15)
     train(population, epochs, batch_size)
 
     # population fitness

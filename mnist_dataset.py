@@ -44,7 +44,7 @@ def mnist_configure(classes): # -> (function, function):
     session.run(tf.global_variables_initializer())
 
     def train(population: list, epochs=5, batch_size=64):
-        print("--> Running training for {} epochs on {} models ".format(epochs, len(population)), end="", flush=True)
+        print("--> Running training for {} epochs on {} models |".format(epochs, len(population)), end="", flush=True)
         started = time.time()
         for individ in population:
             model = individ.keras_operation
@@ -60,15 +60,18 @@ def mnist_configure(classes): # -> (function, function):
                 validation_data=(x_val, y_val)
             )
             individ.fitness = metrics.history['val_acc'][-1]
-
-        print("(elapsed time: {} sec)".format(int(time.time()-started)))
+            print("=", end="", flush=True)
+        print("| (elapsed time: {} sec)".format(int(time.time()-started)))
 
     def evaluate(population: list):
         print("--> Evaluating {} models".format(len(population)))
         for individ in population:
             model = individ.keras_operation
-            model.compile(loss=loss, optimizer=sgd, metrics=['accuracy'])
-            metrics = model.evaluate(x_test, y_test, verbose=0)
+            # model.compile(loss=loss, optimizer=sgd, metrics=['accuracy'])
+            try:
+                metrics = model.evaluate(x_test, y_test, verbose=0)
+            except ValueError as e:
+                raise e
             individ.fitness = metrics[1]  # Accuracy
 
     return train, evaluate

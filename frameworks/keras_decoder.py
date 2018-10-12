@@ -18,10 +18,13 @@ def assemble(module:Module, in_shape:tuple=(784,), classes:int=10, is_root:bool=
         node.keras_tensor = connect_operation_to_previous(node, node.prev, input)
 
     # 3. Create a trainable keras.models.Model for module:
-    module.keras_operation = keras.models.Model(inputs=[input], outputs=[
-        keras.layers.Dense(units=classes, activation="softmax")(operations[-1].keras_tensor) if is_root
-        else operations[-1].keras_tensor
-    ])
+    try:
+        module.keras_operation = keras.models.Model(inputs=[input], outputs=[
+            keras.layers.Dense(units=classes, activation="softmax")(operations[-1].keras_tensor)
+            if is_root else operations[-1].keras_tensor
+        ])
+    except ValueError as e:
+        raise e
     return module.keras_operation
 
 
@@ -36,17 +39,10 @@ def connect_operation_to_previous(node: Base, previous: list, input_layer: keras
         previous_output = input_layer
     elif len(previous) == 1:
         # Regular input
-        try:
-            previous_output = previous[0].keras_tensor
-        except AttributeError as e:
-            raise(e)
-
+        previous_output = previous[0].keras_tensor
     else:
         # Concatenation of all inputs
-        try:
-            previous_output = keras.layers.concatenate([_prev.keras_tensor for _prev in previous])
-        except AttributeError as e:
-            raise(e)
+        previous_output = keras.layers.concatenate([_prev.keras_tensor for _prev in previous])
     if isinstance(node, Module):
         return assemble(node, in_shape=previous_output.shape, is_root=False)(previous_output)
 
