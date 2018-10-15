@@ -15,41 +15,44 @@ def random_sample(collection):
     return collection[random.randint(0, len(collection) - 1)]
 
 def evolve_architecture(generations, individs, train, fitness, selection, epochs, batch_size, in_shape, classes):
-    seen_modules = []
-
-    # initializing population
     population = init_population(individs, in_shape, classes, 2, 15)
-    train(population, epochs, batch_size)
+    try:
+        print("Evolving architecture")
+        seen_modules = []
 
-    # population fitness
-    fitness(population)
-    population.sort(key=attrgetter('fitness'))
-    seen_modules += population
-    for generation in range(generations):
+        # initializing population
+        train(population, epochs, batch_size)
 
-        print("\nGeneration {}".format(generation))
-        children = []
-        for selected in selection(population, individs):
-            selected = mutate(selected, in_shape, classes, modules=seen_modules)
-            children += [selected]
-
-        # Elitism:
-        train(children, epochs, batch_size)
-        population += children
+        # population fitness
         population.sort(key=attrgetter('fitness'))
-        population = population[len(population)-individs:]
+        seen_modules += population
 
-        seen_modules += children
-        generation_finished_print(generation, population)
+        for generation in range(generations):
+            print("\nGeneration {}".format(generation))
+            children = []
+            for selected in selection(population, individs):
+                selected = mutate(selected, in_shape, classes, modules=seen_modules)
+                if not selected is None:
+                    children += [selected]
 
-        if generation % 10 == 0:
-            seen_modules = trash_bad_modules(seen_modules, evaluate, modules_to_keep=10)
-            gc.collect()
+            # Elitism:
+            train(children, epochs, batch_size)
+            population += children
+            population.sort(key=attrgetter('fitness'))
+            population = population[len(population)-individs:]
+
+            seen_modules += children
+            generation_finished_print(generation, population)
+
+            if generation % 10 == 0:
+                seen_modules = trash_bad_modules(seen_modules, evaluate, modules_to_keep=10)
+                gc.collect()
+    except KeyboardInterrupt:
+        pass
     return population
 
 
 if __name__ == '__main__':
-    print("Evolving architecture")
     start_time = time.time()
     train, evaluate = mnist_configure(classes=10)
 

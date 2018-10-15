@@ -71,12 +71,17 @@ def mutate(module: Module, in_shape: tuple, classes: int, modules: list = None, 
 
     # Compiles keras model from module (not done for multiple mutations):
     if compilation:
-        if random.uniform(0, 1) < 0.2 or not module.predecessor:
-            mutated.keras_tensor = assemble(mutated, in_shape, classes, is_root=True)
-        else:
-            print("--> {} got its weights transferred from predecessor".format(module.ID))
-            mutated = transfer_predecessor_weights(mutated, in_shape, classes)
+        try:
+            if random.uniform(0, 1) < 0.2 or not module.predecessor:
+                mutated.keras_tensor = assemble(mutated, in_shape, classes, is_root=True)
+            else:
+                print("--> {} got its weights transferred from predecessor".format(module.ID))
+                mutated = transfer_predecessor_weights(mutated, in_shape, classes)
+        except ValueError as e:
+            print("--> Transfer Predecessor Weights: I got an invalid module as input...")
+            return None  # Invalid network!
     return mutated
+
 
 
 def transfer_predecessor_weights(module: Module, in_shape: tuple, classes: int) -> Module:
@@ -90,6 +95,7 @@ def transfer_predecessor_weights(module: Module, in_shape: tuple, classes: int) 
     """
     predecessor = module.predecessor
     module.keras_tensor = assemble(module, in_shape, classes)
+
     for predecessor_child in predecessor.children:
         for child in module.children:
             if child.ID == predecessor_child.ID:
