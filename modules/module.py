@@ -21,6 +21,7 @@ class Module(Base):
         self.keras_operation = None
         self.sess = None
         self.predecessor = None
+        self.device = None
 
         # Identity and version-control:
         self.name = random_sample_remove(names)

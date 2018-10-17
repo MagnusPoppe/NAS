@@ -3,7 +3,13 @@ import time
 import tensorflow as tf
 from tensorflow import keras
 import numpy as np
-from tensorflow.python.platform.flags import FLAGS
+
+available_devices = ['/device:GPU:1']
+def generate_device_list() -> list:
+    dev = 0
+    while True:
+        yield available_devices[dev % len(available_devices)]
+        dev += 1
 
 
 def mnist_configure(classes):  # -> (function, function):
@@ -42,46 +48,60 @@ def mnist_configure(classes):  # -> (function, function):
         gpu_options=tf.GPUOptions(allow_growth=True)
     ))
     keras.backend.set_session(session)
+    devices = generate_device_list()
 
-    # session.run(tf.global_variables_initializer())
+
+    # Setting up dataset:
+    dataset = tf.contrib.data.Dataset.from_tensor_slices(x_train)
 
     def train(population: list, epochs=5, batch_size=64):
         started = time.time()
-
         # Preparing models for training:
-        models = []
-        feeders = []
+        placeholders = []
         trainers = []
         labels = tf.placeholder(tf.float32, shape=(None, 10))
-        for individ in population:
-            model = individ.keras_operation  # type: keras.models.Model
-            loss = tf.reduce_mean(tf.keras.backend.categorical_crossentropy(labels, model.output))
-            optimizer = tf.train.AdamOptimizer(0.1)
-            #  model.compile(optimizer=optimizer, loss=True, metrics=['accuracy'])
-            trainers += [optimizer.minimize(loss)]
+        for i, individ in enumerate(population):
+            if not individ.device: individ.device = next(devices)
+            with tf.device(individ.device):
+                model = individ.keras_operation  # type: keras.models.Model
+                loss = tf.reduce_mean(tf.keras.backend.categorical_crossentropy(labels, model.output))
+                optimizer = tf.train.AdamOptimizer(0.01)
 
-            feeders += [(model.input, labels)]
+                trainers += [optimizer.minimize(loss)]
+                placeholders += [(model.input, labels)]
 
         # RUNNING TRAINING:
         keras.backend.learning_phase = True
+        with session as sess:
+            sess.run(tf.global_variables_initializer())
 
-        print("--> Running training for {} epochs on {} models ".format(epochs, len(population)), end="", flush=True)
-        feeder = {}
-        for _ in range(epochs):
-            for i in range(0, len(x_train), batch_size):
-                feeder = {}
-                batch_end = batch_size * i + batch_size
-                batch_train = x_train[i:(batch_end if batch_end < len(x_train) else len(x_train))]
-                batch_labels = y_train[i:(batch_end if batch_end < len(y_train) else len(y_train))]
-                for labels, cost in feeders:
-                    feeder[labels] = batch_train
-                    feeder[cost] = batch_labels
+            prep_time = 0
+            train_time = 0
 
-            with tf.device("/gpu:1"):
-                session.run(tf.global_variables_initializer())
-                session.run(trainers, feed_dict=feeder)
+            print("--> Training for {} epochs on {} models ".format(epochs, len(population)), end="", flush=True)
+            for epoch in range(epochs):
+
+                # DATASET PREPARATION:
+                for i in range(0, len(x_train), batch_size):
+                    start = time.time()
+                    # Batch setup:
+                    batch_end = batch_size * i + batch_size
+                    batch_train = x_train[i:(batch_end if batch_end < len(x_train) else len(x_train))]
+                    batch_labels = y_train[i:(batch_end if batch_end < len(y_train) else len(y_train))]
+                    feeder = {}
+                    for labels, cost in placeholders:
+                        feeder[labels] = batch_train
+                        feeder[cost] = batch_labels
+
+                    # RUNNING TRAINING:
+                    training_start = time.time()
+                    prep_time += (training_start - start)
+                    sess.run(trainers, feed_dict=feeder)
+                    train_time += (time.time() - training_start)
+                print("--> Epoch 1 complete! Time used on preparation: {}, time used on training: {}".format(prep_time, train_time))
 
         print("(elapsed time: {} sec)".format(int(time.time() - started)))
+        print("--> Time used on preparation: {}, time used on training: {}".format(prep_time, train_time))
         evaluate(population)
 
     def evaluate(population: list):

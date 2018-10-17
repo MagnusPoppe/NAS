@@ -62,7 +62,7 @@ if __name__ == '__main__':
         fitness=evaluate,
         train=train,
         selection=tournament,
-        epochs=30,
+        epochs=10,
         batch_size=256,
         in_shape=(784,),
         classes=10
