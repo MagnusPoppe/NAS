@@ -8,6 +8,7 @@ from modules.dense import DenseS, DenseM, DenseL, Dropout
 
 operators2D = [Conv3x3, Conv5x5]
 operators1D = [DenseS, DenseM, DenseL, Dropout]
+operators = operators1D + operators2D
 registered_modules = []
 
 def random_sample(collection):

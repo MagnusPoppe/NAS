@@ -1,23 +1,25 @@
 import os
+
+
 os.chdir("..")
 import unittest
 from copy import deepcopy
 
-from evolutionary_operations.mutation import transfer_predecessor_weights
 from frameworks.keras_decoder import assemble
 from modules.dense import Dropout, DenseL, DenseM, DenseS
 from modules.module import Module
-from evolutionary_operations import mutation
+from evolutionary_operations import mutation_for_operators as mutation_ops
+from evolutionary_operations.weight_transfer import transfer_predecessor_weights
 from mnist_dataset import mnist_configure
 
 class TestWeightRetention(unittest.TestCase):
 
     def setUp(self):
         self.module = Module()
-        self.module = mutation.append(self.module, DenseS())
-        self.module = mutation.append(self.module, DenseM())
-        self.module = mutation.append(self.module, DenseL())
-        self.module = mutation.append(self.module, Dropout())
+        self.module = mutation_ops.append(self.module, DenseS())
+        self.module = mutation_ops.append(self.module, DenseM())
+        self.module = mutation_ops.append(self.module, DenseL())
+        self.module = mutation_ops.append(self.module, Dropout())
 
     def test_keeps_weights_after_copy(self):
         in_shape = (784,)
@@ -59,7 +61,7 @@ class TestWeightRetention(unittest.TestCase):
         self.module.keras_tensor = assemble(self.module, in_shape, classes)
 
         module_copy = deepcopy(self.module)
-        module_copy = mutation.insert(module_copy, module_copy.children[0], module_copy.children[-1], Dropout())
+        module_copy = mutation_ops.insert(module_copy, module_copy.children[0], module_copy.children[-1], Dropout())
 
         transfer_predecessor_weights(module_copy, in_shape, classes)
 

@@ -1,11 +1,17 @@
+def get_improvement(individ):
+    if individ.predecessor:
+        return individ.fitness - individ.predecessor.fitness
+    else:
+        return 0
+
 def generation_finished_print(generation, population):
-    print("--> Generation {} Results: \n"
-          "    - Best: {} % Accuracy ({})\n"
-          "    - Runner up: {} % Accuracy ({})"
-          .format(generation,
-                  population[-1].fitness, population[-1].ID,
-                  population[-2].fitness, population[-2].ID)
-          )
+
+    print("--> Generation {} Leaderboards:".format(generation))
+
+    for i, individ in enumerate(population):
+        print("    {}. {}:  Accuracy: {} %, improvement {} %".format(
+            i, population[-1].ID, population[-1].fitness, get_improvement(population[-1])
+        ))
 
 
 def output_stats(population, _time=None, plot_folder="./results"):
@@ -14,6 +20,7 @@ def output_stats(population, _time=None, plot_folder="./results"):
     os.makedirs(plot_folder, exist_ok=True)
 
     print("--> Accuracy of the best architecture was {} % ({})".format(population[-1].fitness, population[-1].ID))
+
     print("--> Plots of different network architectures can be found under {}".format(plot_folder))
     if _time:
         print("--> Total elapsed time: {}".format(int(time.time() - _time)))

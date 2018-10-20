@@ -7,14 +7,13 @@ from modules.operation import Operation
 class Dropout(Operation):
 
     def __init__(self):
-        super().__init__("Dropout-{}".format(time.time()), [Dense])
+        super().__init__("Dropout-{}".format(time.time()))
         self.rate = 0.5
 
     def __deepcopy__(self, memodict={}):
         """ Does not retain connectivity """
         new_dropout = Dropout()
         new_dropout.ID = self.ID
-        new_dropout.compatible = self.compatible
         new_dropout.rate = self.rate
         return new_dropout
 
@@ -35,7 +34,7 @@ class Dropout(Operation):
 class Dense(Operation):
 
     def __init__(self, ID, units, activation="relu", bias=True):
-        super().__init__("{}-{}".format(ID, time.time()), [type(self), Dropout])
+        super().__init__("{}-{}".format(ID, time.time()))
         self.units = units
         self.activation = activation
         self.bias = bias
@@ -47,7 +46,6 @@ class Dense(Operation):
 
     def transfer_values(self, other):
         other.nodeID = self.nodeID
-        other.compatible = self.compatible
         other.ID = self.ID
         other.units = self.units
         other.activation = self.activation

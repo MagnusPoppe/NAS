@@ -10,11 +10,11 @@ class Operation(Base):
     Instances of this class should always have a parent module.
     """
 
-    def __init__(self, ID, compatible):
+    def __init__(self, ID):
         super().__init__()
         self.ID = ID
         self.keras_operation = None
-        self.compatible = compatible
+        self.keras_tensor = None
 
     def __str__(self):
         return self.ID
