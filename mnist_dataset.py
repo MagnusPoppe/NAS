@@ -4,6 +4,8 @@ import tensorflow as tf
 from tensorflow import keras
 import numpy as np
 
+from firebase.upload import update_status
+
 
 def mnist_configure(classes, use_2D_input=False): # -> (function, function):
     def fix(data):
@@ -46,11 +48,11 @@ def mnist_configure(classes, use_2D_input=False): # -> (function, function):
     keras.backend.set_session(session)
     session.run(tf.global_variables_initializer())
 
-    def train(population: list, epochs=5, batch_size=64, prefix="--> "):
+    def train(population: list, epochs=5, batch_size=64, prefix="--> ", generation=0):
         print(prefix + "Running training for {} epochs on {} models |".format(epochs, len(population)), end="", flush=True)
         started = time.time()
         with tf.device("/gpu:0"):
-            for individ in population:
+            for i, individ in enumerate(population):
                 model = individ.keras_operation
 
                 # RUNNING TRAINING:
@@ -65,6 +67,7 @@ def mnist_configure(classes, use_2D_input=False): # -> (function, function):
                 )
                 individ.fitness = metrics.history['val_acc'][-1]
                 print("=", end="", flush=True)
+                update_status("Training completed for {}/{} models".format(i+1, len(population)))
         print("| (elapsed time: {} sec)".format(int(time.time()-started)))
 
     def evaluate(population: list, compiled=True, prefix="--> "):
@@ -77,4 +80,4 @@ def mnist_configure(classes, use_2D_input=False): # -> (function, function):
                 metrics = model.evaluate(x_test, y_test, verbose=0)
                 individ.fitness = metrics[1]  # Accuracy
 
-    return train, evaluate
+    return train, evaluate, "MNIST"

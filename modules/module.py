@@ -28,6 +28,9 @@ class Module(Base):
         self.predecessor = None
         self.fitness = 0
         self.logs = []
+        self.db_ref = None
+        self.model_image_path = None
+        self.model_image_link = None
 
         # Identity and version-control:
         if not names:

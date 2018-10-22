@@ -1,17 +1,22 @@
+from firebase.upload import upload_modules
+
+
 def get_improvement(individ):
     if individ.predecessor:
         return individ.fitness - individ.predecessor.fitness
     else:
         return 0
 
-def generation_finished_print(generation, population):
+def generation_finished(generation, population):
 
     print("--> Generation {} Leaderboards:".format(generation))
 
     for i, individ in enumerate(population):
         print("    {}. {}:  Accuracy: {} %, improvement {} %".format(
-            i, population[-1].ID, population[-1].fitness, get_improvement(population[-1])
+            i, population[i].ID, population[i].fitness, get_improvement(population[i])
         ))
+
+    upload_modules(population)
 
 
 def output_stats(population, _time=None, plot_folder="./results"):
