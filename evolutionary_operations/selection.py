@@ -33,7 +33,7 @@ def trash_bad_modules(modules: list, evaluate, modules_to_keep: int = 20) -> lis
         NOTE: This number should be higher than the population size.
     """
     if len(modules) < modules_to_keep: return modules
-    evaluate(modules)
+    # evaluate(modules)
     modules.sort(key=attrgetter("fitness"))
     print("--> Deleted {} modules".format(len(modules) - modules_to_keep))
     return modules[len(modules) - modules_to_keep:]

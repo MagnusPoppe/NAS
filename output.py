@@ -1,11 +1,22 @@
-def generation_finished_print(generation, population):
-    print("--> Generation {} Results: \n"
-          "    - Best: {} % Accuracy ({})\n"
-          "    - Runner up: {} % Accuracy ({})"
-          .format(generation,
-                  population[-1].fitness, population[-1].ID,
-                  population[-2].fitness, population[-2].ID)
-          )
+from firebase.upload import upload_modules
+
+
+def get_improvement(individ):
+    if individ.predecessor:
+        return individ.fitness - individ.predecessor.fitness
+    else:
+        return 0
+
+def generation_finished(generation, population):
+
+    print("--> Generation {} Leaderboards:".format(generation))
+
+    for i, individ in enumerate(population):
+        print("    {}. {}:  Accuracy: {} %, improvement {} %".format(
+            i, population[i].ID, population[i].fitness, get_improvement(population[i])
+        ))
+
+    upload_modules(population)
 
 
 def output_stats(population, _time=None, plot_folder="./results"):
@@ -15,6 +26,7 @@ def output_stats(population, _time=None, plot_folder="./results"):
 
     print("--> Accuracy of the best architecture was {} % ({})".format(population[-1].fitness, population[-1].ID))
     print("--> Plots of different network architectures can be found under {}".format(plot_folder))
+
     if _time:
         print("--> Total elapsed time: {}".format(int(time.time() - _time)))
 

@@ -6,4 +6,6 @@
 .vscode/*
 
 # Project:
-results/
+results/*
+firebase/secrets/*
+*/.png

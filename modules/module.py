@@ -1,37 +1,52 @@
 import json
 
-from helpers import random_sample_remove
+from helpers import random_sample_remove, random_sample
 from modules.base import Base
 from modules.operation import Operation
 
 global_id = 1
 
-with open("./resources/names.json", "r", encoding="utf-8") as file:
-    names = json.load(file)
+def load_name_list():
+    with open("./resources/names.json", "r", encoding="utf-8") as file:
+        return json.load(file)
 
+names = load_name_list()
+
+versions = {}
 class Module(Base):
     """
     Module is a collection of one or more modules and operations
     """
 
-    def __init__(self):
+    def __init__(self, name=None):
+        global versions
         global names
         super().__init__()
         self.children = []
         self.keras_operation = None
         self.sess = None
         self.predecessor = None
+        self.fitness = 0
+        self.logs = []
+        self.db_ref = None
+        self.model_image_path = None
+        self.model_image_link = None
+        self.epochs_trained = 0
 
         # Identity and version-control:
-        self.name = random_sample_remove(names)
-        self.version_number = 0
-        self.ID = "{} v{}".format(self.name, self.version_number)
-        self.logs = []
+        if not names:
+            names = load_name_list()
 
-    def __iadd__(self, other):
-        if isinstance(other, Operation) or isinstance(other, Module):
-            self.append(other)
-        return self
+        self.name = random_sample_remove(names) if not name else name
+
+        if self.name in versions:
+            self.version_number = versions[self.name]
+        else:
+            versions[self.name] = 0
+            self.version_number = versions[self.name]
+        versions[self.name] += 1
+
+        self.ID = "{} v{}".format(self.name, self.version_number)
 
     def __str__(self):
         return "Module [{}]".format(", ".join([str(c) for c in self.children]))
@@ -39,11 +54,11 @@ class Module(Base):
     def __deepcopy__(self, memodict={}):
         """ Does not retain connectivity on module level. """
         from copy import deepcopy
-
-        new_mod = Module()
+        global versions
+        new_mod = Module(self.name)
         new_mod.nodeID = self.nodeID
-        new_mod.version_number = self.version_number+1
-        new_mod.name = self.name
+        new_mod.version_number = versions[self.name]
+
         new_mod.logs = deepcopy(self.logs)
         new_mod.ID = "{} v{}".format(new_mod.name, new_mod.version_number)
 
@@ -52,77 +67,15 @@ class Module(Base):
 
         # Copying connectivity for all children:
         for i, child in enumerate(self.children):
-            for cn in child.next:
-                new_mod.children[i].next += [new_mod.children[self.children.index(cn)]]
-            for cp in child.prev:
-                new_mod.children[i].prev += [new_mod.children[self.children.index(cp)]]
+            try:
+                for cn in child.next:
+                    new_mod.children[i].next += [new_mod.children[self.children.index(cn)]]
+                for cp in child.prev:
+                    new_mod.children[i].prev += [new_mod.children[self.children.index(cp)]]
+
+            except AttributeError as e:
+                raise e
         return new_mod
-
-    def append(self, op):
-        if len(self.children) == 1:
-            self.children[0].next += [op]
-            op.prev += [self.children[0]]
-        elif len(self.children) > 1:
-            previous = self.children[-1]
-            previous.next += [op]
-            op.prev += [previous]
-
-        self.children += [op]
-        return self
-
-    def insert(self, first_node, second_node, operation):
-        """
-        Inserts operation between two nodes.
-        :param first_node:
-        :param second_node:
-        :param operation:
-        :return:
-        """
-
-        # 1. Switch if first_node after second_node (no cycles).
-        if _is_before(first_node, second_node):
-            temp = second_node
-            second_node = first_node
-            first_node = temp
-
-        # 2. Connect fully.
-        first_node.next += [operation]
-        operation.prev += [first_node]
-        operation.next += [second_node]
-        second_node.prev += [operation]
-        self.children += [operation]
-
-        self.logs += ["Inserted node {} between {} and {}".format(
-            operation, first_node, second_node
-        )]
-        return self
-
-    def connect(self, first_node, second_node):
-        if _is_before(first_node, second_node):
-            temp = second_node
-            second_node = first_node
-            first_node = temp
-
-        # 2. Connect fully.
-        first_node.next += [second_node]
-        second_node.prev += [first_node]
-        self.logs += ["Connected {} to {}".format(first_node, second_node)]
-
-    def remove(self, child: Base):
-        # 1. Removing from list:
-        index = self.children.index(child)
-        self.children.pop(index)
-
-        # 2. Fully connect all previous to all next
-        for n in child.next:
-            for p in child.prev:
-                n.prev += [p]
-                p.next += [n]
-
-        # 3. Cut all ties:
-        for p in child.next: p.prev.remove(child)
-        for p in child.prev: p.next.remove(child)
-        self.logs += ["Removed {}".format(child)]
 
     def visualize(self):
         # Local imports. Server does not have TKinter and will crash on load.
@@ -173,8 +126,3 @@ class Module(Base):
                 return ends
 
         return find_end(self.children[0], [])
-
-def _is_before(node, target):
-    if node == target: return True
-    elif node.prev: return any([_is_before(prev, target) for prev in node.prev])
-    else: return False

@@ -18,3 +18,5 @@ def rank_children(module: Module) -> Module:
             queue += [_next for _next in node.next]
             node.rank = rank
             rank += 1
+    if any(child.rank == -1 for child in module.children):
+        raise ValueError("Ranking could not be computed due to bad graph")
