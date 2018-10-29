@@ -53,31 +53,34 @@ def mnist_configure(classes, use_2D_input=False): # -> (function, function):
         started = time.time()
         with tf.device("/gpu:0"):
             for i, individ in enumerate(population):
-                model = individ.keras_operation
+                with session as sess:
+                    model = individ.keras_operation
 
-                # RUNNING TRAINING:
-                model.compile(loss=loss, optimizer=sgd, metrics=['accuracy'])
-                metrics = model.fit(
-                    x_train,
-                    y_train,
-                    epochs=epochs,
-                    batch_size=batch_size,
-                    verbose=0,
-                    validation_data=(x_val, y_val)
-                )
-                individ.fitness = metrics.history['val_acc'][-1]
-                print("=", end="", flush=True)
-                update_status("Training completed for {}/{} models".format(i+1, len(population)))
+                    # RUNNING TRAINING:
+                    model.compile(loss=loss, optimizer=sgd, metrics=['accuracy'])
+                    metrics = model.fit(
+                        x_train,
+                        y_train,
+                        epochs=epochs,
+                        batch_size=batch_size,
+                        verbose=0,
+                        validation_data=(x_val, y_val)
+                    )
+                    individ.fitness = metrics.history['val_acc'][-1]
+                    print("=", end="", flush=True)
+                    update_status("Training completed for {}/{} models".format(i+1, len(population)))
+                    tf.reset_default_graph()
         print("| (elapsed time: {} sec)".format(int(time.time()-started)))
 
     def evaluate(population: list, compiled=True, prefix="--> "):
         print(prefix + "Evaluating {} models".format(len(population)))
         for individ in population:
             model = individ.keras_operation
-            with tf.device("/gpu:0"):
-                if not compiled:
-                    model.compile(loss=loss, optimizer=sgd, metrics=['accuracy'])
-                metrics = model.evaluate(x_test, y_test, verbose=0)
-                individ.fitness = metrics[1]  # Accuracy
+            with session as sess:
+                with tf.device("/gpu:0"):
+                    if not compiled:
+                        model.compile(loss=loss, optimizer=sgd, metrics=['accuracy'])
+                    metrics = model.evaluate(x_test, y_test, verbose=0)
+                    individ.fitness = metrics[1]  # Accuracy
 
-    return train, evaluate, "MNIST"
+    return train, evaluate, "MNIST", (28, 28, 1)

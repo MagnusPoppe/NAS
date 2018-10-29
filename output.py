@@ -25,8 +25,8 @@ def output_stats(population, _time=None, plot_folder="./results"):
     os.makedirs(plot_folder, exist_ok=True)
 
     print("--> Accuracy of the best architecture was {} % ({})".format(population[-1].fitness, population[-1].ID))
-
     print("--> Plots of different network architectures can be found under {}".format(plot_folder))
+
     if _time:
         print("--> Total elapsed time: {}".format(int(time.time() - _time)))
 

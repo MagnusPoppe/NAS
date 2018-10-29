@@ -1,33 +1,38 @@
 import datetime
 import json
 import os
-import time
 
-import firebase_admin
-from google.cloud import storage
-from firebase_admin import credentials
-from firebase_admin import firestore
-from tensorflow import keras
+if "EA_NAS_UPLOAD_TO_FIREBASE" in os.environ and os.environ["EA_NAS_UPLOAD_TO_FIREBASE"] == "1":
+    import firebase_admin
+    from google.cloud import storage
+    from firebase_admin import credentials
+    from firebase_admin import firestore
+    from tensorflow import keras
 
-# Login:
-service_account = './firebase/secrets/ea-nas-firebase-adminsdk-df1xu-be41ed0594.json'
-try:
-    with open(service_account, "r") as file:
-        secret = json.load(file)
-    cred = credentials.Certificate(secret)
-    app = firebase_admin.initialize_app(cred)
-    db = firestore.client()
-    run = None
-except:
-    run = None
-    cred = None
-    db = None
+    # Login:
+    service_account = './firebase/secrets/ea-nas-firebase-adminsdk-df1xu-be41ed0594.json'
+    try:
+        with open(service_account, "r") as file:
+            secret = json.load(file)
+        cred = credentials.Certificate(secret)
+        app = firebase_admin.initialize_app(cred)
+        db = firestore.client()
+        run = None
+        print("--> Firebase configured!")
+    except:
+        print("--> Firebase connection failed!")
+        cred = app = db = run = None
+else:
+    print("--> Firebase turned off!")
+    cred = app = db = run = None
 
 def blob_filename(run, module):
     return u"model-images/{}-{}.png".format(run.id, module.ID)
 
 def upload_image(module):
-    global run
+    global run, db
+    if not db: return
+
     folder = u"./model_images/{}".format(run.id)
     os.makedirs(folder, exist_ok=True)
     filepath = os.path.join(folder, module.ID + ".png")
@@ -45,7 +50,7 @@ def upload_image(module):
 
 def upload_modules(modules):
     global db, run
-    if not run: return
+    if not db: return
 
     batch = db.batch()
     population_docs = db.collection("runs/{}/population".format(run.id)).get()
@@ -62,6 +67,7 @@ def upload_modules(modules):
             u'fitness': module.fitness,
             u'modelImage': module.model_image_link,
             u'modelImageFileName': blob_filename(run, module),
+            u'epochs': module.epochs_trained,
             u'name': module.name,
             u'numberOfOperations': len(module.keras_operation.layers),
             u'version': module.version_number,
@@ -83,18 +89,28 @@ def upload_modules(modules):
 
 def update_fitness(modules):
     global db, run
-    if not run: return
+    if not db: return
 
     batch = db.batch()
     for module in modules:
+        predecessor = module.predecessor.db_ref if module.predecessor else None
         if module.db_ref:
             doc = db.collection(u"runs/{}/modules".format(run.id)).document(module.ID)
-            batch.set(doc, {u'fitness': module.fitness})
+            batch.set(doc,  {
+            u'fitness': module.fitness,
+            u'modelImage': module.model_image_link,
+            u'modelImageFileName': blob_filename(run, module),
+            u'epochs': module.epochs_trained,
+            u'name': module.name,
+            u'numberOfOperations': len(module.keras_operation.layers),
+            u'version': module.version_number,
+            u'predecessor': predecessor
+        })
     batch.commit()
 
 def update_status(msg):
     global db, run
-    if not run: return
+    if not db: return
     import builtins
     generation = builtins.generation
     db.collection("runs/{}/programOutput".format(run.id)).add({
@@ -104,8 +120,9 @@ def update_status(msg):
     })
 
 
-def create_new_run(dataset: str, epochs: int, batch_size: int, generations: int, population_size: int):
+def create_new_run(dataset: str, epochs: float, batch_size: int, generations: int, population_size: int):
     global db
+    if not db: return
     timestamp, ref = db.collection("runs").add({
         u"dataset": dataset,
         u"epochsOfTraining": epochs,
@@ -117,10 +134,6 @@ def create_new_run(dataset: str, epochs: int, batch_size: int, generations: int,
     global run
     run = ref
     return ref
-
-def dont_upload_anything():
-    global run
-    run = None
 
 def main():
     run = create_new_run("Testing", 10, 1024, 10, 10)

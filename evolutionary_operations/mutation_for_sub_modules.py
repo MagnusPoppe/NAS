@@ -57,7 +57,10 @@ def sub_module_insert(module: Module, target_module: Module, in_shape: tuple, cl
             if before and after: break
 
         if not before or not after:
-            raise UnboundLocalError("Insert will fail when either before ({}) or after ({}) is None".format(before, after))
+            continue
+            # raise UnboundLocalError(
+            # "Insert will fail when either before ({}) or after ({}) is None".format(before, after)
+            # )
 
         # Transferring weights and assembles module:
         mutated = insert(mutated, after, before, target)
@@ -71,7 +74,7 @@ def sub_module_insert(module: Module, target_module: Module, in_shape: tuple, cl
         new += [mutated]
 
     if new:
-        train(new, 1, 1024, prefix="        - ")
+        train(new, 0, 1024, prefix="        - ")
         new.sort(key=attrgetter("fitness"))
         best = new[-1]
         print("        - Accuracy of new ({}) vs old ({})".format(best.fitness, module.fitness))

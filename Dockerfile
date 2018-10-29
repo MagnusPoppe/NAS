@@ -15,7 +15,8 @@ COPY . /src
 
 WORKDIR /src
 
-ENV EA-NAS-PROD = 1
+ENV LANG="C.UTF-8"
+ENV EA_NAS_UPLOAD_TO_FIREBASE="1"
 
 # Ready to run: 
 # RUN python tests.py

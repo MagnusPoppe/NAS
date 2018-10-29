@@ -23,7 +23,7 @@ OPERATOR_WEIGHTS = [
     ("connect", 0),
     ("insert", 10),
     ("insert-between", 10),
-    ("remove", 30),
+    ("remove", 60),
     ("identity", 20)
 ]
 

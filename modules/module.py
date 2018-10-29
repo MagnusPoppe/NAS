@@ -31,6 +31,7 @@ class Module(Base):
         self.db_ref = None
         self.model_image_path = None
         self.model_image_link = None
+        self.epochs_trained = 0
 
         # Identity and version-control:
         if not names:
