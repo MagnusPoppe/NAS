@@ -22,7 +22,8 @@ class Conv2D(Operation):
             strides=self.strides,
             padding=self.padding,
             activation=self.activation,
-            use_bias=self.bias
+            use_bias=self.bias,
+            name=self.ID
         )
 
     def transfer_values(self, conv2D):

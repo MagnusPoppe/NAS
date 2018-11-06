@@ -2,9 +2,7 @@ import random
 from copy import deepcopy
 
 from evolutionary_operations.mutation_operators import connect, insert, remove, append, _is_before
-from evolutionary_operations.weight_transfer import transfer_predecessor_weights
 from helpers import random_sample, operators, operators1D, operators2D
-from frameworks.keras_decoder import assemble
 from modules.base import Base
 from modules.convolution import Conv2D
 from modules.dense import Dense, Dropout
@@ -80,7 +78,7 @@ def find_placement(module, operation) -> (Module, Module):
 
 def apply_mutation_operator(module, operator, operators):
     if operator == "append":
-        last = module.find_last()
+        last = module.find_last()[0]
         operation = random_sample(operators1D)() if is1D(last) else random_sample(operators2D)()
         module = append(module, operation)
 
@@ -114,10 +112,4 @@ def mutate(module: Module, in_shape: tuple, classes: int, compilation: bool = Tr
     # Copying module to do non-destructive changes.
     mutated = deepcopy(module) if compilation else module
     mutated = apply_mutation_operator(mutated, select_operator(mutated), operators)
-
-    # Compiles keras model from module (not done for multiple mutations):
-    if compilation:
-        mutated.keras_tensor = assemble(mutated, in_shape, classes, is_root=True)
-        if module.predecessor:
-            mutated = transfer_predecessor_weights(mutated, in_shape, classes)
     return mutated

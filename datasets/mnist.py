@@ -7,7 +7,7 @@ import numpy as np
 from firebase.upload import update_status
 
 
-def mnist_configure(classes, use_2D_input=False): # -> (function, function):
+def configure(classes, use_2D_input=False): # -> (function, function):
     def fix(data):
         if use_2D_input:
             return data.reshape(data.shape[0], len(data[0]), len(data[0][0]), 1)

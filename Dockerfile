@@ -8,6 +8,7 @@ RUN pip install networkx
 RUN pip install graphviz
 RUN pip install pydot
 RUN pip install firebase_admin
+RUN pip install execnet
 
 # Copy over codefiles:
 VOLUME /src

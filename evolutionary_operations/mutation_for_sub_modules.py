@@ -3,10 +3,9 @@ from operator import attrgetter
 
 from evolutionary_operations.mutation_for_operators import is2D, is1D
 from evolutionary_operations.mutation_operators import _is_before, insert
-from evolutionary_operations.weight_transfer import transfer_predecessor_weights
-from frameworks.keras_decoder import assemble
 from modules.base import Base
 from modules.module import Module
+from datasets import pre_trainer as pretrain
 
 
 def get_insertion_points_after(module: Module, target: Module) -> (Base, Base):
@@ -30,7 +29,7 @@ def get_insertion_points_before(module: Module, target: Module, after: Base) -> 
     return insertion_before
 
 
-def sub_module_insert(module: Module, target_module: Module, in_shape: tuple, classes: int, train) -> Module:
+def sub_module_insert(module: Module, target_module: Module, config: dict) -> Module:
     # Copying both modules to avoid destructive changes:
     target = deepcopy(target_module)
 
@@ -64,17 +63,19 @@ def sub_module_insert(module: Module, target_module: Module, in_shape: tuple, cl
 
         # Transferring weights and assembles module:
         mutated = insert(mutated, after, before, target)
-        mutated.keras_operation = assemble(mutated, in_shape, classes)
-        mutated = transfer_predecessor_weights(mutated, in_shape, classes)
-
-        # Transfer weights of target module to sub module
-        sub_modules = [m for m in mutated.children if isinstance(m, Module) and m.name == target.name]
-        for sub_module in sub_modules:
-            transfer_predecessor_weights(sub_module, in_shape, classes, predecessor=target_module)
         new += [mutated]
+        # mutated.keras_operation = assemble(mutated, in_shape, classes)
+        # mutated = transfer_predecessor_weights(mutated, in_shape, classes)
+#
+        # # Transfer weights of target module to sub module
+        # sub_modules = [m for m in mutated.children if isinstance(m, Module) and m.name == target.name]
+        # for sub_module in sub_modules:
+        #     transfer_predecessor_weights(sub_module, in_shape, classes, predecessor=target_module)
 
     if new:
-        train(new, 0, 1024, prefix="        - ")
+        new_config = deepcopy(config)
+        new_config['epochs'] = 0
+        pretrain.launch_trainers(new, new_config)
         new.sort(key=attrgetter("fitness"))
         best = new[-1]
         print("        - Accuracy of new ({}) vs old ({})".format(best.fitness, module.fitness))

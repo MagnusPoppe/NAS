@@ -2,6 +2,12 @@ import datetime
 import json
 import os
 
+
+def stop_firebase():
+    global cred, app, db, run
+    print("--> Firebase not in use.")
+    cred = app = db = run = None
+
 if "EA_NAS_UPLOAD_TO_FIREBASE" in os.environ and os.environ["EA_NAS_UPLOAD_TO_FIREBASE"] == "1":
     import firebase_admin
     from google.cloud import storage
@@ -21,19 +27,20 @@ if "EA_NAS_UPLOAD_TO_FIREBASE" in os.environ and os.environ["EA_NAS_UPLOAD_TO_FI
         print("--> Firebase configured!")
     except:
         print("--> Firebase connection failed!")
-        cred = app = db = run = None
+        stop_firebase()
 else:
-    print("--> Firebase turned off!")
-    cred = app = db = run = None
+    stop_firebase()
+
 
 def blob_filename(run, module):
-    return u"model-images/{}-{}.png".format(run.id, module.ID)
+    return u"results/{}/{}/{}.png".format(run.id, module.name, module.version)
+
 
 def upload_image(module):
     global run, db
     if not db: return
 
-    folder = u"./model_images/{}".format(run.id)
+    folder = u"results/{}/{}/{}.png".format(run.id, module.name, module.version)
     os.makedirs(folder, exist_ok=True)
     filepath = os.path.join(folder, module.ID + ".png")
     if not module.model_image_path:
@@ -120,30 +127,18 @@ def update_status(msg):
     })
 
 
-def create_new_run(dataset: str, epochs: float, batch_size: int, generations: int, population_size: int):
+def create_new_run(config):
     global db
     if not db: return
     timestamp, ref = db.collection("runs").add({
-        u"dataset": dataset,
-        u"epochsOfTraining": epochs,
-        u"batchSizeForTraining": batch_size,
-        u"generations": generations,
-        u"populationSize": population_size,
+        u"dataset": config['dataset'],
+        u"epochsOfTraining": config['epochs'],
+        u"batchSizeForTraining": config['batch size'],
+        u"generations": config['generations'],
+        u"populationSize": config['population size'],
         u"started": datetime.datetime.now()
     })
     global run
     run = ref
-    return ref
-
-def main():
-    run = create_new_run("Testing", 10, 1024, 10, 10)
-    print(run)
-
-    from evolutionary_operations.initialization import init_population
-    population = init_population(10, (28, 28, 1), 10, 1, 20)
-    upload_modules(population)
-    upload_modules(population)
-
-
-if __name__ == '__main__':
-    main()
+    print("--> Created run {} in firebase!".format(run.id))
+    return run.id

@@ -19,7 +19,7 @@ class Dropout(Operation):
 
     def to_keras(self):
         from tensorflow import keras
-        return keras.layers.Dropout(rate=self.rate)
+        return keras.layers.Dropout(rate=self.rate, name=self.ID)
 
     def find_shape(self):
         shapes = [p.find_shape() for p in self.prev]
@@ -57,7 +57,8 @@ class Dense(Operation):
         return keras.layers.Dense(
             units=self.units,
             activation=self.activation,
-            use_bias=self.bias
+            use_bias=self.bias,
+            name=self.ID
         )
 
     def find_shape(self):

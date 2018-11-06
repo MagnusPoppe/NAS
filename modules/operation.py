@@ -13,8 +13,6 @@ class Operation(Base):
     def __init__(self, ID):
         super().__init__()
         self.ID = ID
-        self.keras_operation = None
-        self.keras_tensor = None
 
     def __str__(self):
         return self.ID

@@ -1,0 +1,11 @@
+{
+  "dataset": "CIFAR-10",
+  "input": [32, 32, 3],
+  "classes": 10,
+  "batch size": 1000,
+  "epochs": 3,
+  "population size": 6,
+  "generations": 5,
+  "device": "/device:GPU:0",
+  "run id": "test-data"
+}
