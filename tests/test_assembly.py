@@ -4,11 +4,11 @@ from copy import deepcopy
 
 os.chdir("..")
 
-from frameworks.keras_decoder import assemble
+from src.frameworks.keras_decoder import assemble
 from datasets.mnist_dataset import mnist_configure
-from modules.module import Module
-from modules import dense
-from evolutionary_operations import mutation_for_operators as mutation_ops
+from src.buildingblocks.module import Module
+from src.buildingblocks.ops import dense
+from src.evolutionary_operations import mutation_for_operators as mutation_ops
 
 
 class TestAssembly(unittest.TestCase):

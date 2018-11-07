@@ -8,7 +8,7 @@ from datasets import cifar10
 # TODO:
 
 from firebase.upload import update_status, upload_modules
-from modules.module import Module
+
 packages = []
 
 

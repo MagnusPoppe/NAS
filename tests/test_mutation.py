@@ -1,16 +1,15 @@
 import unittest
 import os
 
-from modules.convolution import Conv3x3, Conv5x5
+from src.buildingblocks.ops.convolution import Conv3x3, Conv5x5
 
 os.chdir("..")
 
 # from evolutionary_operations.initialization import init_population
-from modules.module import Module
-from modules import dense
+from src.buildingblocks.module import Module
+from src.buildingblocks.ops import dense
 
-from evolutionary_operations import mutation_for_operators as mutation
-from evolutionary_operations import mutation_operators as mutation_ops
+from src.evolutionary_operations import mutation_operators as mutation_ops, mutation_for_operators as mutation
 
 
 def check_for_duplicates(self, connection_list, msg):

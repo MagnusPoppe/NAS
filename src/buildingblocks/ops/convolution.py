@@ -1,6 +1,6 @@
 import time
 
-from modules.operation import Operation
+from src.buildingblocks.ops.operation import Operation
 
 class Conv2D(Operation):
 

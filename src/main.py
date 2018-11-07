@@ -1,24 +1,17 @@
-import os
-os.environ['EA_NAS_UPLOAD_TO_FIREBASE'] = '1'
-import json
 import time
 import random
 from operator import attrgetter
-from evolutionary_operations.initialization import init_population
-from evolutionary_operations.mutation_for_operators import mutate
-from evolutionary_operations.mutation_for_sub_modules import sub_module_insert
-from evolutionary_operations.selection import tournament
-from firebase.upload import create_new_run, update_status, update_fitness, stop_firebase
-from output import generation_finished
-from datasets import pre_trainer as pretrain
+from src.evolutionary_operations.initialization import init_population
+from src.evolutionary_operations.mutation_for_operators import mutate
+from src.evolutionary_operations.mutation_for_sub_modules import sub_module_insert
+from src.evolutionary_operations.selection import tournament
+from firebase.upload import create_new_run, update_status, update_fitness
+from src.helpers import random_sample
+from src.output import generation_finished
+from src.jobs import pre_trainer as pretrain
 
 import builtins
 builtins.generation = 0
-
-def random_sample(collection):
-    # Selecting a random operation and creating an instance of it.
-    return collection[random.randint(0, len(collection) - 1)]
-
 
 def evolve_architecture(selection, config):
     update_status("Creating initial population")
@@ -62,26 +55,12 @@ def evolve_architecture(selection, config):
         seen_modules += children
         generation_finished(generation, population)
 
-    print("\n\nTraining complete.")
 
-def main(dataset_config_file):
+def run(config):
     print("\n\nEvolving architecture")
     start_time = time.time()
-    with open(file=dataset_config_file, mode="r") as js:
-        config = json.load(js)
-        config['input'] = tuple(config['input'])
 
-    # dstop_firebase()
+    # stop_firebase()
     config['run id'] = create_new_run(config)
     evolve_architecture(selection=tournament, config=config)
-
-
-if __name__ == '__main__':
-    import sys, os
-    if len(sys.argv) > 2:
-        raise IOError("Program requires dataset config file.")
-    if not os.path.isfile(sys.argv[1]):
-        raise IOError("File {} does not exist!".format(sys.argv[1]))
-
-    config_file = sys.argv[1]
-    main(config_file)
+    print("\n\nTraining complete. Total runtime:", time.time() - start_time)

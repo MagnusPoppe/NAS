@@ -2,7 +2,7 @@ import tensorflow as tf
 from tensorflow import keras
 
 from firebase.upload import upload_image
-from frameworks.weight_transfer import transfer_predecessor_weights
+from src.frameworks.weight_transfer import transfer_model_weights
 
 
 def configure(classes, server):  # -> (function, function):
@@ -64,7 +64,7 @@ def configure(classes, server):  # -> (function, function):
 
 if __name__ == '__main__':
     import pickle, os, json
-    from frameworks.keras_decoder import assemble
+    from src.frameworks.keras_decoder import assemble
     with open("results/test-data/Felicia/v2/genotype.obj", "rb") as f:
         individ = pickle.load(f)
     with open("datasets/cifar10-config.json", "r") as f:
@@ -72,15 +72,14 @@ if __name__ == '__main__':
 
     model = assemble(individ, config['input'], config['classes'])
     predecessor_model = keras.models.load_model("results/test-data/Felicia/v0/model.h5")
-    transfer_predecessor_weights(model, predecessor_model)
-
+    transfer_model_weights(model, predecessor_model)
 
     training, evalutation, name, inputs = configure(config['classes'])
     print(training(model, config['device'], config['epochs'], config['batch size']))
 
 if __name__ == '__channelexec__':
     import pickle, os
-    from frameworks.keras_decoder import assemble
+    from src.frameworks.keras_decoder import assemble
 
     # Removing all debugging output from TF:
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
@@ -97,7 +96,7 @@ if __name__ == '__channelexec__':
         model = assemble(individ, config['input'], config['classes'])
         if individ.predecessor:
             predecessor_model = keras.models.load_model(individ.predecessor.saved_model)
-            transfer_predecessor_weights(model, predecessor_model)
+            transfer_model_weights(model, predecessor_model)
 
     fitness = training(
         model=model,

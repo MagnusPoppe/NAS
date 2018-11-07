@@ -1,4 +1,4 @@
-from modules.module import Module
+from src.buildingblocks.module import Module
 
 
 def append(module, op) -> Module:

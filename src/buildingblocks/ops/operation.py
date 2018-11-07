@@ -1,4 +1,4 @@
-from modules.base import Base
+from src.buildingblocks.base import Base
 
 
 class Operation(Base):

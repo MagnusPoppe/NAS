@@ -2,11 +2,11 @@ from operator import attrgetter
 
 from tensorflow import keras
 
-from modules.base import Base
-from modules.convolution import Conv2D
-from modules.dense import Dense, Dropout
-from modules.module import Module
-from frameworks.common import rank_children
+from src.buildingblocks.base import Base
+from src.buildingblocks.ops.convolution import Conv2D
+from src.buildingblocks.ops.dense import Dense, Dropout
+from src.buildingblocks.module import Module
+from src.frameworks.common import rank_children
 
 def assemble(module:Module, in_shape:tuple=(784,), classes:int=10, is_root:bool=True, indent=""):
     # 1. Rank and sort all child operations using breadth-first:

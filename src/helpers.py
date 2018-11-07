@@ -1,10 +1,7 @@
 import random
-import time
 
-from tensorflow import keras
-
-from modules.convolution import Conv3x3, Conv5x5
-from modules.dense import DenseS, DenseM, DenseL, Dropout
+from src.buildingblocks.ops.convolution import Conv3x3, Conv5x5
+from src.buildingblocks.ops.dense import DenseS, DenseM, DenseL, Dropout
 
 operators2D = [Conv3x3, Conv5x5]
 operators1D = [DenseS, DenseM, DenseL, Dropout]

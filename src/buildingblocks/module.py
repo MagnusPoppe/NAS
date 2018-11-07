@@ -1,7 +1,7 @@
 import json, os
 
-from helpers import random_sample_remove
-from modules.base import Base
+from src.helpers import random_sample_remove
+from src.buildingblocks.base import Base
 
 global_id = 1
 

@@ -1,9 +1,9 @@
 import random
 
-from evolutionary_operations.mutation_for_operators import mutate
-from evolutionary_operations.mutation_operators import append
-from helpers import random_sample, operators1D, operators2D
-from modules.module import Module
+from src.evolutionary_operations.mutation_for_operators import mutate
+from src.evolutionary_operations.mutation_operators import append
+from src.helpers import random_sample, operators1D, operators2D
+from src.buildingblocks.module import Module
 
 def init_population(individs, in_shape, classes, network_min_layers=1, network_max_layers=10):
     population = []

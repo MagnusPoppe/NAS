@@ -1,12 +1,12 @@
 import random
 from copy import deepcopy
 
-from evolutionary_operations.mutation_operators import connect, insert, remove, append, _is_before
-from helpers import random_sample, operators, operators1D, operators2D
-from modules.base import Base
-from modules.convolution import Conv2D
-from modules.dense import Dense, Dropout
-from modules.module import Module
+from src.evolutionary_operations.mutation_operators import connect, insert, remove, append, _is_before
+from src.helpers import random_sample, operators, operators1D, operators2D
+from src.buildingblocks.base import Base
+from src.buildingblocks.ops.convolution import Conv2D
+from src.buildingblocks.ops.dense import Dense, Dropout
+from src.buildingblocks.module import Module
 
 
 def _generate_votes(weights: list) -> list:

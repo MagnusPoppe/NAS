@@ -5,11 +5,11 @@ os.chdir("..")
 import unittest
 from copy import deepcopy
 
-from frameworks.keras_decoder import assemble
-from modules.dense import Dropout, DenseL, DenseM, DenseS
-from modules.module import Module
-from evolutionary_operations import mutation_for_operators as mutation_ops
-from frameworks.weight_transfer import transfer_predecessor_weights
+from src.frameworks.keras_decoder import assemble
+from src.buildingblocks.ops.dense import Dropout, DenseL, DenseM, DenseS
+from src.buildingblocks.module import Module
+from src.evolutionary_operations import mutation_for_operators as mutation_ops
+from src.frameworks.weight_transfer import transfer_predecessor_weights
 from datasets.mnist_dataset import mnist_configure
 
 class TestWeightRetention(unittest.TestCase):
