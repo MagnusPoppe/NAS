@@ -21,16 +21,13 @@ def random_sample(collection):
 
 
 def evolve_architecture(selection, config):
-    print("Evolving architecture")
     update_status("Creating initial population")
     seen_modules = []
 
     # initializing population
     population = init_population(config['population size'], config['input'], config['classes'], 1, 3)
-    # upload_modules(population)
 
     # Training initial population:
-    update_status("Training initial population")
     pretrain.launch_trainers(population, config)
     update_fitness(population)
     seen_modules += population
@@ -46,35 +43,29 @@ def evolve_architecture(selection, config):
         print("--> Mutations:")
         update_status("Mutating")
         for selected in selection(population, config['population size']):
-            if random.uniform(0, 1) < 0.2:
-                update_status("Inserting sub-module into module {}".format(selected.ID))
-                print("    - Sub-module insert for {}".format(selected.ID))
-                selected = sub_module_insert(selected, random_sample(seen_modules), config)
-                update_status("Mutating")
-            else:
-                selected = mutate(selected, config['input'], config['classes'])
+            if random.uniform(0, 1) < 0.8:
                 print("    - Operation Mutation for {}".format(selected.ID))
-            children += [selected]
+                children += [ mutate(selected, config['input'], config['classes']) ]
+            else:
+                print("    - Sub-module insert for {}".format(selected.ID))
+                children += [ sub_module_insert(selected, random_sample(seen_modules), config) ]
 
         # Training new networks:
-        update_status("Training new children")
         children = list(set(children))  # Preventing inbreeding
 
         # Elitism:
-        update_status("Elitism")
         population += children
         pretrain.launch_trainers(population, config)
         population.sort(key=attrgetter('fitness'))
         population = population[len(population) - config['population size']:]
 
         seen_modules += children
-        update_status("Finishing up")
         generation_finished(generation, population)
 
-    return population
-
+    print("\n\nTraining complete.")
 
 def main(dataset_config_file):
+    print("\n\nEvolving architecture")
     start_time = time.time()
     with open(file=dataset_config_file, mode="r") as js:
         config = json.load(js)
@@ -82,11 +73,7 @@ def main(dataset_config_file):
 
     # dstop_firebase()
     config['run id'] = create_new_run(config)
-    popultation = evolve_architecture(
-        selection=tournament,
-        config=config
-    )
-    print("\n\nTraining complete.")
+    evolve_architecture(selection=tournament, config=config)
 
 
 if __name__ == '__main__':

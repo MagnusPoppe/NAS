@@ -6,8 +6,10 @@ from datasets import cifar10
 
 # TODO: Check how many GPUs are available in total and manage them separatly for parallel training
 # TODO:
-from firebase.upload import update_status
+
+from firebase.upload import update_status, upload_modules
 from modules.module import Module
+packages = []
 
 
 def execute_remote(server, commands):
@@ -72,74 +74,72 @@ def download_models(individ, config, server_config):
         to_source=True
     )
 
+def receive(payload):
+    global packages
+    packages += [payload]
+    print("=", end="", flush=True)
+    # TODO: Start new process here!
+    # Idea: spawn all processes and let them idle on
+    # channel.recieve() serverside. When a process is
+    # complete, send new inputs for next channel. A
+    # new job will start ...
 
-def launch_remote_training(individ, config, server_config):
-
-    # Connecting to server:
-    gateway = get_local_gateway(server_config)
-
-    # Syncronizing models:
-    upload_models(individ, config, server_config)
-
-    # Executing script and getting process id:
-    channel = gateway.remote_exec(cifar10)
-    pid = channel.receive()
-
-    # Sending data to be processed and recieving fitness:
-    channel.send((pickle.dumps(individ), pickle.dumps(config)))
-    with open(individ.get_relative_module_save_path(config) + "/genotype.obj", "wb") as f:
-        pickle.dump(individ, f)
-    return channel, pid, individ
-
-def collect_remote_results(channel, pid, individ, config, server_config):
-    # Waiting for program to finish and for results:
-    individ.fitness, model_path_remote = channel.receive()
-    individ.saved_model = model_path_remote
-
-    # Shutting down process after finishing:
-    channel.waitclose()
-
-    # KILL to free memory:
-    execute_remote(
-        server=server_config,
-        commands=['kill {}'.format(pid)]
-    )
-
-    # Syncing model files
-    download_models(individ, config, server_config)
 
 def launch_trainers(population, config):
-    server_config = {
-        'username': 'magnus',
-        'address': '192.168.1.10',
-        'cwd': '/home/magnus/remote/EA-architecture-search'
-    }
+    global packages
+    packages = []
+    server_config = config['servers'][0]
 
-    print("--> Training on servers {} |".format(server_config['address']), end="", flush=True)
+    print("--> Training on servers {} |".format(server_config['name']), end="", flush=True)
     started = time.time()
     trained = 0
     concurrency = 1
-    while trained < len(population):
+    for i in range(0, len(population), concurrency):
         channels = []
-
+        gateways = []
 
         # Starting training sessions:
-        for i in range(concurrency):
-            if trained + i > len(population): break
-            individ = population[trained + i]  # type: Module
-            channels += [launch_remote_training(individ, config, server_config)]
+        for individ in population[i:i+concurrency]:
 
-        update_status("Training {} for {} epochs per op ( {}/{} models complete )"
-                      .format([individ.ID for _, _, individ in channels], config['epochs'], trained, len(population)))
+            # Connecting to server:
+            gateway = get_local_gateway(server_config)
 
+            # Syncronizing models:
+            upload_models(individ, config, server_config)
 
-        # Ending training sessions:
-        for i in range(concurrency):
-            if trained + i > len(population):
-                trained += 1
-                break
-            collect_remote_results(*channels[i], config=config, server_config=server_config)
-            trained += 1
-            print("=", end="", flush=True)
-        time.sleep(1)
+            # Executing script and getting process id:
+            channel = gateway.remote_exec(cifar10)
+            channel.setcallback(receive)
+
+            # Sending data to be processed and recieving fitness:
+            channel.send((pickle.dumps(individ), pickle.dumps(config), 0))
+
+            with open(individ.get_relative_module_save_path(config) + "/genotype.obj", "wb") as f:
+                pickle.dump(individ, f)
+
+            gateways += [gateway]
+            channels += [channel]
+
+        update_status("Training {} for {} epochs per op ( {}/{} models complete )".format(
+            [individ.ID for individ in population[i:i+concurrency]],
+            config['epochs'],
+            trained,
+            len(population)
+        ))
+
+        mch = execnet.MultiChannel(channels)
+        mch.waitclose()
+        for gw in gateways:
+            gw.exit()
+
+    # Ending training sessions:
+    for i, individ in enumerate(population):
+        # Setting results:
+        individ.fitness, individ.saved_model, individ.model_image_link = packages[i]
+
+        # Syncing model files
+        download_models(individ, config, server_config)
+
+    upload_modules(population)
+    packages = []
     print("| (Elapsed time: {} sec)".format(time.time()-started))

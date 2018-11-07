@@ -1,10 +1,11 @@
 import tensorflow as tf
 from tensorflow import keras
 
+from firebase.upload import upload_image
 from frameworks.weight_transfer import transfer_predecessor_weights
 
 
-def configure(classes):  # -> (function, function):
+def configure(classes, server):  # -> (function, function):
     (x_train, y_train), (x_test, y_test) = keras.datasets.cifar10.load_data()
     x_val = x_train[45000:] / 255
     y_val = y_train[45000:]
@@ -17,13 +18,15 @@ def configure(classes):  # -> (function, function):
     y_val = keras.utils.to_categorical(y_val, num_classes=classes)
 
 
-    gpu_config = tf.ConfigProto(
-        gpu_options=tf.GPUOptions(allow_growth=True)
-    )
-    keras.backend.set_session(tf.Session(config=gpu_config))
+    keras.backend.set_session(tf.Session(config=tf.ConfigProto(
+        gpu_options=tf.GPUOptions(
+            allow_growth=server['allow gpu memory growth'],
+            per_process_gpu_memory_fraction = server['memory per process']
+        )
+    )))
 
 
-    def train(individ, model, device, epochs=1.2, batch_size=64):
+    def train(model, device, epochs=1.2, batch_size=64):
         training_epochs = int(epochs * len(model.layers)) if epochs > 0 else 1
         with tf.device(device):
             # DEFINING FUNCTIONS FOR COMPILATION
@@ -73,7 +76,7 @@ if __name__ == '__main__':
 
 
     training, evalutation, name, inputs = configure(config['classes'])
-    print(training(individ, model, config['device'], config['epochs'], config['batch size']))
+    print(training(model, config['device'], config['epochs'], config['batch size']))
 
 if __name__ == '__channelexec__':
     import pickle, os
@@ -81,14 +84,13 @@ if __name__ == '__channelexec__':
 
     # Removing all debugging output from TF:
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
-    channel.send(os.getpid())
 
-    individ_str, config_str = channel.receive()
+    individ_str, config_str, server_id = channel.receive()
     individ = pickle.loads(individ_str)
     config = pickle.loads(config_str)
     classes = 10
 
-    training, evalutation, name, inputs = configure(config['classes'])
+    training, evalutation, name, inputs = configure(config['classes'], config['servers'][server_id])
     if individ.saved_model:
         model = keras.models.load_model(individ.saved_model)
     else:
@@ -97,11 +99,19 @@ if __name__ == '__channelexec__':
             predecessor_model = keras.models.load_model(individ.predecessor.saved_model)
             transfer_predecessor_weights(model, predecessor_model)
 
-    fitness = training(individ, model, config['device'], config['epochs'], config['batch size'])
+    fitness = training(
+        model=model,
+        device=config['servers'][server_id]['device'],
+        epochs=config['epochs'],
+        batch_size=config['batch size']
+    )
 
     # Saving keras model:
     model_path = individ.get_absolute_module_save_path(config)
     model_path = os.path.join(model_path, "model.h5")
     model.save(model_path)
 
-    channel.send((float(fitness), model_path))
+
+    image_path = upload_image(individ, model, config['run id'])
+
+    channel.send((float(fitness), model_path, image_path))

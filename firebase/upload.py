@@ -33,24 +33,26 @@ else:
 
 
 def blob_filename(run, module):
-    return u"results/{}/{}/{}.png".format(run.id, module.name, module.version)
+    return module.get_relative_module_save_path({"run id": run.id}) + module.ID + ".png"
 
 
-def upload_image(module):
+def upload_image(module, model=None, run_id = None):
     global run, db
     if not db: return
 
-    folder = u"results/{}/{}/{}.png".format(run.id, module.name, module.version)
+    if not run_id: run_id = run.id
+    folder = module.get_relative_module_save_path({'run id': run_id})
     os.makedirs(folder, exist_ok=True)
     filepath = os.path.join(folder, module.ID + ".png")
     if not module.model_image_path:
-        keras.utils.plot_model(module.keras_operation, to_file=filepath)
+        model = model if model else module.keras_operation
+        keras.utils.plot_model(model, to_file=filepath)
         module.model_image_path = filepath
 
     # Prepare for upload:
     client = storage.Client.from_service_account_json(service_account)
     bucket = client.get_bucket('ea-nas.appspot.com')
-    blob = bucket.blob(blob_filename(run, module))
+    blob = bucket.blob(folder + module.ID + ".png")
     blob.upload_from_filename(filename=filepath)
     return blob.path
 
@@ -65,7 +67,8 @@ def upload_modules(modules):
         batch.delete(doc.reference)
 
     for module in modules:
-        module.model_image_link = upload_image(module)
+        if not module.model_image_link:
+            module.model_image_link = upload_image(module)
 
         predecessor = module.predecessor.db_ref if module.predecessor else None
         modules_ref = db.collection("runs").document(run.id).collection("modules")
@@ -76,8 +79,8 @@ def upload_modules(modules):
             u'modelImageFileName': blob_filename(run, module),
             u'epochs': module.epochs_trained,
             u'name': module.name,
-            u'numberOfOperations': len(module.keras_operation.layers),
-            u'version': module.version_number,
+            u'numberOfOperations': module.number_of_operations(),
+            u'version': module.version,
             u'predecessor': predecessor
         })
 
@@ -109,8 +112,8 @@ def update_fitness(modules):
             u'modelImageFileName': blob_filename(run, module),
             u'epochs': module.epochs_trained,
             u'name': module.name,
-            u'numberOfOperations': len(module.keras_operation.layers),
-            u'version': module.version_number,
+            u'numberOfOperations': module.number_of_operations(),
+            u'version': module.version,
             u'predecessor': predecessor
         })
     batch.commit()

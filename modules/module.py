@@ -75,6 +75,10 @@ class Module(Base):
                 raise e
         return new_mod
 
+    def number_of_operations(self):
+        modules = [m for m in self.children if isinstance(m, Module)]
+        return (len(self.children) - len(modules)) + sum(m.number_of_operations() for m in modules)
+
     def find_first(self):
         def on(operation):
             if operation.prev: return on(operation.prev[0])
