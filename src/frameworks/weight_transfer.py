@@ -10,14 +10,19 @@ def transfer_model_weights(model, old_model) -> Module:
          - ValueError is ignored.
          - Module / Operation keeps its random initialized weights.
     """
+    from tensorflow import keras
 
     for from_layer in old_model.layers:
         for layer in model.layers:
             if layer.name == from_layer.name:
-                try:
-                    layer.set_weights(from_layer.get_weights())
-                except ValueError as e:
-                    print("Weight incompatability: " + str(e))
+                if isinstance(layer, keras.models.Model):
+                    # Transfer learning on sub-modules:
+                    transfer_model_weights(layer, from_layer)
+                else:
+                    try:
+                        layer.set_weights(from_layer.get_weights())
+                    except ValueError as e:
+                        print("Weight incompatability: " + str(e))
 
 
 def transfer_predecessor_weights(module, predecessor) -> Module:

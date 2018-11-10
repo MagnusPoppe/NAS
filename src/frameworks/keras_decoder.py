@@ -33,7 +33,7 @@ def assemble(module:Module, in_shape:tuple=(784,), classes:int=10, is_root:bool=
         output = previous_tensor
     # 3. Create a trainable keras.models.Model for module:
     try:
-        module.keras_operation = keras.models.Model(inputs=[input], outputs=[output])
+        module.keras_operation = keras.models.Model(inputs=[input], outputs=[output], name=module.ID)
     except ValueError as e:
         print(indent + "    - Crashed with input: {} and output: {}".format(input.name, output.shape))
         raise e

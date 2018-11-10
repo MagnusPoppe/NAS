@@ -5,7 +5,7 @@ from src.evolutionary_operations.mutation_for_operators import is2D, is1D
 from src.evolutionary_operations.mutation_operators import _is_before, insert
 from src.buildingblocks.base import Base
 from src.buildingblocks.module import Module
-from src.jobs import pre_trainer as pretrain
+from src.jobs import pre_trainer as pretrain, scheduler
 
 
 def get_insertion_points_after(module: Module, target: Module) -> (Base, Base):
@@ -64,22 +64,15 @@ def sub_module_insert(module: Module, target_module: Module, config: dict) -> Mo
         # Transferring weights and assembles module:
         mutated = insert(mutated, after, before, target)
         new += [mutated]
-        # mutated.keras_operation = assemble(mutated, in_shape, classes)
-        # mutated = transfer_predecessor_weights(mutated, in_shape, classes)
-#
-        # # Transfer weights of target module to sub module
-        # sub_modules = [m for m in mutated.children if isinstance(m, Module) and m.name == target.name]
-        # for sub_module in sub_modules:
-        #     transfer_predecessor_weights(sub_module, in_shape, classes, predecessor=target_module)
 
     if new:
         new_config = deepcopy(config)
         new_config['epochs'] = 0
-        pretrain.launch_trainers(new, new_config)
-        new.sort(key=attrgetter("fitness"))
+        scheduler.queue_all(new, new_config, priority=True)
+        new.sort(key=lambda x: x.fitness[-1])
         best = new[-1]
-        print("        - Accuracy of new ({}) vs old ({})".format(best.fitness, module.fitness))
+        print("        - Accuracy of new ({}) vs old ({})".format(best.fitness[-1], module.fitness[-1]))
         return best
     else:
         print("        - No new solutions found...")
-        return module
+        return None

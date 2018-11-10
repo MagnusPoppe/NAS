@@ -24,9 +24,16 @@ class Module(Base):
         global versions
         global names
         super().__init__()
+
+        # Core values:
         self.children = []
         self.predecessor = None
-        self.fitness = 0
+        self.fitness = []
+        self.loss = []
+        self.validation_fitness = []
+        self.validation_loss = []
+
+        # Database:
         self.logs = []
         self.db_ref = None
         self.model_image_path = None

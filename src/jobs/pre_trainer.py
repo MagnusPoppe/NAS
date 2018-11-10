@@ -7,30 +7,13 @@ from datasets import cifar10
 # TODO: Check how many GPUs are available in total and manage them separatly for parallel training
 # TODO:
 
-from firebase.upload import update_status, upload_modules
+from firebase.upload import update_status, upload_population
 
 packages = []
 
-
-def execute_remote(server, commands):
-    import subprocess as ps
-    ssh_process = ps.Popen(
-        args=['ssh', '{}@{}'.format(server['username'], server['address'])],
-        stdin=ps.PIPE,
-        stdout=ps.PIPE,
-        stderr=ps.PIPE,
-        universal_newlines=True,
-        bufsize=0
-    )
-    for command in commands:
-        ssh_process.stdin.write(command + "\n")
-    ssh_process.stdin.write('logout\n')
-    # print(ssh_process.stdout)
-    # print(ssh_process.stderr)
-    ssh_process.stdin.close()
-
 def rsync(source, dest, server, to_source=True):
-    execute_remote(server, ['mkdir -r {}'.format(dest)])
+    from src.jobs import ssh
+    ssh.exec_remote(server, ['mkdir -r {}'.format(dest)])
 
     import subprocess as ps
     if to_source:
@@ -112,7 +95,7 @@ def launch_trainers(population, config):
             channel.setcallback(receive)
 
             # Sending data to be processed and recieving fitness:
-            channel.send((pickle.dumps(individ), pickle.dumps(config), 0))
+            channel.send((pickle.dumps(individ), pickle.dumps(config), pickle.dumps(server_config)))
 
             with open(individ.get_relative_module_save_path(config) + "/genotype.obj", "wb") as f:
                 pickle.dump(individ, f)
@@ -140,6 +123,6 @@ def launch_trainers(population, config):
         # Syncing model files
         download_models(individ, config, server_config)
 
-    upload_modules(population)
+    upload_population(population)
     packages = []
     print("| (Elapsed time: {} sec)".format(time.time()-started))

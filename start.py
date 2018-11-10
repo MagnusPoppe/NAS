@@ -1,7 +1,26 @@
 import os
-os.environ['EA_NAS_UPLOAD_TO_FIREBASE'] = '1'
+import pickle
 
-import src.main as EA_NAS
+os.environ['EA_NAS_UPLOAD_TO_FIREBASE'] = '1'
+from datasets import cifar10
+from firebase.upload import create_new_run
+
+
+import src.main as ea_nas
+
+def job_start_callback(individ, config, _):
+    with open(individ.get_relative_module_save_path(config) + "/genotype.obj", "wb") as f:
+        pickle.dump(individ, f)
+
+def job_end_callback(manager, args, results):
+    individ, config, server = args
+    res = json.loads(results)
+    individ.fitness += res['accuracy']
+    individ.loss += res['loss']
+    individ.validation_fitness += res['validation accuracy']
+    individ.validation_loss += res['validation loss']
+    individ.model_path = res['model']
+    individ.model_image_path = res['image']
 
 if __name__ == '__main__':
     import sys, json
@@ -13,6 +32,10 @@ if __name__ == '__main__':
     config_file = sys.argv[1]
     with open(file=config_file, mode="r") as js:
         config = json.load(js)
-        config['input'] = tuple(config['input'])
 
-    EA_NAS.run(config)
+    config['input'] = tuple(config['input'])
+    run_id = create_new_run(config)
+    if run_id:
+        config['run id'] = run_id
+
+    ea_nas.run(config, cifar10, job_start_callback, job_end_callback)

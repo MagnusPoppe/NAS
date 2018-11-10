@@ -35,6 +35,8 @@ else:
 def blob_filename(run, module):
     return module.get_relative_module_save_path({"run id": run.id}) + module.ID + ".png"
 
+def save_model_image(model, filepath):
+    keras.utils.plot_model(model, to_file=filepath)
 
 def upload_image(module, model=None, run_id = None):
     global run, db
@@ -45,8 +47,8 @@ def upload_image(module, model=None, run_id = None):
     os.makedirs(folder, exist_ok=True)
     filepath = os.path.join(folder, module.ID + ".png")
     if not module.model_image_path:
-        model = model if model else module.keras_operation
-        keras.utils.plot_model(model, to_file=filepath)
+        return None
+        save_model_image(model if model else module.keras_operation, filepath)
         module.model_image_path = filepath
 
     # Prepare for upload:
@@ -57,7 +59,7 @@ def upload_image(module, model=None, run_id = None):
     return blob.path
 
 
-def upload_modules(modules):
+def upload_population(modules):
     global db, run
     if not db: return
 
@@ -74,48 +76,27 @@ def upload_modules(modules):
         modules_ref = db.collection("runs").document(run.id).collection("modules")
         ref = modules_ref.document(module.ID)
         batch.set(ref, {
+            # Basic information:
+            u'name': module.name,
             u'fitness': module.fitness,
+            u'loss': module.loss,
+            u'validationFitness': module.validation_fitness,
+            u'validationLoss': module.validation_loss,
+            u'epochs': len(module.fitness),
+            u'numberOfOperations': module.number_of_operations(),
+            u'predecessor': predecessor,
+
+            # Database and visualization:
             u'modelImage': module.model_image_link,
             u'modelImageFileName': blob_filename(run, module),
-            u'epochs': module.epochs_trained,
-            u'name': module.name,
-            u'numberOfOperations': module.number_of_operations(),
             u'version': module.version,
-            u'predecessor': predecessor
+            u'logs': module.logs,
         })
-
-        for i, log in enumerate(module.logs):
-            doc = ref.collection("logs").document()
-            batch.set(doc, {
-                u'index': i,
-                u'value': log
-            })
         pop_doc = db.collection("runs/{}/population".format(run.id)).document(module.ID)
         batch.set(pop_doc, {
             'module': 'runs/{}/modules/{}'.format(run.id, module.ID)
         })
         module.db_ref = 'runs/{}/modules/{}'.format(run.id, module.ID)
-    batch.commit()
-
-def update_fitness(modules):
-    global db, run
-    if not db: return
-
-    batch = db.batch()
-    for module in modules:
-        predecessor = module.predecessor.db_ref if module.predecessor else None
-        if module.db_ref:
-            doc = db.collection(u"runs/{}/modules".format(run.id)).document(module.ID)
-            batch.set(doc,  {
-            u'fitness': module.fitness,
-            u'modelImage': module.model_image_link,
-            u'modelImageFileName': blob_filename(run, module),
-            u'epochs': module.epochs_trained,
-            u'name': module.name,
-            u'numberOfOperations': module.number_of_operations(),
-            u'version': module.version,
-            u'predecessor': predecessor
-        })
     batch.commit()
 
 def update_status(msg):
@@ -139,9 +120,27 @@ def create_new_run(config):
         u"batchSizeForTraining": config['batch size'],
         u"generations": config['generations'],
         u"populationSize": config['population size'],
-        u"started": datetime.datetime.now()
+        u"started": datetime.datetime.now(),
+        u"status": "Running"
     })
     global run
+    run = ref
+    print("--> Created run {} in firebase!".format(run.id))
+    return run.id
+
+def update_run(config, status):
+    global db, run
+    if not db: return
+
+    timestamp, ref = db.collection("runs").document(run.id).set({
+        u"dataset": config['dataset'],
+        u"epochsOfTraining": config['epochs'],
+        u"batchSizeForTraining": config['batch size'],
+        u"generations": config['generations'],
+        u"populationSize": config['population size'],
+        u"started": run['started'],
+        u"status": status
+    })
     run = ref
     print("--> Created run {} in firebase!".format(run.id))
     return run.id

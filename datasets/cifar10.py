@@ -1,7 +1,7 @@
 import tensorflow as tf
 from tensorflow import keras
-
-from firebase.upload import upload_image
+import json
+from firebase.upload import save_model_image
 from src.frameworks.weight_transfer import transfer_model_weights
 
 
@@ -43,7 +43,7 @@ def configure(classes, server):  # -> (function, function):
                 verbose=0,
                 validation_data=(x_val, y_val)
             )
-            return metrics.history['val_acc'][-1]
+            return metrics.history
 
     def evaluate(population: list, device:str, compiled=True, prefix="--> "):
         print(prefix + "Evaluating {} models".format(len(population)))
@@ -84,33 +84,48 @@ if __name__ == '__channelexec__':
     # Removing all debugging output from TF:
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
 
-    individ_str, config_str, server_id = channel.receive()
+    individ_str, config_str, server_str, job = channel.receive()
     individ = pickle.loads(individ_str)
     config = pickle.loads(config_str)
-    classes = 10
+    server = pickle.loads(server_str)
 
-    training, evalutation, name, inputs = configure(config['classes'], config['servers'][server_id])
+    training, evalutation, name, inputs = configure(config['classes'], server)
     if individ.saved_model:
         model = keras.models.load_model(individ.saved_model)
     else:
         model = assemble(individ, config['input'], config['classes'])
-        if individ.predecessor:
+        if individ.predecessor and individ.predecessor.saved_model:
             predecessor_model = keras.models.load_model(individ.predecessor.saved_model)
             transfer_model_weights(model, predecessor_model)
 
-    fitness = training(
+    training_history = training(
         model=model,
-        device=config['servers'][server_id]['device'],
+        device=server['device'],
         epochs=config['epochs'],
         batch_size=config['batch size']
     )
 
     # Saving keras model:
-    model_path = individ.get_absolute_module_save_path(config)
-    model_path = os.path.join(model_path, "model.h5")
+    model_path = os.path.join(
+        individ.get_absolute_module_save_path(config),
+        "model.h5"
+    )
     model.save(model_path)
 
 
-    image_path = upload_image(individ, model, config['run id'])
+    # image_path = upload_image(individ, model, config['run id'])
+    image_path = os.path.join(
+        individ.get_absolute_module_save_path(config),
+        individ.ID + ".png"
+    )
+    save_model_image(model, image_path)
 
-    channel.send((float(fitness), model_path, image_path))
+    channel.send(json.dumps({
+        'job': job,
+        'image': image_path,
+        'model': model_path,
+        'accuracy': training_history['acc'],
+        'validation accuracy': training_history['val_acc'],
+        'loss': training_history['loss'],
+        'validation loss': training_history['val_loss']
+    }))

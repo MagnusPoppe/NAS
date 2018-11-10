@@ -4,18 +4,19 @@
   "classes": 10,
   "batch size": 500,
   "epochs": 0,
-  "population size": 2,
-  "generations": 2,
+  "population size": 4,
+  "generations": 5,
   "servers": [
     {
       "name": "Linux home.local",
+      "type": "ssh",
       "username": "magnus",
       "address": "192.168.1.10",
       "cwd": "/home/magnus/remote/EA-architecture-search",
       "device": "/device:GPU:0",
       "allow gpu memory growth": true,
       "memory per process": 0.5,
-      "concurrency": 2
+      "concurrency": 1
     }
   ],
   "run id": "default"

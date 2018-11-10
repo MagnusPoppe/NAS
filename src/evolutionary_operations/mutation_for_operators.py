@@ -19,8 +19,8 @@ def _generate_votes(weights: list) -> list:
 OPERATOR_WEIGHTS = [
     ("append", 2),
     ("connect", 0),
-    ("insert", 10),
-    ("insert-between", 10),
+    ("insert", 2),
+    ("insert-between", 30),
     ("remove", 60),
     ("identity", 20)
 ]
@@ -79,7 +79,10 @@ def find_placement(module, operation) -> (Module, Module):
 def apply_mutation_operator(module, operator, operators):
     if operator == "append":
         last = module.find_last()[0]
-        operation = random_sample(operators1D)() if is1D(last) else random_sample(operators2D)()
+        if is1D(last):
+            operation = random_sample(operators1D)()
+        else:
+            operation = random_sample(operators2D + operators1D)()
         module = append(module, operation)
 
     elif operator == "remove":
@@ -108,8 +111,8 @@ def apply_mutation_operator(module, operator, operators):
     return module
 
 
-def mutate(module: Module, in_shape: tuple, classes: int, compilation: bool = True) -> Module:
+def mutate(module: Module, make_copy: bool = True) -> Module:
     # Copying module to do non-destructive changes.
-    mutated = deepcopy(module) if compilation else module
+    mutated = deepcopy(module) if make_copy else module
     mutated = apply_mutation_operator(mutated, select_operator(mutated), operators)
     return mutated
