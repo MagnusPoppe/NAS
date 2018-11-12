@@ -103,7 +103,7 @@ class JobManager:
             print_progress(remaining_jobs, self)
             if remaining_jobs - (len(self.queue) + len(self.priority_queue)) > 0:
                 done = total_jobs - remaining_jobs
-                update_status("Completed {}/{} training sessions".format(remaining_jobs, total_jobs))
+                update_status("Completed {}/{} training sessions".format(done, total_jobs))
             remaining_jobs = (len(self.queue) + len(self.priority_queue))
             time.sleep(3)
 

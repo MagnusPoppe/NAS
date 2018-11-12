@@ -37,10 +37,10 @@ if __name__ == '__main__':
     if run_id:
         config['run id'] = run_id
 
-    status = "Started"
+    status = "Running"
     try:
         ea_nas.run(config, cifar10, job_start_callback, job_end_callback)
-        Status = "Finished"
+        status = "Finished"
     except KeyboardInterrupt:
         status = "SIGTERM"
     except Exception as e:

@@ -133,7 +133,7 @@ def update_run(config, status):
     global db, run
     if not db: return
 
-    timestamp, ref = db.collection("runs").document(run.id).set({
+    return db.collection("runs").document(run.id).set({
         u"dataset": config['dataset'],
         u"epochsOfTraining": config['epochs'],
         u"batchSizeForTraining": config['batch size'],
@@ -142,6 +142,3 @@ def update_run(config, status):
         u"started": config['started'],
         u"status": status
     })
-    run = ref
-    print("--> Created run {} in firebase!".format(run.id))
-    return run.id

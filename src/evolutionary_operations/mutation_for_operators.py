@@ -22,8 +22,8 @@ OPERATOR_WEIGHTS = [
     ("connect", 0),
     ("insert", 2),
     ("insert-between", 30),
-    ("remove", 60),
-    ("identity", 20)
+    ("remove", 30)
+    # ("identity", 20)
 ]
 
 votes = _generate_votes(OPERATOR_WEIGHTS)
@@ -37,8 +37,7 @@ def is1D(op):
     return isinstance(op, Dense) or isinstance(op, Dropout)
 
 
-def get_possible_insertion_points(module:Module, operation:Base) -> tuple():
-
+def get_possible_insertion_points(module: Module, operation: Base) -> (list, list):
     insertion_after = []
     insertion_before = []
     first = module.find_first()
@@ -50,24 +49,24 @@ def get_possible_insertion_points(module:Module, operation:Base) -> tuple():
             if child != last:
                 insertion_after += [child]  # Can be inserted after any.
         elif is2D(operation):
-            if not is1D(child) and child != last: # Cannot be inserted after a linear layer
+            if not is1D(child) and child != last:  # Cannot be inserted after a linear layer
                 insertion_after += [child]
             if child != first:
-                insertion_before += [child] # Can be inserted before any.
+                insertion_before += [child]  # Can be inserted before any.
 
         # Can only insert after input layer if shape of input is same as shape of first layer.
 
     return insertion_after, insertion_before
 
 
-def select_operator(module):
+def select_operator(module: Module):
     """ Selects what mutation operator to use """
     if len(module.children) <= 3:
         return "append"
     return random_sample(votes)
 
 
-def find_placement(module, operation) -> (Module, Module):
+def find_placement(module: Module, operation: Base) -> (Module, Module):
     after, before = get_possible_insertion_points(module, operation)
     if before and after:
         # Selecting first and removing from possible lasts:
@@ -77,7 +76,8 @@ def find_placement(module, operation) -> (Module, Module):
         return first, last
     return None, None
 
-def apply_mutation_operator(module, operator, operators):
+
+def apply_mutation_operator(module: Module, operator: Base, operators: list) -> Module:
     if operator == "append":
         last = module.find_last()[0]
         if is1D(last):

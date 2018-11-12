@@ -26,15 +26,16 @@ def configure(classes, server):  # -> (function, function):
     )))
 
 
-    def train(model, device, epochs=1.2, batch_size=64):
+    def train(model, device, epochs=1.2, batch_size=64, compiled=False):
         training_epochs = int(epochs * len(model.layers)) if epochs > 0 else 1
         with tf.device(device):
             # DEFINING FUNCTIONS FOR COMPILATION
-            sgd = keras.optimizers.Adam(lr=0.1)
-            loss = keras.losses.categorical_crossentropy
+            if not compiled:
+                optimizer = keras.optimizers.Adam(lr=0.001)
+                loss = keras.losses.categorical_crossentropy
+                model.compile(loss=loss, optimizer=optimizer, metrics=['accuracy'])
 
             # RUNNING TRAINING:
-            model.compile(loss=loss, optimizer=sgd, metrics=['accuracy'])
             metrics = model.fit(
                 x_train,
                 y_train,
@@ -50,7 +51,7 @@ def configure(classes, server):  # -> (function, function):
         for individ in population:
             with tf.device(device):
                 # DEFINING FUNCTIONS FOR COMPILATION
-                sgd = keras.optimizers.Adam(lr=0.01)
+                sgd = keras.optimizers.Adam(lr=0.001)
                 loss = keras.losses.categorical_crossentropy
 
                 model = individ.keras_operation
@@ -64,7 +65,9 @@ def configure(classes, server):  # -> (function, function):
 
 def main(individ, config, server):
     training, evalutation, name, inputs = configure(config['classes'], server)
+    compiled = False
     if individ.saved_model:
+        compiled = True
         model = keras.models.load_model(individ.saved_model)
     else:
         model = assemble(individ, config['input'], config['classes'])
@@ -76,7 +79,8 @@ def main(individ, config, server):
         model=model,
         device=server['device'],
         epochs=config['epochs'],
-        batch_size=config['batch size']
+        batch_size=config['batch size'],
+        compiled=compiled
     )
     return model, training_history
 

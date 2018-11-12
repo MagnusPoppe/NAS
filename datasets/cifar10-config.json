@@ -2,10 +2,10 @@
   "dataset": "CIFAR-10",
   "input": [32, 32, 3],
   "classes": 10,
-  "batch size": 500,
-  "epochs": 0,
-  "population size": 4,
-  "generations": 2,
+  "batch size": 250,
+  "epochs": 1,
+  "population size": 6,
+  "generations": 5,
   "servers": [
     {
       "name": "Linux home.local",
@@ -13,6 +13,7 @@
       "username": "magnus",
       "address": "192.168.1.10",
       "cwd": "/home/magnus/remote/EA-architecture-search",
+      "python": "python",
       "device": "/device:GPU:0",
       "allow gpu memory growth": true,
       "memory per process": 1,
