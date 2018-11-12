@@ -114,13 +114,14 @@ def update_status(msg):
 def create_new_run(config):
     global db
     if not db: return
+    config['started'] = datetime.datetime.now()
     timestamp, ref = db.collection("runs").add({
         u"dataset": config['dataset'],
         u"epochsOfTraining": config['epochs'],
         u"batchSizeForTraining": config['batch size'],
         u"generations": config['generations'],
         u"populationSize": config['population size'],
-        u"started": datetime.datetime.now(),
+        u"started": config['started'],
         u"status": "Running"
     })
     global run
@@ -138,7 +139,7 @@ def update_run(config, status):
         u"batchSizeForTraining": config['batch size'],
         u"generations": config['generations'],
         u"populationSize": config['population size'],
-        u"started": run['started'],
+        u"started": config['started'],
         u"status": status
     })
     run = ref

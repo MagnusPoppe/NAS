@@ -30,7 +30,7 @@ def configure(classes, server):  # -> (function, function):
         training_epochs = int(epochs * len(model.layers)) if epochs > 0 else 1
         with tf.device(device):
             # DEFINING FUNCTIONS FOR COMPILATION
-            sgd = keras.optimizers.Adam(lr=0.01)
+            sgd = keras.optimizers.Adam(lr=0.1)
             loss = keras.losses.categorical_crossentropy
 
             # RUNNING TRAINING:
@@ -62,6 +62,24 @@ def configure(classes, server):  # -> (function, function):
 
     return train, evaluate, "CIFAR 10", (32, 32, 3)
 
+def main(individ, config, server):
+    training, evalutation, name, inputs = configure(config['classes'], server)
+    if individ.saved_model:
+        model = keras.models.load_model(individ.saved_model)
+    else:
+        model = assemble(individ, config['input'], config['classes'])
+        if individ.predecessor and individ.predecessor.saved_model:
+            predecessor_model = keras.models.load_model(individ.predecessor.saved_model)
+            transfer_model_weights(model, predecessor_model)
+
+    training_history = training(
+        model=model,
+        device=server['device'],
+        epochs=config['epochs'],
+        batch_size=config['batch size']
+    )
+    return model, training_history
+
 if __name__ == '__main__':
     import pickle, os, json
     from src.frameworks.keras_decoder import assemble
@@ -89,21 +107,7 @@ if __name__ == '__channelexec__':
     config = pickle.loads(config_str)
     server = pickle.loads(server_str)
 
-    training, evalutation, name, inputs = configure(config['classes'], server)
-    if individ.saved_model:
-        model = keras.models.load_model(individ.saved_model)
-    else:
-        model = assemble(individ, config['input'], config['classes'])
-        if individ.predecessor and individ.predecessor.saved_model:
-            predecessor_model = keras.models.load_model(individ.predecessor.saved_model)
-            transfer_model_weights(model, predecessor_model)
-
-    training_history = training(
-        model=model,
-        device=server['device'],
-        epochs=config['epochs'],
-        batch_size=config['batch size']
-    )
+    model, training_history = main(individ, config, server)
 
     # Saving keras model:
     model_path = os.path.join(

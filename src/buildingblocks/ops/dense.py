@@ -3,11 +3,13 @@ import time
 
 from src.buildingblocks.ops.operation import Operation
 
-
+counter = 0
 class Dropout(Operation):
 
     def __init__(self):
-        super().__init__("Dropout-{}".format(time.time()))
+        global counter # TODO: Skriv om til counter...
+        super().__init__("Dropout_{}".format(counter))
+        counter += 1
         self.rate = 0.5
 
     def __deepcopy__(self, memodict={}):
@@ -34,7 +36,11 @@ class Dropout(Operation):
 class Dense(Operation):
 
     def __init__(self, ID, units, activation="relu", bias=True):
-        super().__init__("{}-{}".format(ID, time.time()))
+        global counter
+        if not ID:
+            ID = "{}-{}".format(ID, counter)
+            counter += 1
+        super().__init__(ID)
         self.units = units
         self.activation = activation
         self.bias = bias
@@ -69,9 +75,13 @@ class DenseS(Dense):
     _min_units = 10
     _max_units = 30
 
-    def __init__(self):
+    def __init__(self, ID=None):
+        global counter
+        if not ID:
+            ID = "{}-{}".format("DenseS", counter)
+            counter += 1
         super().__init__(
-            ID="DenseS",
+            ID=ID,
             units=random.randint(self._min_units, self._max_units)
         )
 
@@ -82,9 +92,13 @@ class DenseM(Dense):
     _min_units = 30
     _max_units = 100
 
-    def __init__(self):
+    def __init__(self, ID=None):
+        global counter
+        if not ID:
+            ID = "{}-{}".format("DenseM", counter)
+            counter += 1
         super().__init__(
-            ID="DenseM",
+            ID=ID,
             units=random.randint(self._min_units, self._max_units)
         )
 
@@ -95,9 +109,13 @@ class DenseL(Dense):
     _min_units = 100
     _max_units = 400
 
-    def __init__(self):
+    def __init__(self, ID=None):
+        global counter
+        if not ID:
+            ID = "{}-{}".format("DenseL", counter)
+            counter += 1
         super().__init__(
-            ID="DenseL",
+            ID=ID,
             units=random.randint(self._min_units, self._max_units)
         )
 

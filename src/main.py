@@ -74,13 +74,5 @@ def run(config, training_algorithm, job_start_callback, job_end_callback):
     print("\n\nEvolving architecture")
     start_time = time.time()
 
-    status = "Running"
-    try:
-        evolve_architecture(selection=tournament, config=config)
-        print("\n\nTraining complete. Total runtime:", time.time() - start_time)
-        status = "Finished"
-    except Exception as e:
-        status = "Crashed!"
-        raise e
-    finally:
-        update_run(config, status)
+    evolve_architecture(selection=tournament, config=config)
+    print("\n\nTraining complete. Total runtime:", time.time() - start_time)

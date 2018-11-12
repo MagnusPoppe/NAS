@@ -1,6 +1,7 @@
 import random
 from copy import deepcopy
 
+from src.buildingblocks.ops.pooling import Pooling
 from src.evolutionary_operations.mutation_operators import connect, insert, remove, append, _is_before
 from src.helpers import random_sample, operators, operators1D, operators2D
 from src.buildingblocks.base import Base
@@ -29,7 +30,7 @@ votes = _generate_votes(OPERATOR_WEIGHTS)
 
 
 def is2D(op):
-    return isinstance(op, Conv2D)
+    return isinstance(op, Conv2D) or isinstance(op, Pooling)
 
 
 def is1D(op):

@@ -1,11 +1,19 @@
+import json
 import unittest
 import os
 from copy import deepcopy
 
+from src.buildingblocks.ops.dense import DenseL
+
 os.chdir("..")
 
+from datasets import cifar10
+from src.buildingblocks.ops.convolution import Conv3x3
+from src.buildingblocks.ops.pooling import MaxPooling2x2, AvgPooling2x2
+
+
 from src.frameworks.keras_decoder import assemble
-from datasets.mnist_dataset import mnist_configure
+from datasets.mnist import configure
 from src.buildingblocks.module import Module
 from src.buildingblocks.ops import dense
 from src.evolutionary_operations import mutation_for_operators as mutation_ops
@@ -79,3 +87,28 @@ class TestAssembly(unittest.TestCase):
 
         self.module.keras_operation = assemble(self.module, self.in_shape, self.classes)
         train([self.module], 1, 1024)
+
+    def test_assemble_with_pooling_op(self):
+        with open("./datasets/cifar10-config.json", "r") as f:
+            config = json.load(f)
+        server = config['servers'][0]
+
+        individ = Module()
+        individ = mutation_ops.append(individ, Conv3x3())
+        individ = mutation_ops.append(individ, Conv3x3())
+        individ = mutation_ops.append(individ, dense.DenseL())
+        individ = mutation_ops.insert(individ, individ.children[1], individ.children[2], dense.DenseL())
+        individ = mutation_ops.insert(individ, individ.children[1], individ.children[2], MaxPooling2x2())
+        individ = mutation_ops.insert(individ, individ.children[1], individ.children[2], AvgPooling2x2())
+        individ = mutation_ops.append(individ, dense.DenseL())
+
+        training, evalutation, name, inputs = cifar10.configure(config['classes'], server)
+
+        model = assemble(individ, config['input'], config['classes'])
+
+        training_history = training(
+            model=model,
+            device="/gpu:0",  # server['device'],
+            epochs=0,
+            batch_size=1000
+        )

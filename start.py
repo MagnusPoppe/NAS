@@ -3,8 +3,7 @@ import pickle
 
 os.environ['EA_NAS_UPLOAD_TO_FIREBASE'] = '1'
 from datasets import cifar10
-from firebase.upload import create_new_run
-
+from firebase.upload import create_new_run, update_status, update_run
 
 import src.main as ea_nas
 
@@ -38,4 +37,14 @@ if __name__ == '__main__':
     if run_id:
         config['run id'] = run_id
 
-    ea_nas.run(config, cifar10, job_start_callback, job_end_callback)
+    status = "Started"
+    try:
+        ea_nas.run(config, cifar10, job_start_callback, job_end_callback)
+        Status = "Finished"
+    except KeyboardInterrupt:
+        status = "SIGTERM"
+    except Exception as e:
+        status = "Crashed"
+        raise e
+    finally:
+        update_run(config, status)

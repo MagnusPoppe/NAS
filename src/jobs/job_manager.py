@@ -3,6 +3,8 @@ import pickle
 import time
 
 import execnet
+
+from firebase.upload import update_status
 from src.jobs import ssh
 from src.jobs.server_manager import ServerManager
 
@@ -26,7 +28,7 @@ class JobManager:
         self.queue = []             # Queue of all jobs.
         self.priority_queue = []    # Queue that empties before self.queue
 
-    def queue_job(self, parameters: tuple, priority: bool = False, start_mode:bool=False) -> int:
+    def queue_job(self, parameters: tuple, priority: bool = False) -> int:
         id = self.__auto_id()
         self.jobs[id] = parameters
 
@@ -80,12 +82,12 @@ class JobManager:
         def finish(results):
             args = this.jobs[job_id]
             this.__sync_files(job_id, download=True)
+            this.job_end(this, args, results)
             this.channels[job_id].close()
             this.gateways[job_id].exit()
             server = args[2]
             server['running jobs'] -= 1
             del this.jobs[job_id], this.channels[job_id], this.gateways[job_id]
-            this.job_end(this, args, results)
             this.start_next_job()
         return finish
 
@@ -94,14 +96,18 @@ class JobManager:
             for i in range(remaining - (len(this.queue) + len(this.priority_queue))):
                 print("=", end="", flush=True)
 
-        remaining_jobs = len(self.queue) + len(self.priority_queue)
+        total_jobs = len(self.queue) + len(self.priority_queue)
+        remaining_jobs = total_jobs
         print("--> Finishing {} job(s): |".format(remaining_jobs), end="", flush=True)
         while len(self.queue) + len(self.priority_queue) > 0:
             print_progress(remaining_jobs, self)
+            if remaining_jobs - (len(self.queue) + len(self.priority_queue)) > 0:
+                done = total_jobs - remaining_jobs
+                update_status("Completed {}/{} training sessions".format(remaining_jobs, total_jobs))
             remaining_jobs = (len(self.queue) + len(self.priority_queue))
-            time.sleep(1)
+            time.sleep(3)
 
-        print_progress(remaining_jobs, self)
+        print_progress(total_jobs, self)
         print("|")
 
         if len(self.channels) > 0:

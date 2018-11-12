@@ -6,6 +6,7 @@ from src.buildingblocks.base import Base
 from src.buildingblocks.ops.convolution import Conv2D
 from src.buildingblocks.ops.dense import Dense, Dropout
 from src.buildingblocks.module import Module
+from src.evolutionary_operations.mutation_for_operators import is1D, is2D
 from src.frameworks.common import rank_children
 
 def assemble(module:Module, in_shape:tuple=(784,), classes:int=10, is_root:bool=True, indent=""):
@@ -33,7 +34,11 @@ def assemble(module:Module, in_shape:tuple=(784,), classes:int=10, is_root:bool=
         output = previous_tensor
     # 3. Create a trainable keras.models.Model for module:
     try:
-        module.keras_operation = keras.models.Model(inputs=[input], outputs=[output], name=module.ID)
+        module.keras_operation = keras.models.Model(
+            inputs=[input],
+            outputs=[output],
+            name="-".join(module.ID.split())
+        )
     except ValueError as e:
         print(indent + "    - Crashed with input: {} and output: {}".format(input.name, output.shape))
         raise e
@@ -71,9 +76,8 @@ def fix_padding(tensor, target_shape):
 
 def get_tensors(previous, current):
     def needs_flatten(prev):
-        return (isinstance(current, Dense) or isinstance(current, Dropout)) \
-               and (isinstance(prev, Conv2D)
-               or (isinstance(prev, Module) and isinstance(prev.find_last()[0], Conv2D)))
+        return is1D(current) and is2D(prev) \
+            or (isinstance(prev, Module) and is2D(prev.find_last()[0]))
 
     tensors = []
     for prev in previous:

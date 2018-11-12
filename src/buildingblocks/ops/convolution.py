@@ -2,10 +2,12 @@ import time
 
 from src.buildingblocks.ops.operation import Operation
 
+counter = 0
+
 class Conv2D(Operation):
 
     def __init__(self, ID, kernel, filters, strides=(1, 1), activation="relu", bias=True):
-        super().__init__("Conv2D_{}".format(time.time()))
+        super().__init__(ID)
         self.kernel = kernel
         self.filters = filters
         self.strides = strides
@@ -36,7 +38,11 @@ class Conv2D(Operation):
 
 class Conv3x3(Conv2D):
 
-    def __init__(self, ID="Conv3x3_{}".format(time.time()), kernel=(3, 3), filters=50):
+    def __init__(self, ID=None, kernel=(3, 3), filters=50):
+        if not ID:
+            global counter
+            ID = "Conv3x3_{}".format(counter)
+            counter += 1
         super().__init__(ID, kernel, filters)
 
     def __deepcopy__(self, memodict={}):
@@ -45,7 +51,11 @@ class Conv3x3(Conv2D):
 
 class Conv5x5(Conv2D):
 
-    def __init__(self, ID="Conv5x5_{}".format(time.time()), kernel=(5, 5), filters=50):
+    def __init__(self, ID=None, kernel=(5, 5), filters=50):
+        if not ID:
+            global counter
+            ID = "Conv5x5_{}".format(counter)
+            counter += 1
         super().__init__(ID, kernel, filters)
 
     def __deepcopy__(self, memodict={}):

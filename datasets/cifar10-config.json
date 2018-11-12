@@ -5,7 +5,7 @@
   "batch size": 500,
   "epochs": 0,
   "population size": 4,
-  "generations": 5,
+  "generations": 2,
   "servers": [
     {
       "name": "Linux home.local",
@@ -15,7 +15,7 @@
       "cwd": "/home/magnus/remote/EA-architecture-search",
       "device": "/device:GPU:0",
       "allow gpu memory growth": true,
-      "memory per process": 0.5,
+      "memory per process": 1,
       "concurrency": 1
     }
   ],
