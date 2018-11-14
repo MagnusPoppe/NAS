@@ -1,7 +1,7 @@
 import tensorflow as tf
 from tensorflow import keras
+import numpy as np
 import json
-from firebase.upload import save_model_image
 from src.frameworks.weight_transfer import transfer_model_weights
 
 
@@ -17,6 +17,13 @@ def configure(classes, server):  # -> (function, function):
     y_test = keras.utils.to_categorical(y_test, num_classes=classes)
     y_val = keras.utils.to_categorical(y_val, num_classes=classes)
 
+    index = np.array(list(range(len(y_train))))
+    np.random.shuffle(index)
+    data = np.zeros(x_train.shape)
+    labels = np.zeros(y_train.shape)
+    for new, old in enumerate(index):
+        data[new] = x_train[old]
+        labels[new] = y_train[old]
 
     keras.backend.set_session(tf.Session(config=tf.ConfigProto(
         gpu_options=tf.GPUOptions(
@@ -37,8 +44,8 @@ def configure(classes, server):  # -> (function, function):
 
             # RUNNING TRAINING:
             metrics = model.fit(
-                x_train,
-                y_train,
+                data,
+                labels,
                 epochs=training_epochs,
                 batch_size=batch_size,
                 verbose=0,
@@ -46,24 +53,24 @@ def configure(classes, server):  # -> (function, function):
             )
             return metrics.history
 
-    def evaluate(population: list, device:str, compiled=True, prefix="--> "):
-        print(prefix + "Evaluating {} models".format(len(population)))
-        for individ in population:
-            with tf.device(device):
+    def evaluate(model, device:str, compiled=True):
+        with tf.device(device):
+            if not compiled:
                 # DEFINING FUNCTIONS FOR COMPILATION
                 sgd = keras.optimizers.Adam(lr=0.001)
                 loss = keras.losses.categorical_crossentropy
+                model.compile(loss=loss, optimizer=sgd, metrics=['accuracy'])
 
-                model = individ.keras_operation
-                if not compiled:
-                    model.compile(loss=loss, optimizer=sgd, metrics=['accuracy'])
-                metrics = model.evaluate(x_test, y_test, verbose=0)
-                individ.fitness = metrics[1]  # Accuracy
+            # EVALUATING
+            metrics = model.evaluate(x_test, y_test, verbose=0)
+            return metrics[1]  # Accuracy
 
 
     return train, evaluate, "CIFAR 10", (32, 32, 3)
 
 def main(individ, config, server):
+    from src.frameworks.keras_decoder import assemble
+
     training, evalutation, name, inputs = configure(config['classes'], server)
     compiled = False
     if individ.saved_model:
@@ -75,6 +82,8 @@ def main(individ, config, server):
             predecessor_model = keras.models.load_model(individ.predecessor.saved_model)
             transfer_model_weights(model, predecessor_model)
 
+    before = evalutation(model, server['device'], compiled)
+    compiled = True
     training_history = training(
         model=model,
         device=server['device'],
@@ -82,14 +91,15 @@ def main(individ, config, server):
         batch_size=config['batch size'],
         compiled=compiled
     )
-    return model, training_history
+    after = evalutation(model, server['device'], compiled)
+    return model, training_history, before, after
 
 if __name__ == '__main__':
     import pickle, os, json
     from src.frameworks.keras_decoder import assemble
     with open("results/test-data/Felicia/v2/genotype.obj", "rb") as f:
         individ = pickle.load(f)
-    with open("datasets/cifar10-config.json", "r") as f:
+    with open("datasets/cifar10-home-ssh.json", "r") as f:
         config = json.load(f)
 
     model = assemble(individ, config['input'], config['classes'])
@@ -101,31 +111,29 @@ if __name__ == '__main__':
 
 if __name__ == '__channelexec__':
     import pickle, os
-    from src.frameworks.keras_decoder import assemble
+    from firebase.upload import save_model_image
 
     # Removing all debugging output from TF:
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
 
+    # Reading input from main process:
     individ_str, config_str, server_str, job = channel.receive()
     individ = pickle.loads(individ_str)
     config = pickle.loads(config_str)
     server = pickle.loads(server_str)
 
-    model, training_history = main(individ, config, server)
+    # Running training:
+    model, training_history, before, after = main(individ, config, server)
 
-    # Saving keras model:
+    # Saving keras model and image of model:
     model_path = os.path.join(
-        individ.get_absolute_module_save_path(config),
-        "model.h5"
+        individ.get_absolute_module_save_path(config), "model.h5"
     )
-    model.save(model_path)
-
-
-    # image_path = upload_image(individ, model, config['run id'])
     image_path = os.path.join(
-        individ.get_absolute_module_save_path(config),
-        individ.ID + ".png"
+        individ.get_absolute_module_save_path(config), individ.ID + ".png"
     )
+    keras.models.save_model(model, model_path, overwrite=True, include_optimizer=True)
+    # model.save(model_path)
     save_model_image(model, image_path)
 
     channel.send(json.dumps({
@@ -135,5 +143,10 @@ if __name__ == '__channelexec__':
         'accuracy': training_history['acc'],
         'validation accuracy': training_history['val_acc'],
         'loss': training_history['loss'],
-        'validation loss': training_history['val_loss']
+        'validation loss': training_history['val_loss'],
+        'eval': {
+            'epoch': len(training_history) + len(individ.fitness) - 2,
+            'accuracy': after,
+            'accuracy before': before
+        }
     }))

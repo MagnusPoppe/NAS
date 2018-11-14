@@ -18,18 +18,23 @@ class ServerManager:
         else:
             return None, None
 
-    def __connect(self, server):
-        def get_local_gateway(server):
+    def __connect(self, server_config):
+        def get_ssh_gateway(server):
             return execnet.makegateway("ssh={ssh}//python={py}//chdir={dir}".format(
                 ssh="{}@{}".format(server['username'], server['address']),
                 py="python",
                 dir=server['cwd'],
             ))
 
-        if server['type'] == 'ssh':
-            return get_local_gateway(server)
+        def get_local_gateway(server):
+            return execnet.makegateway()
+
+        if server_config['type'] == 'ssh':
+            return get_ssh_gateway(server_config)
+        elif server_config['type'] == 'local':
+            return get_local_gateway(server_config)
         else:
-            raise AttributeError('Unknown server "type": ' + server['type'])
+            raise AttributeError('Unknown server "type": ' + server_config['type'])
 
     def __get_free_server(self):
         free_servers = sorted([

@@ -89,7 +89,7 @@ class TestAssembly(unittest.TestCase):
         train([self.module], 1, 1024)
 
     def test_assemble_with_pooling_op(self):
-        with open("./datasets/cifar10-config.json", "r") as f:
+        with open("./datasets/cifar10-home-ssh.json", "r") as f:
             config = json.load(f)
         server = config['servers'][0]
 

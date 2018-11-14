@@ -18,7 +18,8 @@ def job_end_callback(manager, args, results):
     individ.loss += res['loss']
     individ.validation_fitness += res['validation accuracy']
     individ.validation_loss += res['validation loss']
-    individ.model_path = res['model']
+    individ.evaluation[res['eval']['epoch']] = res['eval']['accuracy']
+    individ.saved_model = res['model']
     individ.model_image_path = res['image']
 
 if __name__ == '__main__':

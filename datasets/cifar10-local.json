@@ -3,18 +3,15 @@
   "input": [32, 32, 3],
   "classes": 10,
   "batch size": 250,
-  "epochs": 1,
-  "population size": 6,
-  "generations": 5,
+  "epochs": 3,
+  "population size": 4,
+  "generations": 20,
   "servers": [
     {
       "name": "Linux home.local",
-      "type": "ssh",
-      "username": "magnus",
-      "address": "192.168.1.10",
+      "type": "local",
       "cwd": "/home/magnus/remote/EA-architecture-search",
-      "python": "python",
-      "device": "/device:GPU:0",
+      "device": "/GPU:0",
       "allow gpu memory growth": true,
       "memory per process": 1,
       "concurrency": 1

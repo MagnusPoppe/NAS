@@ -29,6 +29,7 @@ class Module(Base):
         self.children = []
         self.predecessor = None
         self.fitness = []
+        self.evaluation = {}
         self.loss = []
         self.validation_fitness = []
         self.validation_loss = []
@@ -114,6 +115,20 @@ class Module(Base):
 
     def get_absolute_module_save_path(self, config):
         return os.path.abspath(self.get_relative_module_save_path(config))
+
+    def clean(self):
+        def detach_keras(obj):
+            try: del obj.keras_operation
+            except AttributeError: pass
+            try: del obj.keras_tensor
+            except AttributeError: pass
+
+        detach_keras(self)
+        for child in self.children:
+            if isinstance(child, Module):
+                child.clean()
+            else:
+                detach_keras(child)
 
     # def visualize(self):
     #     # Local imports. Server does not have TKinter and will crash on load.

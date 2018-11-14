@@ -144,9 +144,10 @@ class JobManager:
 
         individ, config, server_config = self.jobs[job_id]
 
-        if download:
-            download_models(individ, config, server_config)
-        if upload:
-            upload_models(individ, config, server_config)
-            if individ.predecessor:
+        if server_config['type'] != 'local':
+            if download:
+                download_models(individ, config, server_config)
+            if upload:
                 upload_models(individ, config, server_config)
+                if individ.predecessor:
+                    upload_models(individ, config, server_config)
