@@ -2,6 +2,12 @@ import datetime
 import json
 import os
 
+
+def stop_firebase():
+    global cred, app, db, run
+    print("--> Firebase not in use.")
+    cred = app = db = run = None
+
 if "EA_NAS_UPLOAD_TO_FIREBASE" in os.environ and os.environ["EA_NAS_UPLOAD_TO_FIREBASE"] == "1":
     import firebase_admin
     from google.cloud import storage
@@ -21,34 +27,39 @@ if "EA_NAS_UPLOAD_TO_FIREBASE" in os.environ and os.environ["EA_NAS_UPLOAD_TO_FI
         print("--> Firebase configured!")
     except:
         print("--> Firebase connection failed!")
-        cred = app = db = run = None
+        stop_firebase()
 else:
-    print("--> Firebase turned off!")
-    cred = app = db = run = None
+    stop_firebase()
+
 
 def blob_filename(run, module):
-    return u"model-images/{}-{}.png".format(run.id, module.ID)
+    return module.get_relative_module_save_path({"run id": run.id}) + module.ID + ".png"
 
-def upload_image(module):
+def save_model_image(model, filepath):
+    keras.utils.plot_model(model, to_file=filepath)
+
+def upload_image(module, model=None, run_id = None):
     global run, db
     if not db: return
 
-    folder = u"./model_images/{}".format(run.id)
+    if not run_id: run_id = run.id
+    folder = module.get_relative_module_save_path({'run id': run_id})
     os.makedirs(folder, exist_ok=True)
     filepath = os.path.join(folder, module.ID + ".png")
     if not module.model_image_path:
-        keras.utils.plot_model(module.keras_operation, to_file=filepath)
+        return None
+        save_model_image(model if model else module.keras_operation, filepath)
         module.model_image_path = filepath
 
     # Prepare for upload:
     client = storage.Client.from_service_account_json(service_account)
     bucket = client.get_bucket('ea-nas.appspot.com')
-    blob = bucket.blob(blob_filename(run, module))
+    blob = bucket.blob(folder + module.ID + ".png")
     blob.upload_from_filename(filename=filepath)
     return blob.path
 
 
-def upload_modules(modules):
+def upload_population(modules):
     global db, run
     if not db: return
 
@@ -58,54 +69,34 @@ def upload_modules(modules):
         batch.delete(doc.reference)
 
     for module in modules:
-        module.model_image_link = upload_image(module)
+        if not module.model_image_link:
+            module.model_image_link = upload_image(module)
 
         predecessor = module.predecessor.db_ref if module.predecessor else None
         modules_ref = db.collection("runs").document(run.id).collection("modules")
         ref = modules_ref.document(module.ID)
         batch.set(ref, {
+            # Basic information:
+            u'name': module.name,
             u'fitness': module.fitness,
+            u'loss': module.loss,
+            u'validationFitness': module.validation_fitness,
+            u'validationLoss': module.validation_loss,
+            u'epochs': len(module.fitness),
+            u'numberOfOperations': module.number_of_operations(),
+            u'predecessor': predecessor,
+
+            # Database and visualization:
             u'modelImage': module.model_image_link,
             u'modelImageFileName': blob_filename(run, module),
-            u'epochs': module.epochs_trained,
-            u'name': module.name,
-            u'numberOfOperations': len(module.keras_operation.layers),
-            u'version': module.version_number,
-            u'predecessor': predecessor
+            u'version': module.version,
+            u'logs': module.logs,
         })
-
-        for i, log in enumerate(module.logs):
-            doc = ref.collection("logs").document()
-            batch.set(doc, {
-                u'index': i,
-                u'value': log
-            })
         pop_doc = db.collection("runs/{}/population".format(run.id)).document(module.ID)
         batch.set(pop_doc, {
             'module': 'runs/{}/modules/{}'.format(run.id, module.ID)
         })
         module.db_ref = 'runs/{}/modules/{}'.format(run.id, module.ID)
-    batch.commit()
-
-def update_fitness(modules):
-    global db, run
-    if not db: return
-
-    batch = db.batch()
-    for module in modules:
-        predecessor = module.predecessor.db_ref if module.predecessor else None
-        if module.db_ref:
-            doc = db.collection(u"runs/{}/modules".format(run.id)).document(module.ID)
-            batch.set(doc,  {
-            u'fitness': module.fitness,
-            u'modelImage': module.model_image_link,
-            u'modelImageFileName': blob_filename(run, module),
-            u'epochs': module.epochs_trained,
-            u'name': module.name,
-            u'numberOfOperations': len(module.keras_operation.layers),
-            u'version': module.version_number,
-            u'predecessor': predecessor
-        })
     batch.commit()
 
 def update_status(msg):
@@ -120,30 +111,34 @@ def update_status(msg):
     })
 
 
-def create_new_run(dataset: str, epochs: float, batch_size: int, generations: int, population_size: int):
+def create_new_run(config):
     global db
     if not db: return
+    config['started'] = datetime.datetime.now()
     timestamp, ref = db.collection("runs").add({
-        u"dataset": dataset,
-        u"epochsOfTraining": epochs,
-        u"batchSizeForTraining": batch_size,
-        u"generations": generations,
-        u"populationSize": population_size,
-        u"started": datetime.datetime.now()
+        u"dataset": config['dataset'],
+        u"epochsOfTraining": config['epochs'],
+        u"batchSizeForTraining": config['batch size'],
+        u"generations": config['generations'],
+        u"populationSize": config['population size'],
+        u"started": config['started'],
+        u"status": "Running"
     })
     global run
     run = ref
-    return ref
+    print("--> Created run {} in firebase!".format(run.id))
+    return run.id
 
-def main():
-    run = create_new_run("Testing", 10, 1024, 10, 10)
-    print(run)
+def update_run(config, status):
+    global db, run
+    if not db: return
 
-    from evolutionary_operations.initialization import init_population
-    population = init_population(10, (28, 28, 1), 10, 1, 20)
-    upload_modules(population)
-    upload_modules(population)
-
-
-if __name__ == '__main__':
-    main()
+    return db.collection("runs").document(run.id).set({
+        u"dataset": config['dataset'],
+        u"epochsOfTraining": config['epochs'],
+        u"batchSizeForTraining": config['batch size'],
+        u"generations": config['generations'],
+        u"populationSize": config['population size'],
+        u"started": config['started'],
+        u"status": status
+    })
