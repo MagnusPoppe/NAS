@@ -1,14 +1,16 @@
 import os
 import pickle
+import setproctitle
+setproctitle.setproctitle("EA-NAS-EVOLVE")
 
 os.environ['EA_NAS_UPLOAD_TO_FIREBASE'] = '1'
 from datasets import cifar10
-from firebase.upload import create_new_run, update_status, update_run
+from firebase.upload import create_new_run, update_run
 
 import src.main as ea_nas
 
 def job_start_callback(individ, config, _):
-    with open(individ.get_relative_module_save_path(config) + "/genotype.obj", "wb") as f:
+    with open(individ.relative_save_path(config) + "/genotype.obj", "wb") as f:
         pickle.dump(individ, f)
 
 def job_end_callback(manager, args, results):
@@ -43,7 +45,7 @@ if __name__ == '__main__':
         ea_nas.run(config, cifar10, job_start_callback, job_end_callback)
         status = "Finished"
     except KeyboardInterrupt:
-        status = "SIGTERM"
+        status = "Closed"
     except Exception as e:
         status = "Crashed"
         raise e

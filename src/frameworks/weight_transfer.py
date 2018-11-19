@@ -1,7 +1,7 @@
 from src.buildingblocks.module import Module
 
 
-def transfer_model_weights(model, old_model) -> Module:
+def transfer_model_weights(model, old_model):
     """ Transfers the weights from one module to its successor. This requires
         compatibility with changes made to the successor. Some types of changes
         will change weight matrix sizes.
@@ -25,7 +25,7 @@ def transfer_model_weights(model, old_model) -> Module:
                         print("Weight incompatability: " + str(e))
 
 
-def transfer_predecessor_weights(module, predecessor) -> Module:
+def transfer_predecessor_weights(module, predecessor):
     """ Transfers the weights from one module to its successor. This requires
         compatibility with changes made to the successor. Some types of changes
         will change weight matrix sizes.
@@ -49,3 +49,28 @@ def transfer_predecessor_weights(module, predecessor) -> Module:
                     # network architecture. Ignore the weights that this applies to.
                     break
     return module
+
+def transfer_submodule_weights(module: Module):
+    """
+    Transfer weights for sub-modules where the sub-module is not included
+    in the predecessor.
+
+    The standard transfer_model_weights() algorithm transfers all weights from
+    predecessor model to the current model. A sub-module may have been inserted
+    into this current module. We need to transfer weights for this sub-module as
+    well
+    :param module: to transfer from
+    """
+
+    from tensorflow import keras
+    # Excluding modules that have trained as part of predecessor network:
+    exclusion = [op for op in module.predecessor if isinstance(op, Module)]
+
+    # Finding sub-modules to transfer weights to:
+    sub_modules = [op for op in module.children if isinstance(op, Module) and op not in exclusion]
+
+    # Transferring weights:
+    for sub_module in sub_modules:
+        pred_model = keras.models.load_model(sub_module.predecessor.saved_model)
+        model = sub_module.keras_operation
+        transfer_model_weights(model, pred_model)

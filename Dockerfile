@@ -9,10 +9,16 @@ RUN pip install graphviz
 RUN pip install pydot
 RUN pip install firebase_admin
 RUN pip install execnet
+RUN pip install setproctitle
 
 # Copy over codefiles:
 VOLUME /src
-COPY . /src
+COPY ./datasets /src/datasets
+COPY ./firebase /src/firebase
+COPY ./resources /src/resources
+COPY ./src /src/src
+COPY ./tests /src/tests
+COPY ./start.py /src/start.py
 
 WORKDIR /src
 
@@ -21,4 +27,4 @@ ENV EA_NAS_UPLOAD_TO_FIREBASE="1"
 
 # Ready to run: 
 # RUN python tests.py
-CMD python -u main.py
+CMD python -u start.py ./datasets/cifar10-telenor001.json

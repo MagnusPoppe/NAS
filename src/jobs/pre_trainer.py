@@ -41,18 +41,18 @@ def get_local_gateway(server):
     ))
 
 def upload_models(individ, config, server_config):
-    local_path = os.path.join(os.getcwd(), individ.get_relative_module_save_path(config))
-    server_path = os.path.join(server_config['cwd'], individ.get_relative_module_save_path(config))
+    local_path = os.path.join(os.getcwd(), individ.relative_save_path(config))
+    server_path = os.path.join(server_config['cwd'], individ.relative_save_path(config))
     rsync(local_path, server_path, server_config, to_source=False)
     if individ.predecessor:
-        local_path = os.path.join(os.getcwd(), individ.predecessor.get_relative_module_save_path(config))
-        server_path = os.path.join(server_config['cwd'], individ.predecessor.get_relative_module_save_path(config))
+        local_path = os.path.join(os.getcwd(), individ.predecessor.relative_save_path(config))
+        server_path = os.path.join(server_config['cwd'], individ.predecessor.relative_save_path(config))
         rsync(local_path, server_path, server_config, to_source=False)
 
 def download_models(individ, config, server_config):
     rsync(
-        os.path.join(os.getcwd(), individ.get_relative_module_save_path(config)),
-        os.path.join(server_config['cwd'], individ.get_relative_module_save_path(config)),
+        os.path.join(os.getcwd(), individ.relative_save_path(config)),
+        os.path.join(server_config['cwd'], individ.relative_save_path(config)),
         server_config,
         to_source=True
     )
@@ -97,7 +97,7 @@ def launch_trainers(population, config):
             # Sending data to be processed and recieving fitness:
             channel.send((pickle.dumps(individ), pickle.dumps(config), pickle.dumps(server_config)))
 
-            with open(individ.get_relative_module_save_path(config) + "/genotype.obj", "wb") as f:
+            with open(individ.relative_save_path(config) + "/genotype.obj", "wb") as f:
                 pickle.dump(individ, f)
 
             gateways += [gateway]

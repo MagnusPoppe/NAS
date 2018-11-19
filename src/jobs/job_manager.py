@@ -52,7 +52,7 @@ class JobManager:
         # Add server job runs at to parameters:
         server, gateway = self.server_manager.create_gateway()
         if server:
-            server['running jobs'] += 1
+            self.server_manager.servers[server['name']]['running jobs'] += 1
             self.jobs[job_id] += tuple([server])
 
             # Syncronizing models:
@@ -86,7 +86,7 @@ class JobManager:
             this.channels[job_id].close()
             this.gateways[job_id].exit()
             server = args[2]
-            server['running jobs'] -= 1
+            this.server_manager.servers[server['name']]['running jobs'] -= 1
             del this.jobs[job_id], this.channels[job_id], this.gateways[job_id]
             this.start_next_job()
         return finish
@@ -125,21 +125,21 @@ class JobManager:
     def __sync_files(self, job_id: int, download: bool = False, upload: bool = False):
         def download_models(individ, config, server_config):
             ssh.rsync(
-                os.path.join(os.getcwd(), individ.get_relative_module_save_path(config)),
-                os.path.join(server_config['cwd'], individ.get_relative_module_save_path(config)),
+                os.path.join(os.getcwd(), individ.relative_save_path(config)),
+                os.path.join(server_config['cwd'], individ.relative_save_path(config)),
                 server_config,
                 to_source=True
             )
 
         def upload_models(individ, config, server_config):
 
-            local_path = os.path.join(os.getcwd(), individ.get_relative_module_save_path(config))
-            server_path = os.path.join(server_config['cwd'], individ.get_relative_module_save_path(config))
+            local_path = os.path.join(os.getcwd(), individ.relative_save_path(config))
+            server_path = os.path.join(server_config['cwd'], individ.relative_save_path(config))
             ssh.rsync(local_path, server_path, server_config, to_source=False)
             if individ.predecessor:
-                local_path = os.path.join(os.getcwd(), individ.predecessor.get_relative_module_save_path(config))
+                local_path = os.path.join(os.getcwd(), individ.predecessor.relative_save_path(config))
                 server_path = os.path.join(server_config['cwd'],
-                                           individ.predecessor.get_relative_module_save_path(config))
+                                           individ.predecessor.relative_save_path(config))
                 ssh.rsync(local_path, server_path, server_config, to_source=False)
 
         individ, config, server_config = self.jobs[job_id]

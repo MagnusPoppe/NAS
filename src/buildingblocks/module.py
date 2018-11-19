@@ -14,6 +14,20 @@ names = load_name_list()
 versions = {}
 
 
+def get_name_and_version(name: str) -> (str, int):
+    global versions
+    global names
+    name = random_sample_remove(names) if not name else name
+
+    if name in versions:
+        version = versions[name]
+    else:
+        versions[name] = 0
+        version = versions[name]
+    versions[name] += 1
+    return name, version
+
+
 class Module(Base):
     """
     Module is a collection of one or more modules and operations that form
@@ -21,13 +35,19 @@ class Module(Base):
     """
 
     def __init__(self, name=None):
-        global versions
-        global names
         super().__init__()
 
         # Core values:
         self.children = []
         self.predecessor = None
+        self.re_train = False
+        self.logs = []
+
+        # Identity and version-control:
+        self.name, self.version = get_name_and_version(name)
+        self.ID = "{} v{}".format(self.name, self.version)
+
+        # Metrics:
         self.fitness = []
         self.evaluation = {}
         self.loss = []
@@ -35,24 +55,11 @@ class Module(Base):
         self.validation_loss = []
 
         # Database:
-        self.logs = []
         self.db_ref = None
         self.model_image_path = None
         self.model_image_link = None
         self.saved_model = None
         self.epochs_trained = 0
-
-        # Identity and version-control:
-        self.name = name if name else random_sample_remove(names)
-
-        if self.name in versions:
-            self.version = versions[self.name]
-        else:
-            versions[self.name] = 0
-            self.version = versions[self.name]
-        versions[self.name] += 1
-
-        self.ID = "{} v{}".format(self.name, self.version)
 
     def __str__(self):
         return "Module [{}]".format(", ".join([str(c) for c in self.children]))
@@ -60,40 +67,41 @@ class Module(Base):
     def __deepcopy__(self, memodict={}):
         """ Does not retain connectivity on module level. """
         from copy import deepcopy
-        global versions
-        new_mod = Module(self.name)
-        new_mod.nodeID = self.nodeID
-        new_mod.version = versions[self.name]
 
+        # Core values:
+        new_mod = Module(self.name)
         new_mod.logs = deepcopy(self.logs)
+
+        # Identity and version-control:
+        new_mod.name, new_mod.version = get_name_and_version(self.name)
         new_mod.ID = "{} v{}".format(new_mod.name, new_mod.version)
 
+        # Connectivity:
         new_mod.predecessor = self
         new_mod.children += [deepcopy(child) for child in self.children]
-
-        # Copying connectivity for all children:
         for i, child in enumerate(self.children):
-            try:
-                for cn in child.next:
-                    new_mod.children[i].next += [new_mod.children[self.children.index(cn)]]
-                for cp in child.prev:
-                    new_mod.children[i].prev += [new_mod.children[self.children.index(cp)]]
-
-            except AttributeError as e:
-                raise e
+            for cn in child.next:
+                new_mod.children[i].next += [new_mod.children[self.children.index(cn)]]
+            for cp in child.prev:
+                new_mod.children[i].prev += [new_mod.children[self.children.index(cp)]]
         return new_mod
 
-    def number_of_operations(self):
+    def number_of_operations(self) -> int:
+        """ Calculates how many operations are in this Module.
+            Including operations of sub-modules
+        """
         modules = [m for m in self.children if isinstance(m, Module)]
         return (len(self.children) - len(modules)) + sum(m.number_of_operations() for m in modules)
 
-    def find_first(self):
+    def find_first(self) -> Base:
+        """ Find first node in module directional graph of operations """
         def on(operation):
             if operation.prev: return on(operation.prev[0])
             return operation
         return on(self.children[0])
 
-    def find_last(self):
+    def find_last(self) -> [Base]:
+        """ Finds all ends in the directional graph of operations """
         def find_end(comp:Base, seen) -> list:
             ends = []
             if comp in seen: return ends
@@ -108,15 +116,20 @@ class Module(Base):
 
         return find_end(self.children[0], [])
 
-    def get_relative_module_save_path(self, config):
+    def relative_save_path(self, config):
+        """ Reveals the storage directory relative to work directory """
         path = 'results/{}/{}/v{}'.format(config['run id'], self.name, self.version)
         os.makedirs(path, exist_ok=True)
         return path
 
-    def get_absolute_module_save_path(self, config):
-        return os.path.abspath(self.get_relative_module_save_path(config))
+    def absolute_save_path(self, config):
+        """ Reveals the absolute path to the storage directory"""
+        return os.path.abspath(self.relative_save_path(config))
 
     def clean(self):
+        """ Removes all traces of keras from the module.
+            This is needed to serialize object.
+        """
         def detach_keras(obj):
             try: del obj.keras_operation
             except AttributeError: pass
@@ -129,32 +142,3 @@ class Module(Base):
                 child.clean()
             else:
                 detach_keras(child)
-
-    # def visualize(self):
-    #     # Local imports. Server does not have TKinter and will crash on load.
-    #     import matplotlib.pyplot as plt
-    #     import networkx as nx
-    #
-    #     G = nx.DiGraph()
-    #
-    #     def draw(prev, current):
-    #         if current.nodeID is None:
-    #             global global_id
-    #             current.nodeID = "{}: {}".format(global_id, current.ID)
-    #             global_id += 1
-    #
-    #         if prev:
-    #             G.add_node(current.nodeID)
-    #             G.add_edge(prev.nodeID, current.nodeID)
-    #         else:
-    #             G.add_node(current.nodeID)
-    #
-    #         if len(current.prev) <= 1 or all([x.nodeID != None for x in current.prev]):
-    #             for node in current.next:
-    #                 draw(current, node)
-    #
-    #     draw(prev=[], current=self.find_first())
-    #
-    #     plt.subplot(111)
-    #     nx.draw(G, with_labels=True, arrowsize=1, arrowstyle='fancy')
-    #     plt.show()

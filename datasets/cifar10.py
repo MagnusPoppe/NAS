@@ -2,6 +2,7 @@ import tensorflow as tf
 from tensorflow import keras
 import numpy as np
 import json
+import os
 from src.frameworks.weight_transfer import transfer_model_weights
 
 
@@ -25,12 +26,13 @@ def configure(classes, server):  # -> (function, function):
         data[new] = x_train[old]
         labels[new] = y_train[old]
 
-    keras.backend.set_session(tf.Session(config=tf.ConfigProto(
-        gpu_options=tf.GPUOptions(
-            allow_growth=server['allow gpu memory growth'],
-            per_process_gpu_memory_fraction = server['memory per process']
-        )
-    )))
+    with tf.device(server['device']):
+        keras.backend.set_session(tf.Session(config=tf.ConfigProto(
+            gpu_options=tf.GPUOptions(
+                allow_growth=server['allow gpu memory growth'],
+                per_process_gpu_memory_fraction = server['memory per process']
+            )
+        )))
 
 
     def train(model, device, epochs=1.2, batch_size=64, compiled=False):
@@ -82,8 +84,6 @@ def main(individ, config, server):
             predecessor_model = keras.models.load_model(individ.predecessor.saved_model)
             transfer_model_weights(model, predecessor_model)
 
-    before = evalutation(model, server['device'], compiled)
-    compiled = True
     training_history = training(
         model=model,
         device=server['device'],
@@ -91,49 +91,41 @@ def main(individ, config, server):
         batch_size=config['batch size'],
         compiled=compiled
     )
-    after = evalutation(model, server['device'], compiled)
-    return model, training_history, before, after
+    after = evalutation(model, server['device'], compiled=True)
+    return model, training_history, after
 
-if __name__ == '__main__':
-    import pickle, os, json
-    from src.frameworks.keras_decoder import assemble
-    with open("results/test-data/Felicia/v2/genotype.obj", "rb") as f:
-        individ = pickle.load(f)
-    with open("datasets/cifar10-home-ssh.json", "r") as f:
-        config = json.load(f)
+def execnet_setup(individ_str, config_str, server_str) -> tuple:
+    import pickle, setproctitle
+    individ = pickle.loads(individ_str)
+    config = pickle.loads(config_str)
+    server = pickle.loads(server_str)
+    setproctitle.setproctitle("EA-NAS-TRAINER " + server['device'])
 
-    model = assemble(individ, config['input'], config['classes'])
-    predecessor_model = keras.models.load_model("results/test-data/Felicia/v0/model.h5")
-    transfer_model_weights(model, predecessor_model)
-
-    training, evalutation, name, inputs = configure(config['classes'])
-    print(training(model, config['device'], config['epochs'], config['batch size']))
-
-if __name__ == '__channelexec__':
-    import pickle, os
-    from firebase.upload import save_model_image
 
     # Removing all debugging output from TF:
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
 
+    # Setup GPUs for tensorflow
+    device_id = server['device'].split(":")[-1]
+    os.environ["CUDA_VISIBLE_DEVICES"] = device_id
+
+    return individ, config, server
+
+
+if __name__ == '__channelexec__':
+    from firebase.upload import save_model_image
+
     # Reading input from main process:
     individ_str, config_str, server_str, job = channel.receive()
-    individ = pickle.loads(individ_str)
-    config = pickle.loads(config_str)
-    server = pickle.loads(server_str)
+    individ, config, server = execnet_setup(individ_str, config_str, server_str)
 
     # Running training:
-    model, training_history, before, after = main(individ, config, server)
+    model, training_history, after = main(individ, config, server)
 
     # Saving keras model and image of model:
-    model_path = os.path.join(
-        individ.get_absolute_module_save_path(config), "model.h5"
-    )
-    image_path = os.path.join(
-        individ.get_absolute_module_save_path(config), individ.ID + ".png"
-    )
+    model_path = os.path.join(individ.absolute_save_path(config), "model.h5")
+    image_path = os.path.join(individ.absolute_save_path(config), individ.ID + ".png")
     keras.models.save_model(model, model_path, overwrite=True, include_optimizer=True)
-    # model.save(model_path)
     save_model_image(model, image_path)
 
     channel.send(json.dumps({
@@ -145,8 +137,7 @@ if __name__ == '__channelexec__':
         'loss': training_history['loss'],
         'validation loss': training_history['val_loss'],
         'eval': {
-            'epoch': len(training_history) + len(individ.fitness) - 2,
-            'accuracy': after,
-            'accuracy before': before
+            'epoch': str(len(training_history) + len(individ.fitness) - 2),
+            'accuracy': after
         }
     }))

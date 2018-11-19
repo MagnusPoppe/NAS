@@ -8,7 +8,7 @@ class ServerManager:
         self.servers = {}
         for server in servers:
             server['running jobs'] = 0
-            self.servers['name'] = server
+            self.servers[server['name']] = server
 
     def create_gateway(self):
         server = self.__get_free_server()

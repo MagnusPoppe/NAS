@@ -1,7 +1,7 @@
 import json
+import unittest
 import os
 os.chdir("..")
-import unittest
 from tensorflow import keras
 
 from datasets.cifar10 import main
@@ -22,12 +22,12 @@ class TestTraining(unittest.TestCase):
         for i in range(10):
             with open(picklepath, "rb") as f:
                 individ = pickle.load(f)
-            with open("./datasets/cifar10-home-ssh.json", "r") as f:
+            with open("./datasets/cifar10-local.json", "r") as f:
                 config = json.load(f)
                 server = config['servers'][0]
 
             # Running training:
-            model, training_history, before, after = main(individ, config, server)
+            model, training_history, after = main(individ, config, server)
 
             # Saving keras model and image of model:
             os.makedirs("./tests/fixtures/Didrik/v0/testing/", exist_ok=True)
@@ -39,7 +39,7 @@ class TestTraining(unittest.TestCase):
             individ.saved_model = model_path
             individ.model_image_path = image_path
 
-            print({'before eval': before, 'after eval': after})
+            print('After evaluation', after)
             picklepath = "./tests/fixtures/Didrik/v0/testing/genotype.obj"
             individ.clean()
             with open(picklepath, "wb") as f:
