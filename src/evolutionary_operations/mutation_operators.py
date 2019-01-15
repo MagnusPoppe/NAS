@@ -25,8 +25,10 @@ def insert(module, first, last, op, between=False) -> Module:
     last.prev += [op]
 
     if between:
-        if last in first.next: first.next.remove(last)
-        if first in last.prev: last.prev.remove(first)
+        if last in first.next:
+            first.next.remove(last)
+        if first in last.prev:
+            last.prev.remove(first)
     module.logs += ["Insert-between mutation" if between else "Insert mutation"]
     module.logs[-1] += " for {} between {} and {}".format(op, first, last)
     return module
@@ -34,7 +36,8 @@ def insert(module, first, last, op, between=False) -> Module:
 
 def safety_insert(first, last, module) -> tuple:
     if not first in module.children or not last in module.children:
-        raise Exception("Tried to insert nodes between two nodes that were not part of module.")
+        raise Exception(
+            "Tried to insert nodes between two nodes that were not part of module.")
     if _is_before(first, last):
         temp = last
         last = first
@@ -43,6 +46,9 @@ def safety_insert(first, last, module) -> tuple:
 
 
 def remove(module, op) -> Module:
+    """ Removes the selected Operation from the module 
+        and fills the void by connecting the surrounding nodes. 
+    """
     if op.next and op.prev:
         module.children.remove(op)
         prevs, nexts = len(op.prev), len(op.next)
@@ -61,7 +67,8 @@ def remove(module, op) -> Module:
             next_op.prev.remove(op)
         op.prev = []
         op.next = []
-        module.logs += ["Remove fully connected mutation for {} with  #prev={} #next={}".format(op, prevs, nexts)]
+        module.logs += [
+            "Remove fully connected mutation for {} with  #prev={} #next={}".format(op, prevs, nexts)]
 
     elif len(op.next) == 1:
         # Can only delete first node when it has a single connection forwards.
@@ -76,11 +83,11 @@ def remove(module, op) -> Module:
         op.prev = []
         module.logs += ["Remove last mutation for {}".format(op)]
 
-
     return module
 
 
 def connect(module, first, last) -> Module:
+    """ Connects two nodes together within the module """"
     first, last = safety_insert(first, last, module)
     if first in last.prev or last in first.next:
         return module

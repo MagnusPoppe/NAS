@@ -8,10 +8,10 @@
   "generations": 20,
   "servers": [
     {
-      "name": "Telenor001-GPU0",
+      "name": "Telenor001-GPU1",
       "type": "local",
       "cwd": "/src",
-      "device": "/device:GPU:0",
+      "device": "/device:GPU:1",
       "allow gpu memory growth": true,
       "memory per process": 0.4,
       "concurrency": 1

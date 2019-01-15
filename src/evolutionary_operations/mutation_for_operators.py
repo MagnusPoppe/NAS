@@ -30,7 +30,7 @@ votes = _generate_votes(OPERATOR_WEIGHTS)
 
 
 def is2D(op):
-    return isinstance(op, Conv2D) or isinstance(op, Pooling)
+    return isinstance(op, Conv2D) or isinstance(op, Pooling) or isinstance(op, Dropout)
 
 
 def is1D(op):
