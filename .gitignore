@@ -6,6 +6,7 @@
 .vscode/*
 
 # Project:
+__pycache__
 results/*
 firebase/secrets/*
 */.png
