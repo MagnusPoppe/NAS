@@ -68,7 +68,9 @@ def remove(module, op) -> Module:
         op.prev = []
         op.next = []
         module.logs += [
-            "Remove fully connected mutation for {} with  #prev={} #next={}".format(op, prevs, nexts)]
+            "Remove fully connected mutation for {} with  #prev={} #next={}"
+            .format(op, prevs, nexts)
+        ]
 
     elif len(op.next) == 1:
         # Can only delete first node when it has a single connection forwards.
@@ -87,7 +89,7 @@ def remove(module, op) -> Module:
 
 
 def connect(module, first, last) -> Module:
-    """ Connects two nodes together within the module """"
+    """ Connects two nodes together within the module """
     first, last = safety_insert(first, last, module)
     if first in last.prev or last in first.next:
         return module

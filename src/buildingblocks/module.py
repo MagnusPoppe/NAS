@@ -1,9 +1,11 @@
-import json, os
+import json
+import os
 
 from src.helpers import random_sample_remove
 from src.buildingblocks.base import Base
 
 global_id = 1
+
 
 def load_name_list():
     with open("./resources/names_clean.json", "r", encoding="utf-8") as file:
@@ -15,6 +17,7 @@ versions = {}
 
 
 def get_name_and_version(name: str) -> (str, int):
+    """ Finds a random name and version from the name document """
     global versions
     global names
     name = random_sample_remove(names) if not name else name
@@ -81,9 +84,11 @@ class Module(Base):
         new_mod.children += [deepcopy(child) for child in self.children]
         for i, child in enumerate(self.children):
             for cn in child.next:
-                new_mod.children[i].next += [new_mod.children[self.children.index(cn)]]
+                new_mod.children[i].next += [
+                    new_mod.children[self.children.index(cn)]]
             for cp in child.prev:
-                new_mod.children[i].prev += [new_mod.children[self.children.index(cp)]]
+                new_mod.children[i].prev += [
+                    new_mod.children[self.children.index(cp)]]
         return new_mod
 
     def number_of_operations(self) -> int:
@@ -96,15 +101,17 @@ class Module(Base):
     def find_first(self) -> Base:
         """ Find first node in module directional graph of operations """
         def on(operation):
-            if operation.prev: return on(operation.prev[0])
+            if operation.prev:
+                return on(operation.prev[0])
             return operation
         return on(self.children[0])
 
     def find_last(self) -> [Base]:
         """ Finds all ends in the directional graph of operations """
-        def find_end(comp:Base, seen) -> list:
+        def find_end(comp: Base, seen) -> list:
             ends = []
-            if comp in seen: return ends
+            if comp in seen:
+                return ends
             else:
                 seen += [comp]
                 if comp.next:
@@ -118,7 +125,8 @@ class Module(Base):
 
     def relative_save_path(self, config):
         """ Reveals the storage directory relative to work directory """
-        path = 'results/{}/{}/v{}'.format(config['run id'], self.name, self.version)
+        path = 'results/{}/{}/v{}'.format(config['run id'],
+                                          self.name, self.version)
         os.makedirs(path, exist_ok=True)
         return path
 
@@ -131,10 +139,14 @@ class Module(Base):
             This is needed to serialize object.
         """
         def detach_keras(obj):
-            try: del obj.keras_operation
-            except AttributeError: pass
-            try: del obj.keras_tensor
-            except AttributeError: pass
+            try:
+                del obj.keras_operation
+            except AttributeError:
+                pass
+            try:
+                del obj.keras_tensor
+            except AttributeError:
+                pass
 
         detach_keras(self)
         for child in self.children:

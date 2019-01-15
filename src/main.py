@@ -5,6 +5,8 @@ from src.evolutionary_operations.initialization import init_population
 from src.evolutionary_operations.mutation_for_operators import mutate
 from src.evolutionary_operations.mutation_for_sub_modules import sub_module_insert
 from src.evolutionary_operations.selection import tournament
+from src.MOOA.NSGA_II import nsga_ii
+from src.MOOA.operators import objectives as moo_objectives, domination_operator as moo_domination_operator
 from firebase.upload import create_new_run, update_status, upload_population, update_run
 from src.helpers import random_sample
 from src.output import generation_finished
@@ -13,6 +15,7 @@ from src.jobs import scheduler
 
 import builtins
 builtins.generation = 0
+
 
 def evolve_architecture(selection, config):
     update_status("Creating initial population")
@@ -48,7 +51,8 @@ def evolve_architecture(selection, config):
                 mutated = mutate(selected)
             else:
                 print("    - Sub-module insert for {}".format(selected.ID))
-                mutated = sub_module_insert(selected, random_sample(seen_modules), config)
+                mutated = sub_module_insert(
+                    selected, random_sample(seen_modules), config)
 
             if mutated:
                 scheduler.queue(mutated, config)
@@ -61,7 +65,11 @@ def evolve_architecture(selection, config):
 
         # Elitism:
         population += children
-        population.sort(key=lambda ind: ind.fitness[-1])
+        population = nsga_ii(
+            population,
+            moo_objectives(),
+            moo_domination_operator
+        )
         population = population[len(population) - config['population size']:]
 
         upload_population(population)
@@ -70,7 +78,8 @@ def evolve_architecture(selection, config):
 
 
 def run(config, training_algorithm, job_start_callback, job_end_callback):
-    scheduler.initialize(config, training_algorithm, job_start_callback, job_end_callback)
+    scheduler.initialize(config, training_algorithm,
+                         job_start_callback, job_end_callback)
     print("\n\nEvolving architecture")
     start_time = time.time()
 

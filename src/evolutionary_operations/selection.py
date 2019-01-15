@@ -21,7 +21,8 @@ def tournament(population: list, individs_to_select: int):
     )
 
     for i, j in selector:
-        yield population[i] if (population[i].fitness > population[j].fitness) else population[j]
+        yield population[i] if (population[i].fitness > population[j].fitness) \
+            else population[j]
 
 
 def trash_bad_modules(modules: list, evaluate, modules_to_keep: int = 20) -> list:
@@ -32,7 +33,8 @@ def trash_bad_modules(modules: list, evaluate, modules_to_keep: int = 20) -> lis
 
         NOTE: This number should be higher than the population size.
     """
-    if len(modules) < modules_to_keep: return modules
+    if len(modules) < modules_to_keep:
+        return modules
     # evaluate(modules)
     modules.sort(key=attrgetter("fitness"))
     print("--> Deleted {} modules".format(len(modules) - modules_to_keep))

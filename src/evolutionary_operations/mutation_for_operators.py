@@ -44,7 +44,8 @@ def get_possible_insertion_points(module: Module, operation: Base) -> (list, lis
     last = module.find_last()[0]
     for child in module.children:
         if is1D(operation):
-            if not is2D(child) and child != first:  # Cannot be inserted before 2D op.
+            # Cannot be inserted before 2D op.
+            if not is2D(child) and child != first:
                 insertion_before += [child]
             if child != last:
                 insertion_after += [child]  # Can be inserted after any.
@@ -71,9 +72,11 @@ def find_placement(module: Module, operation: Base) -> (Module, Module):
     if before and after:
         # Selecting first and removing from possible lasts:
         first = random_sample(after)
-        before = [node for node in before if node != first and not _is_before(first, node)]
-        last = random_sample(before)
-        return first, last
+        before = [node for node in before if node !=
+                  first and not _is_before(first, node)]
+        if before:
+            last = random_sample(before)
+            return first, last
     return None, None
 
 
@@ -97,15 +100,19 @@ def apply_mutation_operator(module: Module, operator: Base, operators: list) -> 
             operation = random_sample(operators)()
             first, last = find_placement(module, operation)
             i += 1
-            if i == 20: break
+            if i == 20:
+                break
         if first and last:
-            module = insert(module, first, last, operation, operator == "insert-between")
+            module = insert(module, first, last, operation,
+                            operator == "insert-between")
     elif operator == "connect":
         possibilities = list(range(len(module.children)))
         module = connect(
             module=module,
-            first=module.children[possibilities.pop(random.randint(0, len(possibilities) - 1))],
-            last=module.children[possibilities.pop(random.randint(0, len(possibilities) - 1))]
+            first=module.children[possibilities.pop(
+                random.randint(0, len(possibilities) - 1))],
+            last=module.children[possibilities.pop(
+                random.randint(0, len(possibilities) - 1))]
         )
     # Else: operator == "identity": do nothing...
 
@@ -115,5 +122,6 @@ def apply_mutation_operator(module: Module, operator: Base, operators: list) -> 
 def mutate(module: Module, make_copy: bool = True) -> Module:
     # Copying module to do non-destructive changes.
     mutated = deepcopy(module) if make_copy else module
-    mutated = apply_mutation_operator(mutated, select_operator(mutated), operators)
+    mutated = apply_mutation_operator(
+        mutated, select_operator(mutated), operators)
     return mutated
