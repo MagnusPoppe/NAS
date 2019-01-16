@@ -37,7 +37,8 @@ def insert(module, first, last, op, between=False) -> Module:
 def safety_insert(first, last, module) -> tuple:
     if not first in module.children or not last in module.children:
         raise Exception(
-            "Tried to insert nodes between two nodes that were not part of module.")
+            "Tried to insert nodes between two nodes that were not part of module."
+        )
     if _is_before(first, last):
         temp = last
         last = first
@@ -68,8 +69,9 @@ def remove(module, op) -> Module:
         op.prev = []
         op.next = []
         module.logs += [
-            "Remove fully connected mutation for {} with  #prev={} #next={}"
-            .format(op, prevs, nexts)
+            "Remove fully connected mutation for {} with  #prev={} #next={}".format(
+                op, prevs, nexts
+            )
         ]
 
     elif len(op.next) == 1:

@@ -10,23 +10,29 @@ from src.jobs.server_manager import ServerManager
 
 
 class JobManager:
-    def __init__(self, config: dict, func: callable, job_start_callback: callable, job_end_callback: callable):
+    def __init__(
+        self,
+        config: dict,
+        func: callable,
+        job_start_callback: callable,
+        job_end_callback: callable,
+    ):
         self.config = config
         self.func = func
         self.job_start = job_start_callback
         self.job_end = job_end_callback
 
-        self.server_manager = ServerManager(config['servers'])
+        self.server_manager = ServerManager(config["servers"])
 
-        self.gateways = {}          # Started sessions
-        self.channels = {}          # Started programs
-        self.occupancy = {}         # {job: server}
+        self.gateways = {}  # Started sessions
+        self.channels = {}  # Started programs
+        self.occupancy = {}  # {job: server}
 
-        self.job_count = 0          # total count of jobs seen
-        self.jobs = {}              # All active jobs
+        self.job_count = 0  # total count of jobs seen
+        self.jobs = {}  # All active jobs
 
-        self.queue = []             # Queue of all jobs.
-        self.priority_queue = []    # Queue that empties before self.queue
+        self.queue = []  # Queue of all jobs.
+        self.priority_queue = []  # Queue that empties before self.queue
 
     def queue_job(self, parameters: tuple, priority: bool = False) -> int:
         id = self.__auto_id()
@@ -52,7 +58,7 @@ class JobManager:
         # Add server job runs at to parameters:
         server, gateway = self.server_manager.create_gateway()
         if server:
-            self.server_manager.servers[server['name']]['running jobs'] += 1
+            self.server_manager.servers[server["name"]]["running jobs"] += 1
             self.jobs[job_id] += tuple([server])
 
             # Syncronizing models:
@@ -63,7 +69,9 @@ class JobManager:
             channel.setcallback(self.__finish_job(job_id))
 
             # Sending data to be processed and recieving fitness:
-            args = tuple([pickle.dumps(arg) for arg in self.jobs[job_id]]) + tuple([job_id])
+            args = tuple([pickle.dumps(arg) for arg in self.jobs[job_id]]) + tuple(
+                [job_id]
+            )
             channel.send(args)
 
             self.job_start(*self.jobs[job_id])
@@ -79,6 +87,7 @@ class JobManager:
         # is a class method a valid callback?
         job_id = job_id
         this = self
+
         def finish(results):
             args = this.jobs[job_id]
             this.__sync_files(job_id, download=True)
@@ -86,9 +95,10 @@ class JobManager:
             this.channels[job_id].close()
             this.gateways[job_id].exit()
             server = args[2]
-            this.server_manager.servers[server['name']]['running jobs'] -= 1
+            this.server_manager.servers[server["name"]]["running jobs"] -= 1
             del this.jobs[job_id], this.channels[job_id], this.gateways[job_id]
             this.start_next_job()
+
         return finish
 
     def await_all_jobs_finish(self):
@@ -103,8 +113,10 @@ class JobManager:
             print_progress(remaining_jobs, self)
             if remaining_jobs - (len(self.queue) + len(self.priority_queue)) > 0:
                 done = total_jobs - remaining_jobs
-                update_status("Completed {}/{} training sessions".format(done, total_jobs))
-            remaining_jobs = (len(self.queue) + len(self.priority_queue))
+                update_status(
+                    "Completed {}/{} training sessions".format(done, total_jobs)
+                )
+            remaining_jobs = len(self.queue) + len(self.priority_queue)
             time.sleep(3)
 
         print_progress(total_jobs, self)
@@ -126,25 +138,30 @@ class JobManager:
         def download_models(individ, config, server_config):
             ssh.rsync(
                 os.path.join(os.getcwd(), individ.relative_save_path(config)),
-                os.path.join(server_config['cwd'], individ.relative_save_path(config)),
+                os.path.join(server_config["cwd"], individ.relative_save_path(config)),
                 server_config,
-                to_source=True
+                to_source=True,
             )
 
         def upload_models(individ, config, server_config):
 
             local_path = os.path.join(os.getcwd(), individ.relative_save_path(config))
-            server_path = os.path.join(server_config['cwd'], individ.relative_save_path(config))
+            server_path = os.path.join(
+                server_config["cwd"], individ.relative_save_path(config)
+            )
             ssh.rsync(local_path, server_path, server_config, to_source=False)
             if individ.predecessor:
-                local_path = os.path.join(os.getcwd(), individ.predecessor.relative_save_path(config))
-                server_path = os.path.join(server_config['cwd'],
-                                           individ.predecessor.relative_save_path(config))
+                local_path = os.path.join(
+                    os.getcwd(), individ.predecessor.relative_save_path(config)
+                )
+                server_path = os.path.join(
+                    server_config["cwd"], individ.predecessor.relative_save_path(config)
+                )
                 ssh.rsync(local_path, server_path, server_config, to_source=False)
 
         individ, config, server_config = self.jobs[job_id]
 
-        if server_config['type'] != 'local':
+        if server_config["type"] != "local":
             if download:
                 download_models(individ, config, server_config)
             if upload:

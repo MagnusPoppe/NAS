@@ -8,7 +8,10 @@ from src.buildingblocks.module import Module
 from src.jobs import pre_trainer as pretrain, scheduler
 
 from src.MOOA.NSGA_II import nsga_ii
-from src.MOOA.operators import objectives as moo_objectives, domination_operator as moo_domination_operator
+from src.MOOA.operators import (
+    objectives as moo_objectives,
+    domination_operator as moo_domination_operator,
+)
 
 
 def get_insertion_points_after(module: Module, target: Module) -> (Base, Base):
@@ -16,18 +19,26 @@ def get_insertion_points_after(module: Module, target: Module) -> (Base, Base):
     last = module.find_last()[0]
     target_first = target.find_first()
     for child in module.children:
-        if ((is2D(target_first) and is2D(child)) or is1D(target_first)) and child != last:
+        if (
+            (is2D(target_first) and is2D(child)) or is1D(target_first)
+        ) and child != last:
             insertion_after += [child]
     return insertion_after
 
 
-def get_insertion_points_before(module: Module, target: Module, after: Base) -> (Base, Base):
+def get_insertion_points_before(
+    module: Module, target: Module, after: Base
+) -> (Base, Base):
     insertion_before = []
     first = module.find_first()
     target_last = target.find_last()[0]
     for child in module.children:
         if _is_before(child, after):
-            if child != first and child != after and (is2D(target_last) or (is1D(target_last) and is1D(child))):
+            if (
+                child != first
+                and child != after
+                and (is2D(target_last) or (is1D(target_last) and is1D(child)))
+            ):
                 insertion_before += [child]
     return insertion_before
 
@@ -68,17 +79,16 @@ def sub_module_insert(module: Module, target_module: Module, config: dict) -> Mo
 
     if new:
         new_config = deepcopy(config)
-        new_config['epochs'] = 0
+        new_config["epochs"] = 0
         scheduler.queue_all(new, new_config, priority=True)
         scheduler.await_all_jobs_finish()
-        new = nsga_ii(
-            new,
-            moo_objectives(),
-            moo_domination_operator
-        )
+        new = nsga_ii(new, moo_objectives(), moo_domination_operator)
         best = new[-1]
         print(
-            "        - Accuracy of new ({}) vs old ({})".format(best.fitness[-1], module.fitness[-1]))
+            "        - Accuracy of new ({}) vs old ({})".format(
+                best.fitness[-1], module.fitness[-1]
+            )
+        )
         return best
     else:
         print("        - No new solutions found...")

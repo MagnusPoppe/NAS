@@ -1,12 +1,9 @@
-
 def objectives():
     return [
-        lambda p: abs(
-            int(1000 * p.validation_fitness[-1]) - int(1000 * p.fitness[-1])),
-        lambda p: abs(
-            int(1000 * p.validation_loss[-1]) - int(1000 * p.loss[-1])),
+        lambda p: abs(int(1000 * p.validation_fitness[-1]) - int(1000 * p.fitness[-1])),
+        lambda p: abs(int(1000 * p.validation_loss[-1]) - int(1000 * p.loss[-1])),
         lambda p: int(1000 * p.validation_fitness[-1]),
-        lambda p: p.number_of_operations()
+        lambda p: p.number_of_operations(),
     ]
 
 

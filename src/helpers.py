@@ -4,8 +4,7 @@ from src.buildingblocks.ops.convolution import Conv3x3, Conv5x5
 from src.buildingblocks.ops.dense import DenseS, DenseM, DenseL, Dropout
 from src.buildingblocks.ops.pooling import MaxPooling2x2, AvgPooling2x2
 
-operators2D = [Conv3x3, Conv5x5, MaxPooling2x2,
-               AvgPooling2x2, Dropout, Dropout]
+operators2D = [Conv3x3, Conv5x5, MaxPooling2x2, AvgPooling2x2, Dropout, Dropout]
 operators1D = [DenseS, DenseM, DenseL, Dropout, Dropout]
 operators = operators1D + operators2D
 registered_modules = []

@@ -84,11 +84,9 @@ class Module(Base):
         new_mod.children += [deepcopy(child) for child in self.children]
         for i, child in enumerate(self.children):
             for cn in child.next:
-                new_mod.children[i].next += [
-                    new_mod.children[self.children.index(cn)]]
+                new_mod.children[i].next += [new_mod.children[self.children.index(cn)]]
             for cp in child.prev:
-                new_mod.children[i].prev += [
-                    new_mod.children[self.children.index(cp)]]
+                new_mod.children[i].prev += [new_mod.children[self.children.index(cp)]]
         return new_mod
 
     def number_of_operations(self) -> int:
@@ -96,18 +94,23 @@ class Module(Base):
             Including operations of sub-modules
         """
         modules = [m for m in self.children if isinstance(m, Module)]
-        return (len(self.children) - len(modules)) + sum(m.number_of_operations() for m in modules)
+        return (len(self.children) - len(modules)) + sum(
+            m.number_of_operations() for m in modules
+        )
 
     def find_first(self) -> Base:
         """ Find first node in module directional graph of operations """
+
         def on(operation):
             if operation.prev:
                 return on(operation.prev[0])
             return operation
+
         return on(self.children[0])
 
     def find_last(self) -> [Base]:
         """ Finds all ends in the directional graph of operations """
+
         def find_end(comp: Base, seen) -> list:
             ends = []
             if comp in seen:
@@ -125,8 +128,7 @@ class Module(Base):
 
     def relative_save_path(self, config):
         """ Reveals the storage directory relative to work directory """
-        path = 'results/{}/{}/v{}'.format(config['run id'],
-                                          self.name, self.version)
+        path = "results/{}/{}/v{}".format(config["run id"], self.name, self.version)
         os.makedirs(path, exist_ok=True)
         return path
 
@@ -138,6 +140,7 @@ class Module(Base):
         """ Removes all traces of keras from the module.
             This is needed to serialize object.
         """
+
         def detach_keras(obj):
             try:
                 del obj.keras_operation

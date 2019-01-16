@@ -11,17 +11,32 @@ from firebase.upload import update_status, upload_population
 
 packages = []
 
+
 def rsync(source, dest, server, to_source=True):
     from src.jobs import ssh
-    ssh.exec_remote(server, ['mkdir -r {}'.format(dest)])
+
+    ssh.exec_remote(server, ["mkdir -r {}".format(dest)])
 
     import subprocess as ps
+
     if to_source:
         source = "/".join(source.split("/")[:-1])
-        command = ['rsync', '-r', '-azh', server['username']+'@'+server['address']+':'+dest, source]
+        command = [
+            "rsync",
+            "-r",
+            "-azh",
+            server["username"] + "@" + server["address"] + ":" + dest,
+            source,
+        ]
     else:
         dest = "/".join(dest.split("/")[:-1])
-        command = ['rsync', '-r', '-azh', source, server['username'] + '@' + server['address'] + ':' + dest]
+        command = [
+            "rsync",
+            "-r",
+            "-azh",
+            source,
+            server["username"] + "@" + server["address"] + ":" + dest,
+        ]
 
     ps.Popen(
         args=command,
@@ -29,33 +44,42 @@ def rsync(source, dest, server, to_source=True):
         stdout=ps.PIPE,
         stderr=ps.PIPE,
         universal_newlines=True,
-        bufsize=0
+        bufsize=0,
     )
 
 
 def get_local_gateway(server):
-    return execnet.makegateway("ssh={ssh}//python={py}//chdir={dir}".format(
-        ssh="{}@{}".format(server['username'], server['address']),
-        py="python",
-        dir=server['cwd'],
-    ))
+    return execnet.makegateway(
+        "ssh={ssh}//python={py}//chdir={dir}".format(
+            ssh="{}@{}".format(server["username"], server["address"]),
+            py="python",
+            dir=server["cwd"],
+        )
+    )
+
 
 def upload_models(individ, config, server_config):
     local_path = os.path.join(os.getcwd(), individ.relative_save_path(config))
-    server_path = os.path.join(server_config['cwd'], individ.relative_save_path(config))
+    server_path = os.path.join(server_config["cwd"], individ.relative_save_path(config))
     rsync(local_path, server_path, server_config, to_source=False)
     if individ.predecessor:
-        local_path = os.path.join(os.getcwd(), individ.predecessor.relative_save_path(config))
-        server_path = os.path.join(server_config['cwd'], individ.predecessor.relative_save_path(config))
+        local_path = os.path.join(
+            os.getcwd(), individ.predecessor.relative_save_path(config)
+        )
+        server_path = os.path.join(
+            server_config["cwd"], individ.predecessor.relative_save_path(config)
+        )
         rsync(local_path, server_path, server_config, to_source=False)
+
 
 def download_models(individ, config, server_config):
     rsync(
         os.path.join(os.getcwd(), individ.relative_save_path(config)),
-        os.path.join(server_config['cwd'], individ.relative_save_path(config)),
+        os.path.join(server_config["cwd"], individ.relative_save_path(config)),
         server_config,
-        to_source=True
+        to_source=True,
     )
+
 
 def receive(payload):
     global packages
@@ -71,9 +95,11 @@ def receive(payload):
 def launch_trainers(population, config):
     global packages
     packages = []
-    server_config = config['servers'][0]
+    server_config = config["servers"][0]
 
-    print("--> Training on servers {} |".format(server_config['name']), end="", flush=True)
+    print(
+        "--> Training on servers {} |".format(server_config["name"]), end="", flush=True
+    )
     started = time.time()
     trained = 0
     concurrency = 1
@@ -82,7 +108,7 @@ def launch_trainers(population, config):
         gateways = []
 
         # Starting training sessions:
-        for individ in population[i:i+concurrency]:
+        for individ in population[i : i + concurrency]:
 
             # Connecting to server:
             gateway = get_local_gateway(server_config)
@@ -95,7 +121,13 @@ def launch_trainers(population, config):
             channel.setcallback(receive)
 
             # Sending data to be processed and recieving fitness:
-            channel.send((pickle.dumps(individ), pickle.dumps(config), pickle.dumps(server_config)))
+            channel.send(
+                (
+                    pickle.dumps(individ),
+                    pickle.dumps(config),
+                    pickle.dumps(server_config),
+                )
+            )
 
             with open(individ.relative_save_path(config) + "/genotype.obj", "wb") as f:
                 pickle.dump(individ, f)
@@ -103,12 +135,14 @@ def launch_trainers(population, config):
             gateways += [gateway]
             channels += [channel]
 
-        update_status("Training {} for {} epochs per op ( {}/{} models complete )".format(
-            [individ.ID for individ in population[i:i+concurrency]],
-            config['epochs'],
-            trained,
-            len(population)
-        ))
+        update_status(
+            "Training {} for {} epochs per op ( {}/{} models complete )".format(
+                [individ.ID for individ in population[i : i + concurrency]],
+                config["epochs"],
+                trained,
+                len(population),
+            )
+        )
 
         mch = execnet.MultiChannel(channels)
         mch.waitclose()
@@ -125,4 +159,4 @@ def launch_trainers(population, config):
 
     upload_population(population)
     packages = []
-    print("| (Elapsed time: {} sec)".format(time.time()-started))
+    print("| (Elapsed time: {} sec)".format(time.time() - started))

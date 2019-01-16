@@ -11,7 +11,7 @@ def rank_children(module: Module) -> Module:
     queue = [module.find_first()]
     rank = 0
     while queue:
-        node = queue.pop(0) # type: Base
+        node = queue.pop(0)  # type: Base
 
         # Should wait to queue next nodes if one or more previous nodes are "unprocessed"
         if (not node.prev) or all(_prev.rank >= 0 for _prev in node.prev):

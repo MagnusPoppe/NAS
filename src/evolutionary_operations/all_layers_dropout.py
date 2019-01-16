@@ -5,7 +5,7 @@ from src.buildingblocks.ops.dense import Dropout
 from src.evolutionary_operations.mutation_operators import insert
 
 
-def apply_dropout_to_all_layers(module : Module):
+def apply_dropout_to_all_layers(module: Module):
     new_module = deepcopy(module)
     queue = [module.find_first()]
 
@@ -17,5 +17,3 @@ def apply_dropout_to_all_layers(module : Module):
             if not isinstance(_next, Dropout):
                 new_module = insert(new_module, current, _next, Dropout(), between=True)
         queue += nexts
-
-

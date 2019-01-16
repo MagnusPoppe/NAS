@@ -16,13 +16,13 @@ def tournament(population: list, individs_to_select: int):
     np.random.shuffle(individs)
     individs = individs[:individs_to_select]
     selector = zip(
-        individs[:int(len(individs) / 2)],
-        individs[int(len(individs) / 2):]
+        individs[: int(len(individs) / 2)], individs[int(len(individs) / 2) :]
     )
 
     for i, j in selector:
-        yield population[i] if (population[i].fitness > population[j].fitness) \
-            else population[j]
+        yield population[i] if (
+            population[i].fitness > population[j].fitness
+        ) else population[j]
 
 
 def trash_bad_modules(modules: list, evaluate, modules_to_keep: int = 20) -> list:
@@ -38,4 +38,4 @@ def trash_bad_modules(modules: list, evaluate, modules_to_keep: int = 20) -> lis
     # evaluate(modules)
     modules.sort(key=attrgetter("fitness"))
     print("--> Deleted {} modules".format(len(modules) - modules_to_keep))
-    return modules[len(modules) - modules_to_keep:]
+    return modules[len(modules) - modules_to_keep :]

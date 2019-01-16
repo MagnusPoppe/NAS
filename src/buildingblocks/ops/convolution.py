@@ -4,9 +4,11 @@ from src.buildingblocks.ops.operation import Operation
 
 counter = 0
 
-class Conv2D(Operation):
 
-    def __init__(self, ID, kernel, filters, strides=(1, 1), activation="relu", bias=True):
+class Conv2D(Operation):
+    def __init__(
+        self, ID, kernel, filters, strides=(1, 1), activation="relu", bias=True
+    ):
         super().__init__(ID)
         self.kernel = kernel
         self.filters = filters
@@ -18,6 +20,7 @@ class Conv2D(Operation):
 
     def to_keras(self):
         from tensorflow import keras
+
         return keras.layers.Conv2D(
             filters=self.filters,
             kernel_size=self.kernel,
@@ -25,7 +28,7 @@ class Conv2D(Operation):
             padding=self.padding,
             activation=self.activation,
             use_bias=self.bias,
-            name=self.ID
+            name=self.ID,
         )
 
     def transfer_values(self, conv2D):
@@ -36,8 +39,8 @@ class Conv2D(Operation):
         conv2D.ID = self.ID
         return conv2D
 
-class Conv3x3(Conv2D):
 
+class Conv3x3(Conv2D):
     def __init__(self, ID=None, kernel=(3, 3), filters=50):
         if not ID:
             global counter
@@ -50,7 +53,6 @@ class Conv3x3(Conv2D):
 
 
 class Conv5x5(Conv2D):
-
     def __init__(self, ID=None, kernel=(5, 5), filters=50):
         if not ID:
             global counter
@@ -60,4 +62,3 @@ class Conv5x5(Conv2D):
 
     def __deepcopy__(self, memodict={}):
         return self.transfer_values(Conv5x5())
-

@@ -71,9 +71,8 @@ def crowding_distance_assignment(solutions: list, objectives: [callable]):
         # Setting distances:
         for i in range(1, len(solutions) - 1):
             solutions[i].distance += (
-                (objective(solutions[i+1]) - objective(solutions[i-1])) /
-                (objective_max - objective_min)
-            )
+                objective(solutions[i + 1]) - objective(solutions[i - 1])
+            ) / (objective_max - objective_min)
 
 
 def nsga_ii(solutions: list, objectives: [callable], domination_operator: callable):
@@ -89,10 +88,10 @@ def nsga_ii(solutions: list, objectives: [callable], domination_operator: callab
     solutions.sort(
         reverse=True,
         key=functools.cmp_to_key(
-            lambda p, q: 1 if p.rank < q.rank or (
-                p.rank == q.rank and p.distance > q.distance
-            ) else -1
-        )
+            lambda p, q: 1
+            if p.rank < q.rank or (p.rank == q.rank and p.distance > q.distance)
+            else -1
+        ),
     )
 
     # Remove temporary values used by sorting algorithm:

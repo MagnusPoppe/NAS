@@ -50,6 +50,7 @@ def transfer_predecessor_weights(module, predecessor):
                     break
     return module
 
+
 def transfer_submodule_weights(module: Module):
     """
     Transfer weights for sub-modules where the sub-module is not included
@@ -63,11 +64,14 @@ def transfer_submodule_weights(module: Module):
     """
 
     from tensorflow import keras
+
     # Excluding modules that have trained as part of predecessor network:
     exclusion = [op for op in module.predecessor if isinstance(op, Module)]
 
     # Finding sub-modules to transfer weights to:
-    sub_modules = [op for op in module.children if isinstance(op, Module) and op not in exclusion]
+    sub_modules = [
+        op for op in module.children if isinstance(op, Module) and op not in exclusion
+    ]
 
     # Transferring weights:
     for sub_module in sub_modules:
