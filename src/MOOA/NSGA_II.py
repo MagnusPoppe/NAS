@@ -76,17 +76,17 @@ def crowding_distance_assignment(solutions: list, objectives: [callable]):
             )
 
 
-def nsga_ii(population: list, objectives: [callable], domination_operator: callable):
+def nsga_ii(solutions: list, objectives: [callable], domination_operator: callable):
     """
     https://ieeexplore.ieee.org/document/996017
     """
     # Sorting by multiple objectives:
-    frontieer = fast_non_dominated_sort(population, domination_operator)
+    frontieer = fast_non_dominated_sort(solutions, domination_operator)
 
     # Rewarding diversity by boosting most different types:
-    crowding_distance_assignment(population, objectives)
+    crowding_distance_assignment(solutions, objectives)
 
-    population.sort(
+    solutions.sort(
         reverse=True,
         key=functools.cmp_to_key(
             lambda p, q: 1 if p.rank < q.rank or (
@@ -96,9 +96,9 @@ def nsga_ii(population: list, objectives: [callable], domination_operator: calla
     )
 
     # Remove temporary values used by sorting algorithm:
-    for individ in population:
-        del individ.rank
-        del individ.distance
-        del individ.dominates
-        del individ.dominated_by
-    return population
+    for solution in solutions:
+        del solution.rank
+        del solution.distance
+        del solution.dominates
+        del solution.dominated_by
+    return solutions
