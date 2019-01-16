@@ -7,6 +7,9 @@ from src.buildingblocks.base import Base
 from src.buildingblocks.module import Module
 from src.jobs import pre_trainer as pretrain, scheduler
 
+from src.MOOA.NSGA_II import nsga_ii
+from src.MOOA.operators import objectives as moo_objectives, domination_operator as moo_domination_operator
+
 
 def get_insertion_points_after(module: Module, target: Module) -> (Base, Base):
     insertion_after = []
@@ -53,13 +56,11 @@ def sub_module_insert(module: Module, target_module: Module, config: dict) -> Mo
             elif child.ID == predecessor_after.ID:
                 after = child
 
-            if before and after: break
+            if before and after:
+                break
 
         if not before or not after:
             continue
-            # raise UnboundLocalError(
-            # "Insert will fail when either before ({}) or after ({}) is None".format(before, after)
-            # )
 
         # Transferring weights and assembles module:
         mutated = insert(mutated, after, before, target)
@@ -70,9 +71,14 @@ def sub_module_insert(module: Module, target_module: Module, config: dict) -> Mo
         new_config['epochs'] = 0
         scheduler.queue_all(new, new_config, priority=True)
         scheduler.await_all_jobs_finish()
-        new.sort(key=lambda x: x.fitness[-1] if x.fitness else 0.0)
+        new = nsga_ii(
+            new,
+            moo_objectives(),
+            moo_domination_operator
+        )
         best = new[-1]
-        print("        - Accuracy of new ({}) vs old ({})".format(best.fitness[-1], module.fitness[-1]))
+        print(
+            "        - Accuracy of new ({}) vs old ({})".format(best.fitness[-1], module.fitness[-1]))
         return best
     else:
         print("        - No new solutions found...")

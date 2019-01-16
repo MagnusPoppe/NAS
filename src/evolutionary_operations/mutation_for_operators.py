@@ -18,9 +18,9 @@ def _generate_votes(weights: list) -> list:
 
 
 OPERATOR_WEIGHTS = [
-    ("append", 2),
+    ("append", 20),
     ("connect", 0),
-    ("insert", 2),
+    ("insert", 10),
     ("insert-between", 30),
     ("remove", 30)
     # ("identity", 20)
@@ -30,7 +30,7 @@ votes = _generate_votes(OPERATOR_WEIGHTS)
 
 
 def is2D(op):
-    return isinstance(op, Conv2D) or isinstance(op, Pooling) or isinstance(op, Dropout)
+    return isinstance(op, Conv2D) or isinstance(op, Pooling)
 
 
 def is1D(op):
