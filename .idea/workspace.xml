@@ -2,17 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="ddcc3bad-a0a9-4e46-ac09-af718cfc970a" name="Default" comment="Added scalable training. Also more metadata for front-end.">
-      <change afterPath="$PROJECT_DIR$/cifar_10_dataset.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/evolutionary_operations/mutation_for_operators.py" beforeDir="false" afterPath="$PROJECT_DIR$/evolutionary_operations/mutation_for_operators.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/evolutionary_operations/mutation_for_sub_modules.py" beforeDir="false" afterPath="$PROJECT_DIR$/evolutionary_operations/mutation_for_sub_modules.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/firebase/upload.py" beforeDir="false" afterPath="$PROJECT_DIR$/firebase/upload.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mnist_dataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/mnist_dataset.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/module.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/module.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/output.py" beforeDir="false" afterPath="$PROJECT_DIR$/output.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -22,28 +13,32 @@
   </component>
   <component name="CoverageDataManager">
     <SUITE FILE_PATH="coverage/EA_architecture_search$Unittests_for_test_mutation_TestMutationOperator.coverage" NAME="Unittests for test_mutation.TestMutationOperator Coverage Results" MODIFIED="1539162596582" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
-    <SUITE FILE_PATH="coverage/EA_architecture_search$Unittests_for_test_weight_retention_TestWeightRetention_test_keeps_weights_after_copy.coverage" NAME="Unittests in test_weight_retention.py Coverage Results" MODIFIED="1538735713028" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/EA_architecture_search$Unit_tests.coverage" NAME="Unit tests Coverage Results" MODIFIED="1539854351252" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/EA_architecture_search$Unittests_for_test_ranking_TestModuleCompile_test_compiles_with_submodule.coverage" NAME="Unittests for test_ranking.TestModuleCompile.test_compiles_with_submodule Coverage Results" MODIFIED="1538725453871" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
-    <SUITE FILE_PATH="coverage/EA_architecture_search$Unittests_for_test_mutation_TestMutationOperator_test_remove_node_multi_connections.coverage" NAME="Unittests for test_mutation.TestMutationOperator.test_remove_node_multi_connections Coverage Results" MODIFIED="1539162349878" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
-    <SUITE FILE_PATH="coverage/EA_architecture_search$Unittests_in_test_population_initialization_py.coverage" NAME="Unittests in test_population_initialization.py Coverage Results" MODIFIED="1539163028420" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/EA_architecture_search$Unittests_for_test_mutation_TestMutationOperator_test_connect.coverage" NAME="Unittests for test_mutation.TestMutationOperator.test_connect Coverage Results" MODIFIED="1539020791272" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/EA_architecture_search$Unittests_for_test_assembly_TestAssembly_test_assembles_with_first_layer_as_module.coverage" NAME="Unittests for test_assembly.TestAssembly.test_assembles_with_first_layer_as_module Coverage Results" MODIFIED="1539346493135" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/EA_architecture_search$Unittests_for_test_multi_objective_optimisation_TestMutationOperator_test_full_sorting.coverage" NAME="Unittests for test_multi_objective_optimisation.TestMutationOperator.test_full_sorting Coverage Results" MODIFIED="1548150182973" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/EA_architecture_search$main__local_.coverage" NAME="main (local) Coverage Results" MODIFIED="1538168570111" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/EA_architecture_search$main__home_linux_cuda_server_.coverage" NAME="main (home linux cuda server) Coverage Results" MODIFIED="1540802251371" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/EA_architecture_search$Unittests_for_test_assembly_TestAssembly.coverage" NAME="Unittests for test_assembly.TestAssembly Coverage Results" MODIFIED="1539345359931" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/EA_architecture_search$Unittests_for_test_population_initialization_TestModuleCompile.coverage" NAME="Unittests for test_population_initialization.TestModuleCompile Coverage Results" MODIFIED="1539001003349" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/EA_architecture_search$upload.coverage" NAME="upload Coverage Results" MODIFIED="1540141658643" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/" />
+    <SUITE FILE_PATH="coverage/EA_architecture_search$Unittests_in_test_multi_objective_optimisation_py.coverage" NAME="Unittests in test_multi_objective_optimisation.py Coverage Results" MODIFIED="1548158108489" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/EA_architecture_search$cifar_10_dataset.coverage" NAME="cifar_10_dataset Coverage Results" MODIFIED="1540205531989" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/EA_architecture_search$main__mac_.coverage" NAME="main (mac) Coverage Results" MODIFIED="1548146205924" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/EA_architecture_search$Unittests_for_test_weight_retention_TestWeightRetention.coverage" NAME="Unittests for test_weight_retention.TestWeightRetention Coverage Results" MODIFIED="1539162828270" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/EA_architecture_search$Unittests_for_test_weight_retention_TestWeightRetention_test_keeps_weights_after_copy.coverage" NAME="Unittests in test_weight_retention.py Coverage Results" MODIFIED="1538735713028" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/EA_architecture_search$Unit_tests.coverage" NAME="Unit tests Coverage Results" MODIFIED="1539854351252" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/EA_architecture_search$Unittests_for_test_mutation_TestMutationOperator_test_remove_node_multi_connections.coverage" NAME="Unittests for test_mutation.TestMutationOperator.test_remove_node_multi_connections Coverage Results" MODIFIED="1539162349878" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/EA_architecture_search$Unittests_in_test_population_initialization_py.coverage" NAME="Unittests in test_population_initialization.py Coverage Results" MODIFIED="1539163028420" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/EA_architecture_search$main__Telenor001_.coverage" NAME="main (Telenor001) Coverage Results" MODIFIED="1548150260932" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/EA_architecture_search$Unittests_for_test_ranking_TestRanker_test_ranks_with_submodule.coverage" NAME="Unittests for test_ranking.TestRanker.test_ranks_with_submodule Coverage Results" MODIFIED="1538726043176" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/EA_architecture_search$Unittests_for_test_mutation_TestMutationOperator_test_insert.coverage" NAME="Unittests for test_mutation.TestMutationOperator.test_insert Coverage Results" MODIFIED="1539010266251" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/EA_architecture_search$Unittests_for_test_assembly_TestAssembly_test_assembles_with_pretrained_module_as_first_module.coverage" NAME="Unittests for test_assembly.TestAssembly.test_assembles_with_pretrained_module_as_first_module Coverage Results" MODIFIED="1539348521177" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
-    <SUITE FILE_PATH="coverage/EA_architecture_search$main__home_linux_cuda_server_.coverage" NAME="main (home linux cuda server) Coverage Results" MODIFIED="1540802251371" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/EA_architecture_search$Unittests_for_test_mutation_TestMutationOperator_test_remove.coverage" NAME="Unittests for test_mutation.TestMutationOperator.test_remove Coverage Results" MODIFIED="1539082694941" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/network_generator$main__docker_.coverage" NAME="main (docker) Coverage Results" MODIFIED="1536758957280" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="/src" />
-    <SUITE FILE_PATH="coverage/EA_architecture_search$Unittests_for_test_assembly_TestAssembly.coverage" NAME="Unittests for test_assembly.TestAssembly Coverage Results" MODIFIED="1539345359931" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
-    <SUITE FILE_PATH="coverage/EA_architecture_search$Unittests_for_test_population_initialization_TestModuleCompile.coverage" NAME="Unittests for test_population_initialization.TestModuleCompile Coverage Results" MODIFIED="1539001003349" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/EA_architecture_search$Unittests_for_test_multi_objective_optimisation_TestMutationOperator.coverage" NAME="Unittests for test_multi_objective_optimisation.TestMutationOperator Coverage Results" MODIFIED="1548150111546" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/EA_architecture_search$Unittests_in_tests.coverage" NAME="Unittests in tests Coverage Results" MODIFIED="1539855578232" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
-    <SUITE FILE_PATH="coverage/EA_architecture_search$upload.coverage" NAME="upload Coverage Results" MODIFIED="1540141658643" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/" />
-    <SUITE FILE_PATH="coverage/EA_architecture_search$cifar_10_dataset.coverage" NAME="cifar_10_dataset Coverage Results" MODIFIED="1540205531989" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Caffe2ai_proof_of_concept$main.coverage" NAME="main (local) Coverage Results" MODIFIED="1536836776617" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../network_generator" />
-    <SUITE FILE_PATH="coverage/EA_architecture_search$main__mac_.coverage" NAME="main (mac) Coverage Results" MODIFIED="1540137380793" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/EA_architecture_search$Unittests_for_test_weight_retention_TestWeightRetention.coverage" NAME="Unittests for test_weight_retention.TestWeightRetention Coverage Results" MODIFIED="1539162828270" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/EA_architecture_search$Unittests_for_test_mutation_TestMutationOperator_test_possible_insertion_points.coverage" NAME="Unittests for test_mutation.TestMutationOperator.test_possible_insertion_points Coverage Results" MODIFIED="1539779184747" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
   </component>
   <component name="FUSProjectUsageTrigger">
@@ -97,101 +92,131 @@
         </counts>
       </usages-collector>
     </session>
+    <session id="1696793426">
+      <usages-collector id="statistics.lifecycle.project">
+        <counts>
+          <entry key="project.open.time.26" value="1" />
+          <entry key="project.opened" value="1" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.extensions.edit">
+        <counts>
+          <entry key="gitignore" value="7" />
+          <entry key="json" value="12" />
+          <entry key="py" value="322" />
+          <entry key="txt" value="157" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.types.edit">
+        <counts>
+          <entry key="JSON" value="12" />
+          <entry key="PLAIN_TEXT" value="164" />
+          <entry key="Python" value="322" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.extensions.open">
+        <counts>
+          <entry key="Dockerfile" value="1" />
+          <entry key="bash_history" value="1" />
+          <entry key="json" value="2" />
+          <entry key="py" value="14" />
+          <entry key="txt" value="1" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.types.open">
+        <counts>
+          <entry key="Dockerfile" value="1" />
+          <entry key="JSON" value="2" />
+          <entry key="PLAIN_TEXT" value="2" />
+          <entry key="Python" value="14" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.vcs.git.usages">
+        <counts>
+          <entry key="git.branch.checkout.local" value="1" />
+        </counts>
+      </usages-collector>
+    </session>
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/main.py">
+        <entry file="file://$PROJECT_DIR$/datasets/cifar10.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="234">
-              <caret line="63" column="18" lean-forward="true" selection-start-line="63" selection-start-column="18" selection-end-line="63" selection-end-column="18" />
+            <state relative-caret-position="805">
+              <caret line="76" column="51" selection-start-line="76" selection-start-column="51" selection-end-line="76" selection-end-column="51" />
               <folding>
-                <element signature="e#0#9#0" expanded="true" />
-                <marker date="1540802920808" expanded="true" signature="3725:3727" ph="..." />
+                <element signature="e#0#23#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/cifar_10_dataset.py">
+        <entry file="file://$PROJECT_DIR$/src/MOOA/operators.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="372">
-              <caret line="56" lean-forward="true" selection-start-line="56" selection-end-line="56" />
+            <state relative-caret-position="475">
+              <caret line="25" selection-start-line="25" selection-end-line="25" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/MOOA/NSGA_II.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="190">
+              <caret line="10" selection-start-line="10" selection-end-line="13" selection-end-column="67" />
               <folding>
-                <element signature="e#0#11#0" expanded="true" />
+                <element signature="e#0#10#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/.gitignore">
+        <entry file="file://$PROJECT_DIR$/tests/test_multi_objective_optimisation.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="190">
-              <caret line="10" column="6" lean-forward="true" selection-start-line="10" selection-start-column="6" selection-end-line="10" selection-end-column="6" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/evolutionary_operations/mutation_for_operators.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="574">
-              <caret line="115" column="83" lean-forward="true" selection-start-line="115" selection-start-column="83" selection-end-line="115" selection-end-column="83" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/firebase/upload.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="569">
-              <caret line="87" column="18" lean-forward="true" selection-start-line="87" selection-start-column="18" selection-end-line="87" selection-end-column="18" />
+            <state relative-caret-position="703">
+              <caret line="97" column="33" lean-forward="true" selection-start-line="97" selection-start-column="33" selection-end-line="97" selection-end-column="33" />
               <folding>
                 <element signature="e#0#15#0" expanded="true" />
-                <marker date="1540636149643" expanded="true" signature="912:977" ph="..." />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/modules/module.py">
+        <entry file="file://$PROJECT_DIR$/datasets/cifar10-local.json">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="413">
-              <caret line="34" selection-start-line="34" selection-end-line="34" />
+            <state relative-caret-position="209">
+              <caret line="11" column="22" selection-start-line="11" selection-start-column="22" selection-end-line="11" selection-end-column="22" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/modules/convolution.py">
+        <entry file="file://$PROJECT_DIR$/datasets/cifar10-home-ssh.json">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="836">
-              <caret line="37" column="58" selection-start-line="37" selection-start-column="58" selection-end-line="37" selection-end-column="58" />
-              <caret line="46" column="58" selection-start-line="46" selection-start-column="58" selection-end-line="46" selection-end-column="58" />
+            <state relative-caret-position="323">
+              <caret line="17" column="28" selection-start-line="17" selection-start-column="28" selection-end-line="17" selection-end-column="28" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/mnist_dataset.py">
+        <entry file="file://$PROJECT_DIR$/requirements.txt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1178">
-              <caret line="68" column="55" selection-start-line="68" selection-start-column="55" selection-end-line="68" selection-end-column="55" />
-              <folding>
-                <element signature="e#0#11#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="76">
+              <caret line="4" column="17" selection-start-line="4" selection-start-column="17" selection-end-line="4" selection-end-column="17" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/evolutionary_operations/mutation_for_sub_modules.py">
+        <entry file="file://$PROJECT_DIR$/src/jobs/ssh.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1292">
-              <caret line="76" column="20" selection-start-line="76" selection-start-column="20" selection-end-line="76" selection-end-column="20" />
+            <state relative-caret-position="247">
+              <caret line="13" column="28" selection-start-line="13" selection-start-column="28" selection-end-line="13" selection-end-column="28" />
             </state>
           </provider>
         </entry>
@@ -199,8 +224,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Dockerfile">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="418">
-              <caret line="22" column="21" selection-start-line="22" selection-start-column="21" selection-end-line="22" selection-end-column="21" />
+            <state relative-caret-position="551">
+              <caret line="29" column="28" selection-start-line="29" selection-start-column="28" selection-end-line="29" selection-end-column="28" />
             </state>
           </provider>
         </entry>
@@ -223,6 +248,11 @@
     </findStrings>
   </component>
   <component name="Git.Settings">
+    <option name="PREVIOUS_COMMIT_AUTHORS">
+      <list>
+        <option value="Magnus Poppe Wang &lt;magnus.poppe.wang@gmail.com&gt;" />
+      </list>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
@@ -247,8 +277,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/Structure/node.py" />
-        <option value="$PROJECT_DIR$/Structure/topology.py" />
         <option value="$PROJECT_DIR$/Structure/linear_layer.py" />
         <option value="$PROJECT_DIR$/Structure/network_topology.py" />
         <option value="$PROJECT_DIR$/Structure/class.linear.json" />
@@ -294,6 +322,12 @@
         <option value="$PROJECT_DIR$/main.py" />
         <option value="$PROJECT_DIR$/cifar_10_dataset.py" />
         <option value="$PROJECT_DIR$/.gitignore" />
+        <option value="$PROJECT_DIR$/datasets/cifar10-home-ssh.json" />
+        <option value="$PROJECT_DIR$/datasets/cifar10-local.json" />
+        <option value="$PROJECT_DIR$/requirements.txt" />
+        <option value="$PROJECT_DIR$/datasets/cifar10.py" />
+        <option value="$PROJECT_DIR$/src/MOOA/operators.py" />
+        <option value="$PROJECT_DIR$/tests/test_multi_objective_optimisation.py" />
       </list>
     </option>
   </component>
@@ -304,10 +338,10 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="1128" />
-    <option name="y" value="56" />
+    <option name="x" value="1107" />
+    <option name="y" value="30" />
     <option name="width" value="1520" />
-    <option name="height" value="1027" />
+    <option name="height" value="1634" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
@@ -315,7 +349,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -326,33 +359,35 @@
             <path>
               <item name="EA-architecture-search" type="b2602c69:ProjectViewProjectNode" />
               <item name="EA-architecture-search" type="462c0819:PsiDirectoryNode" />
-              <item name="evolutionary_operations" type="462c0819:PsiDirectoryNode" />
+              <item name="datasets" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="EA-architecture-search" type="b2602c69:ProjectViewProjectNode" />
               <item name="EA-architecture-search" type="462c0819:PsiDirectoryNode" />
-              <item name="firebase" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="EA-architecture-search" type="b2602c69:ProjectViewProjectNode" />
               <item name="EA-architecture-search" type="462c0819:PsiDirectoryNode" />
-              <item name="firebase" type="462c0819:PsiDirectoryNode" />
-              <item name="secrets" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="jobs" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="EA-architecture-search" type="b2602c69:ProjectViewProjectNode" />
               <item name="EA-architecture-search" type="462c0819:PsiDirectoryNode" />
-              <item name="modules" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="MOOA" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="EA-architecture-search" type="b2602c69:ProjectViewProjectNode" />
               <item name="EA-architecture-search" type="462c0819:PsiDirectoryNode" />
-              <item name="resources" type="462c0819:PsiDirectoryNode" />
+              <item name="tests" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -365,7 +400,7 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
-    <property name="settings.editor.selected.configurable" value="web.server" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
@@ -385,72 +420,24 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.main (home linux cuda server)">
-    <configuration name="cifar_10_dataset" type="PythonConfigurationType" factoryName="Python" temporary="true">
+  <component name="RunManager" selected="Python tests.Unittests in test_multi_objective_optimisation.py">
+    <configuration name="main (Telenor001)" type="PythonConfigurationType" factoryName="Python">
       <module name="EA-architecture-search" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
+        <env name="CUDA_HOME" value="/usr/local/cuda" />
+        <env name="LD_LIBRARY_PATH" value="/usr/local/cuda-9.0/lib64/" />
       </envs>
-      <option name="SDK_HOME" value="" />
+      <option name="SDK_HOME" value="sftp://magnuspw@telenor001.idi.ntnu.no:22/work/lhome/magnuspw/ea-nas/venv/bin/python" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
+      <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/cifar_10_dataset.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="main (docker)" type="PythonConfigurationType" factoryName="Python">
-      <module name="network_generator" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="/src" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="DockerContainerSettingsRunConfigurationExtension">
-        <option name="envVars">
-          <list />
-        </option>
-        <option name="extraHosts">
-          <list />
-        </option>
-        <option name="links">
-          <list />
-        </option>
-        <option name="networkDisabled" value="false" />
-        <option name="networkMode" value="bridge" />
-        <option name="portBindings">
-          <list />
-        </option>
-        <option name="publishAllPorts" value="false" />
-        <option name="version" value="1" />
-        <option name="volumeBindings">
-          <list>
-            <DockerVolumeBindingImpl>
-              <option name="containerPath" value="/opt/project" />
-              <option name="editable" value="true" />
-              <option name="hostPath" value="$PROJECT_DIR$" />
-              <option name="readOnly" value="false" />
-            </DockerVolumeBindingImpl>
-          </list>
-        </option>
-      </EXTENSION>
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="./main.py" />
-      <option name="PARAMETERS" value="" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/start.py" />
+      <option name="PARAMETERS" value="datasets/cifar10-local.json" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -488,36 +475,14 @@
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
-      <option name="SDK_HOME" value="/anaconda3/bin/python" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="upload" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="EA-architecture-search" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/firebase/upload.py" />
-      <option name="PARAMETERS" value="" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/start.py" />
+      <option name="PARAMETERS" value="datasets/cifar10-home-ssh.json" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -558,21 +523,6 @@
       <option name="_new_targetType" value="&quot;PATH&quot;" />
       <method v="2" />
     </configuration>
-    <configuration name="Unittests for test_module.TestModuleCompile.test_module_copy" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
-      <module name="EA-architecture-search" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;test_module.TestModuleCompile.test_module_copy&quot;" />
-      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
-      <method v="2" />
-    </configuration>
     <configuration name="Unittests for test_module.TestModuleCompile.test_module_decode" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
       <module name="EA-architecture-search" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -585,6 +535,36 @@
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
       <option name="_new_target" value="&quot;test_module.TestModuleCompile.test_module_decode&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Unittests for test_multi_objective_optimisation.TestMutationOperator" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
+      <module name="EA-architecture-search" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;test_multi_objective_optimisation.TestMutationOperator&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Unittests for test_multi_objective_optimisation.TestMutationOperator.test_full_sorting" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
+      <module name="EA-architecture-search" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;test_multi_objective_optimisation.TestMutationOperator.test_full_sorting&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
@@ -601,6 +581,21 @@
       <option name="_new_additionalArguments" value="&quot;&quot;" />
       <option name="_new_target" value="&quot;test_mutation.TestMutationOperator.test_possible_insertion_points&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Unittests in test_multi_objective_optimisation.py" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
+      <module name="EA-architecture-search" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/test_multi_objective_optimisation.py&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
       <method v="2" />
     </configuration>
     <configuration name="Unittests in tests" type="tests" factoryName="Unittests" nameIsGenerated="true">
@@ -622,22 +617,22 @@
       <item itemvalue="Docker.Unnamed" />
       <item itemvalue="Python.main (home linux cuda server)" />
       <item itemvalue="Python.main (mac)" />
-      <item itemvalue="Python.main (docker)" />
+      <item itemvalue="Python.main (Telenor001)" />
       <item itemvalue="Python tests.Unittests in tests" />
       <item itemvalue="Python tests.Unit tests" />
-      <item itemvalue="Python.upload" />
-      <item itemvalue="Python.cifar_10_dataset" />
-      <item itemvalue="Python tests.Unittests for test_module.TestModuleCompile.test_module_copy" />
       <item itemvalue="Python tests.Unittests for test_module.TestModuleCompile.test_module_decode" />
       <item itemvalue="Python tests.Unittests for test_mutation.TestMutationOperator.test_possible_insertion_points" />
+      <item itemvalue="Python tests.Unittests for test_multi_objective_optimisation.TestMutationOperator" />
+      <item itemvalue="Python tests.Unittests for test_multi_objective_optimisation.TestMutationOperator.test_full_sorting" />
+      <item itemvalue="Python tests.Unittests in test_multi_objective_optimisation.py" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.cifar_10_dataset" />
-        <item itemvalue="Python.upload" />
+        <item itemvalue="Python tests.Unittests in test_multi_objective_optimisation.py" />
+        <item itemvalue="Python tests.Unittests for test_multi_objective_optimisation.TestMutationOperator.test_full_sorting" />
+        <item itemvalue="Python tests.Unittests for test_multi_objective_optimisation.TestMutationOperator" />
         <item itemvalue="Python tests.Unittests for test_mutation.TestMutationOperator.test_possible_insertion_points" />
         <item itemvalue="Python tests.Unittests for test_module.TestModuleCompile.test_module_decode" />
-        <item itemvalue="Python tests.Unittests for test_module.TestModuleCompile.test_module_copy" />
       </list>
     </recent_temporary>
   </component>
@@ -715,28 +710,24 @@
       <option name="project" value="LOCAL" />
       <updated>1540805108008</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="Adds Multi-objective-optimization for better elitism + test">
+      <created>1548158240379</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1548158240379</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Adds requirements.txt for python packages needed in this project.">
+      <created>1548158296851</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1548158296851</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="Unittests_for_test_mutation_TestMutationOperator_test_possible_insertion_points - 2018.10.17 at 14h 26m 43s.xml">
-      <configuration name="Unittests for test_mutation.TestMutationOperator.test_possible_insertion_points" configurationId="tests" />
-    </history-entry>
-    <history-entry file="Unit_tests - 2018.10.18 at 11h 19m 12s.xml">
-      <configuration name="Unit tests" configurationId="tests" />
-    </history-entry>
-    <history-entry file="Unittests_in_tests - 2018.10.18 at 11h 19m 37s.xml">
-      <configuration name="Unittests in tests" configurationId="tests" />
-    </history-entry>
-    <history-entry file="Unittests_in_tests - 2018.10.18 at 11h 21m 32s.xml">
-      <configuration name="Unittests in tests" configurationId="tests" />
-    </history-entry>
-    <history-entry file="Unittests_in_tests - 2018.10.18 at 11h 22m 48s.xml">
-      <configuration name="Unittests in tests" configurationId="tests" />
-    </history-entry>
-    <history-entry file="Unittests_in_tests - 2018.10.18 at 11h 22m 56s.xml">
-      <configuration name="Unittests in tests" configurationId="tests" />
-    </history-entry>
     <history-entry file="Unittests_in_tests - 2018.10.18 at 11h 23m 10s.xml">
       <configuration name="Unittests in tests" configurationId="tests" />
     </history-entry>
@@ -749,29 +740,46 @@
     <history-entry file="Unittests_in_tests - 2018.10.18 at 11h 40m 51s.xml">
       <configuration name="Unittests in tests" configurationId="tests" />
     </history-entry>
+    <history-entry file="Unittests_for_test_multi_objective_optimisation_TestMutationOperator - 2019.01.22 at 10h 41m 51s.xml">
+      <configuration name="Unittests for test_multi_objective_optimisation.TestMutationOperator" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Unittests_for_test_multi_objective_optimisation_TestMutationOperator_test_full_sorting - 2019.01.22 at 10h 42m 12s.xml">
+      <configuration name="Unittests for test_multi_objective_optimisation.TestMutationOperator.test_full_sorting" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Unittests_for_test_multi_objective_optimisation_TestMutationOperator_test_full_sorting - 2019.01.22 at 10h 42m 28s.xml">
+      <configuration name="Unittests for test_multi_objective_optimisation.TestMutationOperator.test_full_sorting" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Unittests_for_test_multi_objective_optimisation_TestMutationOperator_test_full_sorting - 2019.01.22 at 10h 43m 03s.xml">
+      <configuration name="Unittests for test_multi_objective_optimisation.TestMutationOperator.test_full_sorting" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Unittests_in_test_multi_objective_optimisation_py - 2019.01.22 at 12h 52m 31s.xml">
+      <configuration name="Unittests in test_multi_objective_optimisation.py" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Unittests_in_test_multi_objective_optimisation_py - 2019.01.22 at 12h 55m 08s.xml">
+      <configuration name="Unittests in test_multi_objective_optimisation.py" configurationId="tests" />
+    </history-entry>
   </component>
   <component name="ToolWindowManager">
-    <frame x="1128" y="56" width="1520" height="1027" extended-state="0" />
-    <editor active="true" />
+    <frame x="1107" y="30" width="1520" height="1634" extended-state="0" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.7667364" visible="true" weight="0.21244925" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.78805393" visible="true" weight="0.21515562" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
-      <window_info id="Remote Host" order="3" sideWeight="0.2332636" side_tool="true" weight="0.20657894" />
+      <window_info id="Remote Host" order="3" sideWeight="0.21194606" side_tool="true" visible="true" weight="0.21515562" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32834226" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.4993895" weight="0.31122994" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.4993895" weight="0.3067445" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.34573445" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Docker" order="7" weight="0.32977462" />
-      <window_info anchor="bottom" id="Version Control" order="8" weight="0.3272727" />
+      <window_info active="true" anchor="bottom" id="Version Control" order="8" visible="true" weight="0.32684824" />
       <window_info anchor="bottom" id="Database Changes" order="9" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Python Console" order="10" weight="0.329303" />
-      <window_info active="true" anchor="bottom" id="Terminal" order="11" visible="true" weight="0.3272727" />
+      <window_info anchor="bottom" id="Python Console" order="10" weight="0.32814527" />
+      <window_info anchor="bottom" id="Terminal" order="11" weight="0.32684824" />
       <window_info anchor="bottom" id="Event Log" order="12" sideWeight="0.50061053" side_tool="true" weight="0.3089484" />
-      <window_info anchor="bottom" id="File Transfer" order="13" weight="0.32635984" />
+      <window_info anchor="bottom" id="File Transfer" order="13" weight="0.32619974" />
       <window_info anchor="bottom" id="Concurrent Activities Diagram" order="14" weight="0.32941177" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -820,7 +828,9 @@
     <MESSAGE value="Added uploading to firebase backend" />
     <MESSAGE value="Added scalable training. Also more metadata for front-end." />
     <MESSAGE value="update ignore" />
-    <option name="LAST_COMMIT_MESSAGE" value="update ignore" />
+    <MESSAGE value="Adds Multi-objective-optimization for better elitism + test" />
+    <MESSAGE value="Adds requirements.txt for python packages needed in this project." />
+    <option name="LAST_COMMIT_MESSAGE" value="Adds requirements.txt for python packages needed in this project." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -983,62 +993,6 @@
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/model_images/model.png" />
-    <entry file="file://$PROJECT_DIR$/evolutionary_operations/selection.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="266">
-          <caret line="14" column="50" selection-start-line="14" selection-start-column="50" selection-end-line="14" selection-end-column="50" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/results/lowest_accuracy.png" />
-    <entry file="file://$PROJECT_DIR$/results/smallest_architecture.png" />
-    <entry file="file://$PROJECT_DIR$/results/highest_accuracy.png" />
-    <entry file="file://$PROJECT_DIR$/best_model.png" />
-    <entry file="file://$PROJECT_DIR$/results/biggest_architecture.png" />
-    <entry file="file://$PROJECT_DIR$/README.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor />
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/test_module.py" />
-    <entry file="file:///anaconda3/lib/python3.6/site-packages/tensorflow/python/keras/engine/training_arrays.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="331">
-          <caret line="263" selection-start-line="263" selection-end-line="263" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/multi_process_training.py" />
-    <entry file="file:///anaconda3/lib/python3.6/site-packages/tensorflow/python/keras/utils/conv_utils.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="214">
-          <caret line="76" selection-start-line="76" selection-end-line="76" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/helpers.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="285">
-          <caret line="15" selection-start-line="15" selection-end-line="15" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/modules/base.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file:///anaconda3/lib/python3.6/site-packages/tensorflow/python/keras/layers/merge.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="307">
-          <caret line="687" selection-start-line="687" selection-end-line="687" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/model_images/decode.png" />
-    <entry file="file://$PROJECT_DIR$/model_images/ex:model.png" />
     <entry file="file://$PROJECT_DIR$/model_images/model_keras_graphviz.png" />
     <entry file="file:///anaconda3/lib/python3.6/site-packages/tensorflow/python/keras/engine/training_utils.py">
       <provider selected="true" editor-type-id="text-editor">
@@ -1061,16 +1015,8 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/modules/pooling.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/modules/operation.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="304">
-          <caret line="16" column="32" selection-start-line="16" selection-start-column="32" selection-end-line="16" selection-end-column="32" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/pooling.py" />
+    <entry file="file://$PROJECT_DIR$/modules/operation.py" />
     <entry file="file://$PROJECT_DIR$/tests/test_mutation.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="228">
@@ -1092,13 +1038,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/evolutionary_operations/initialization.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="57">
-          <caret line="3" column="55" selection-start-line="3" selection-start-column="55" selection-end-line="3" selection-end-column="55" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/evolutionary_operations/initialization.py" />
     <entry file="file:///anaconda3/lib/python3.6/site-packages/tensorflow/python/keras/engine/base_layer.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="326">
@@ -1106,30 +1046,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/modules/dense.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="114">
-          <caret line="9" column="56" lean-forward="true" selection-start-line="9" selection-start-column="37" selection-end-line="9" selection-end-column="56" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/evolutionary_operations/mutation_operators.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1178">
-          <caret line="62" column="20" selection-start-line="62" selection-start-column="20" selection-end-line="62" selection-end-column="20" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/frameworks/keras_decoder.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="665">
-          <caret line="35" selection-start-line="35" selection-end-line="35" />
-          <folding>
-            <element signature="e#0#31#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/modules/dense.py" />
+    <entry file="file://$PROJECT_DIR$/evolutionary_operations/mutation_operators.py" />
+    <entry file="file://$PROJECT_DIR$/frameworks/keras_decoder.py" />
     <entry file="file:///anaconda3/lib/python3.6/site-packages/google/cloud/firestore_v1beta1/client.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="267">
@@ -1173,24 +1092,8 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/evolutionary_operations/weight_transfer.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="361">
-          <caret line="19" column="33" selection-start-line="19" selection-start-column="33" selection-end-line="19" selection-end-column="33" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/output.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="513">
-          <caret line="27" column="4" selection-start-line="27" selection-start-column="4" selection-end-line="27" selection-end-column="4" />
-          <folding>
-            <marker date="1540204060493" expanded="true" signature="74:192" ph="..." />
-            <marker date="1540204060493" expanded="true" signature="552:554" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/evolutionary_operations/weight_transfer.py" />
+    <entry file="file://$PROJECT_DIR$/output.py" />
     <entry file="file://$USER_HOME$/Library/Caches/PyCharm2018.1/remote_sources/-1849775110/-866694561/_collections_abc.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="330">
@@ -1198,88 +1101,163 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/modules/convolution.py">
+    <entry file="file://$PROJECT_DIR$/modules/convolution.py" />
+    <entry file="file://$PROJECT_DIR$/mnist_dataset.py" />
+    <entry file="file://$PROJECT_DIR$/evolutionary_operations/mutation_for_sub_modules.py" />
+    <entry file="file://$PROJECT_DIR$/main.py" />
+    <entry file="file://$PROJECT_DIR$/evolutionary_operations/mutation_for_operators.py" />
+    <entry file="file://$PROJECT_DIR$/modules/module.py" />
+    <entry file="file://$PROJECT_DIR$/cifar_10_dataset.py" />
+    <entry file="file://$PROJECT_DIR$/.gitignore">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="836">
-          <caret line="37" column="58" selection-start-line="37" selection-start-column="58" selection-end-line="37" selection-end-column="58" />
-          <caret line="46" column="58" selection-start-line="46" selection-start-column="58" selection-end-line="46" selection-end-column="58" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/mnist_dataset.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1178">
-          <caret line="68" column="55" selection-start-line="68" selection-start-column="55" selection-end-line="68" selection-end-column="55" />
-          <folding>
-            <element signature="e#0#11#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/evolutionary_operations/mutation_for_sub_modules.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1292">
-          <caret line="76" column="20" selection-start-line="76" selection-start-column="20" selection-end-line="76" selection-end-column="20" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Dockerfile">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="418">
-          <caret line="22" column="21" selection-start-line="22" selection-start-column="21" selection-end-line="22" selection-end-column="21" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/main.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="234">
-          <caret line="63" column="18" lean-forward="true" selection-start-line="63" selection-start-column="18" selection-end-line="63" selection-end-column="18" />
-          <folding>
-            <element signature="e#0#9#0" expanded="true" />
-            <marker date="1540802920808" expanded="true" signature="3725:3727" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/evolutionary_operations/mutation_for_operators.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="574">
-          <caret line="115" column="83" lean-forward="true" selection-start-line="115" selection-start-column="83" selection-end-line="115" selection-end-column="83" />
+        <state relative-caret-position="-55">
+          <caret line="23" column="5" selection-start-line="23" selection-start-column="5" selection-end-line="23" selection-end-column="5" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/firebase/upload.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="569">
-          <caret line="87" column="18" lean-forward="true" selection-start-line="87" selection-start-column="18" selection-end-line="87" selection-end-column="18" />
+        <state>
           <folding>
             <element signature="e#0#15#0" expanded="true" />
-            <marker date="1540636149643" expanded="true" signature="912:977" ph="..." />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/modules/module.py">
+    <entry file="file://$PROJECT_DIR$/src/buildingblocks/base.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/buildingblocks/module.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="413">
-          <caret line="34" selection-start-line="34" selection-end-line="34" />
+        <state>
+          <folding>
+            <element signature="e#0#15#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/cifar_10_dataset.py">
+    <entry file="file://$PROJECT_DIR$/src/evolutionary_operations/initialization.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="372">
-          <caret line="56" lean-forward="true" selection-start-line="56" selection-end-line="56" />
+        <state>
+          <folding>
+            <element signature="e#0#13#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/evolutionary_operations/mutation_for_operators.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <folding>
+            <element signature="e#0#13#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/evolutionary_operations/mutation_for_sub_modules.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <folding>
+            <element signature="e#0#25#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/evolutionary_operations/mutation_operators.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/evolutionary_operations/selection.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <folding>
+            <element signature="e#0#31#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/datasets/mnist.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
           <folding>
             <element signature="e#0#11#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/.gitignore">
+    <entry file="file://$PROJECT_DIR$/datasets/cifar10-home-ssh.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="323">
+          <caret line="17" column="28" selection-start-line="17" selection-start-column="28" selection-end-line="17" selection-end-column="28" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/jobs/ssh.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="247">
+          <caret line="13" column="28" selection-start-line="13" selection-start-column="28" selection-end-line="13" selection-end-column="28" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/datasets/cifar10-local.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="209">
+          <caret line="11" column="22" selection-start-line="11" selection-start-column="22" selection-end-line="11" selection-end-column="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/requirements.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="76">
+          <caret line="4" column="17" selection-start-line="4" selection-start-column="17" selection-end-line="4" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Dockerfile">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="551">
+          <caret line="29" column="28" selection-start-line="29" selection-start-column="28" selection-end-line="29" selection-end-column="28" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/datasets/cifar10.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="805">
+          <caret line="76" column="51" selection-start-line="76" selection-start-column="51" selection-end-line="76" selection-end-column="51" />
+          <folding>
+            <element signature="e#0#23#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/MOOA/operators.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="475">
+          <caret line="25" selection-start-line="25" selection-end-line="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/MOOA/NSGA_II.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="190">
-          <caret line="10" column="6" lean-forward="true" selection-start-line="10" selection-start-column="6" selection-end-line="10" selection-end-column="6" />
+          <caret line="10" selection-start-line="10" selection-end-line="13" selection-end-column="67" />
+          <folding>
+            <element signature="e#0#10#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.bash_history">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-8573" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/test_multi_objective_optimisation.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="703">
+          <caret line="97" column="33" lean-forward="true" selection-start-line="97" selection-start-column="33" selection-end-line="97" selection-end-column="33" />
+          <folding>
+            <element signature="e#0#15#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
