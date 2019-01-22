@@ -10,8 +10,8 @@
     {
       "name": "Linux home.local",
       "type": "local",
-      "cwd": "/home/magnus/remote/EA-architecture-search",
-      "device": "/GPU:0",
+      "cwd": "~/ea-nas",
+      "device": "/GPU:1",
       "allow gpu memory growth": true,
       "memory per process": 1,
       "concurrency": 1

@@ -4,21 +4,19 @@
   "classes": 10,
   "batch size": 250,
   "epochs": 3,
-  "population size": 3,
+  "population size": 8,
   "generations": 20,
-  "servers": [
-    {
-      "name": "Linux home.local",
-      "type": "ssh",
-      "username": "magnus",
-      "address": "192.168.1.10",
-      "cwd": "/home/magnus/remote/EA-architecture-search",
-      "python": "python",
-      "device": "/GPU:0",
-      "allow gpu memory growth": true,
-      "memory per process": 1,
-      "concurrency": 1
-    }
-  ],
+  "servers": [{
+    "name": "Linux home.local",
+    "type": "ssh",
+    "username": "magnus",
+    "address": "192.168.1.7",
+    "cwd": "/home/magnus/remote/EA-architecture-search",
+    "python": "python",
+    "device": "/GPU:0",
+    "allow gpu memory growth": true,
+    "memory per process": 1,
+    "concurrency": 1
+  }],
   "run id": "default"
 }

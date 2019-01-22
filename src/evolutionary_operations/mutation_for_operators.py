@@ -2,19 +2,24 @@ import random
 from copy import deepcopy
 
 from src.buildingblocks.ops.pooling import Pooling
-from src.evolutionary_operations.mutation_operators import connect, insert, remove, append, _is_before
-from src.helpers import random_sample, operators, operators1D, operators2D
+from src.evolutionary_operations.mutation_operators import (
+    connect,
+    insert,
+    remove,
+    append,
+    _is_before,
+)
+from src.helpers import (
+    random_sample,
+    operators,
+    operators1D,
+    operators2D,
+    generate_votes,
+)
 from src.buildingblocks.base import Base
 from src.buildingblocks.ops.convolution import Conv2D
 from src.buildingblocks.ops.dense import Dense, Dropout
 from src.buildingblocks.module import Module
-
-
-def _generate_votes(weights: list) -> list:
-    votes = []
-    for operation, weight in weights:
-        votes += [operation] * weight
-    return votes
 
 
 OPERATOR_WEIGHTS = [
@@ -26,7 +31,7 @@ OPERATOR_WEIGHTS = [
     # ("identity", 20)
 ]
 
-votes = _generate_votes(OPERATOR_WEIGHTS)
+votes = generate_votes(OPERATOR_WEIGHTS)
 
 
 def is2D(op):
@@ -49,7 +54,9 @@ def get_possible_insertion_points(module: Module, operation: Base) -> (list, lis
             if child != last:
                 insertion_after += [child]  # Can be inserted after any.
         elif is2D(operation):
-            if not is1D(child) and child != last:  # Cannot be inserted after a linear layer
+            if (
+                not is1D(child) and child != last
+            ):  # Cannot be inserted after a linear layer
                 insertion_after += [child]
             if child != first:
                 insertion_before += [child]  # Can be inserted before any.
@@ -71,7 +78,9 @@ def find_placement(module: Module, operation: Base) -> (Module, Module):
     if before and after:
         # Selecting first and removing from possible lasts:
         first = random_sample(after)
-        before = [node for node in before if node != first and not _is_before(first, node)]
+        before = [
+            node for node in before if node != first and not _is_before(first, node)
+        ]
         last = random_sample(before)
         return first, last
     return None, None
@@ -97,15 +106,22 @@ def apply_mutation_operator(module: Module, operator: Base, operators: list) -> 
             operation = random_sample(operators)()
             first, last = find_placement(module, operation)
             i += 1
-            if i == 20: break
+            if i == 20:
+                break
         if first and last:
-            module = insert(module, first, last, operation, operator == "insert-between")
+            module = insert(
+                module, first, last, operation, operator == "insert-between"
+            )
     elif operator == "connect":
         possibilities = list(range(len(module.children)))
         module = connect(
             module=module,
-            first=module.children[possibilities.pop(random.randint(0, len(possibilities) - 1))],
-            last=module.children[possibilities.pop(random.randint(0, len(possibilities) - 1))]
+            first=module.children[
+                possibilities.pop(random.randint(0, len(possibilities) - 1))
+            ],
+            last=module.children[
+                possibilities.pop(random.randint(0, len(possibilities) - 1))
+            ],
         )
     # Else: operator == "identity": do nothing...
 
