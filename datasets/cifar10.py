@@ -25,7 +25,9 @@ def configure(classes, server):  # -> (function, function):
                     gpu_options=tf.GPUOptions(
                         allow_growth=server["allow gpu memory growth"],
                         per_process_gpu_memory_fraction=server["memory per process"],
-                    )
+                    ),
+                    allow_soft_placement=True,
+                    log_device_placement=True
                 )
             )
         )
@@ -140,29 +142,32 @@ if __name__ == "__channelexec__":
     individ, config, server = execnet_setup(individ_str, config_str, server_str)
 
     # Running training:
-    model, training_history, after = main(individ, config, server)
+    try:
+        model, training_history, after = main(individ, config, server)
 
-    # Saving keras model and image of model:
-    model_path = os.path.join(individ.absolute_save_path(config), "model.h5")
-    image_path = os.path.join(individ.absolute_save_path(config), individ.ID + ".png")
-    keras.models.save_model(model, model_path, overwrite=True, include_optimizer=True)
-    save_model_image(model, image_path)
+        # Saving keras model and image of model:
+        model_path = os.path.join(individ.absolute_save_path(config), "model.h5")
+        image_path = os.path.join(individ.absolute_save_path(config), individ.ID + ".png")
+        keras.models.save_model(model, model_path, overwrite=True, include_optimizer=True)
+        # save_model_image(model, image_path)
 
-    channel.send(
-        json.dumps(
-            {
-                "job": job,
-                "image": image_path,
-                "model": model_path,
-                "accuracy": training_history["acc"],
-                "validation accuracy": training_history["val_acc"],
-                "loss": training_history["loss"],
-                "validation loss": training_history["val_loss"],
-                "eval": {
-                    "epoch": str(len(training_history) + len(individ.fitness) - 2),
-                    "accuracy": after,
-                },
-            }
+        channel.send(
+            json.dumps(
+                {
+                    "job": job,
+                    "image": image_path,
+                    "model": model_path,
+                    "accuracy": training_history["acc"],
+                    "validation accuracy": training_history["val_acc"],
+                    "loss": training_history["loss"],
+                    "validation loss": training_history["val_loss"],
+                    "eval": {
+                        "epoch": str(len(training_history) + len(individ.fitness) - 2),
+                        "accuracy": after,
+                    },
+                }
+            )
         )
-    )
+    except Exception as e:
+        channel.send(str(e))
 

@@ -51,7 +51,7 @@ class JobManager:
 
         # Add server job runs at to parameters:
         server, gateway = self.server_manager.create_gateway()
-        if server:
+        if server and gateway:
             self.server_manager.servers[server['name']]['running jobs'] += 1
             self.jobs[job_id] += tuple([server])
 
@@ -80,15 +80,19 @@ class JobManager:
         job_id = job_id
         this = self
         def finish(results):
-            args = this.jobs[job_id]
-            this.__sync_files(job_id, download=True)
-            this.job_end(this, args, results)
-            this.channels[job_id].close()
-            this.gateways[job_id].exit()
-            server = args[2]
-            this.server_manager.servers[server['name']]['running jobs'] -= 1
-            del this.jobs[job_id], this.channels[job_id], this.gateways[job_id]
-            this.start_next_job()
+            try:
+                args = this.jobs[job_id]
+                this.__sync_files(job_id, download=True)
+                this.job_end(this, args, results)
+                this.channels[job_id].close()
+                this.gateways[job_id].exit()
+                server = args[2]
+                this.server_manager.servers[server['name']]['running jobs'] -= 1
+                del this.jobs[job_id], this.channels[job_id], this.gateways[job_id]
+            except:
+                print(results)
+            finally:
+                this.start_next_job()
         return finish
 
     def await_all_jobs_finish(self):

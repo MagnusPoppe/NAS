@@ -3,7 +3,6 @@ import pickle
 import setproctitle
 setproctitle.setproctitle("EA-NAS-EVOLVE")
 
-os.environ['EA_NAS_UPLOAD_TO_FIREBASE'] = '1'
 from datasets import cifar10
 from firebase.upload import create_new_run, update_run
 

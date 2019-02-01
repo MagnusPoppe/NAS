@@ -1,20 +1,31 @@
 {
   "dataset": "CIFAR-10",
-  "input": [32, 32, 3],
+  "input": [
+    32,
+    32,
+    3
+  ],
   "classes": 10,
   "batch size": 250,
   "epochs": 3,
-  "population size": 4,
+  "population size": 8,
   "generations": 20,
-  "servers": [
-    {
-      "name": "Linux home.local",
+  "servers": [ {
+      "name": "P100 1",
+      "type": "local",
+      "cwd": "~/ea-nas",
+      "device": "/GPU:0",
+      "allow gpu memory growth": true,
+      "memory per process": 0.5,
+      "concurrency": 1
+    }, {
+      "name": "P100 2",
       "type": "local",
       "cwd": "~/ea-nas",
       "device": "/GPU:1",
       "allow gpu memory growth": true,
-      "memory per process": 1,
-      "concurrency": 1
+      "memory per process": 0.5,
+      "concurrency": 2
     }
   ],
   "run id": "default"
