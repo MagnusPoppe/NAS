@@ -23,6 +23,7 @@ class JobManager:
         self.occupancy = {}         # {job: server}
 
         self.job_count = 0          # total count of jobs seen
+        self.current_workload = 0   # Number of jobs in this session
         self.jobs = {}              # All active jobs
 
         self.queue = []             # Queue of all jobs.
@@ -31,6 +32,7 @@ class JobManager:
     def queue_job(self, parameters: tuple, priority: bool = False) -> int:
         id = self.__auto_id()
         self.jobs[id] = parameters
+        self.current_workload += 1
 
         if priority:
             self.priority_queue += [id]
@@ -80,8 +82,8 @@ class JobManager:
         job_id = job_id
         this = self
         def finish(results):
+            args = this.jobs[job_id]
             try:
-                args = this.jobs[job_id]
                 this.__sync_files(job_id, download=True)
                 this.job_end(this, args, results)
                 this.channels[job_id].close()
@@ -91,6 +93,7 @@ class JobManager:
                 del this.jobs[job_id], this.channels[job_id], this.gateways[job_id]
             except:
                 print(results)
+                this.queue_job(args)
             finally:
                 this.start_next_job()
         return finish
@@ -100,18 +103,17 @@ class JobManager:
             for i in range(remaining - (len(this.queue) + len(this.priority_queue))):
                 print("=", end="", flush=True)
 
-        total_jobs = len(self.queue) + len(self.priority_queue)
-        remaining_jobs = total_jobs
+        remaining_jobs = self.current_workload
         print("--> Finishing {} job(s): |".format(remaining_jobs), end="", flush=True)
         while len(self.queue) + len(self.priority_queue) > 0:
             print_progress(remaining_jobs, self)
             if remaining_jobs - (len(self.queue) + len(self.priority_queue)) > 0:
-                done = total_jobs - remaining_jobs
-                update_status("Completed {}/{} training sessions".format(done, total_jobs))
+                done = self.current_workload - remaining_jobs
+                update_status("Completed {}/{} training sessions".format(done, self.current_workload))
             remaining_jobs = (len(self.queue) + len(self.priority_queue))
             time.sleep(3)
 
-        print_progress(total_jobs, self)
+        print_progress(self.current_workload, self)
         print("|")
 
         if len(self.channels) > 0:
@@ -120,6 +122,8 @@ class JobManager:
         if len(self.gateways) > 0:
             for gw in self.gateways.values():
                 gw.exit()
+
+        self.current_workload = 0
 
     def __auto_id(self):
         id = self.job_count

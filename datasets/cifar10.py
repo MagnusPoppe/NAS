@@ -6,7 +6,7 @@ import os
 from src.frameworks.weight_transfer import transfer_model_weights
 
 
-def configure(classes, server):  # -> (function, function):
+def configure(classes, server) -> (callable, callable):
     (x_train, y_train), (x_test, y_test) = keras.datasets.cifar10.load_data()
     x_val = x_train[45000:] / 255
     y_val = y_train[45000:]
@@ -149,7 +149,7 @@ if __name__ == "__channelexec__":
         model_path = os.path.join(individ.absolute_save_path(config), "model.h5")
         image_path = os.path.join(individ.absolute_save_path(config), individ.ID + ".png")
         keras.models.save_model(model, model_path, overwrite=True, include_optimizer=True)
-        # save_model_image(model, image_path)
+        save_model_image(model, image_path)
 
         channel.send(
             json.dumps(
