@@ -41,6 +41,7 @@ def rsync(source, dest, server, to_source=True):
     )
     while process.poll() == None:
         time.sleep(0.01)
+
     process.stdin.close()
     process.stdout.close()
     process.stderr.close()
