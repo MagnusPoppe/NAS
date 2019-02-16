@@ -84,7 +84,7 @@ def get_tensors(previous, current):
         if needs_flatten(prev):
             flatten = keras.layers.Flatten()(prev.keras_tensor)
             tensors += [flatten]
-            print("    - Flatten layer from {} to {}".format(prev.keras_tensor.shape, flatten))
+            # print("    - Flatten layer from {} to {}".format(prev.keras_tensor.shape, flatten))
         else:
             tensors += [prev.keras_tensor]
     return tensors

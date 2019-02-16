@@ -21,4 +21,5 @@ def await_all_jobs_finish():
     global manager
     manager.await_all_jobs_finish()
     # Wait for RSYNC to finish
+    print("Waiting for RSYNC")
     time.sleep(24)

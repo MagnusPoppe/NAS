@@ -1,6 +1,5 @@
 import time
 import random
-from operator import attrgetter
 from src.evolutionary_operations.initialization import init_population
 from src.evolutionary_operations.mutation_for_operators import mutate
 from src.evolutionary_operations.mutation_for_sub_modules import sub_module_insert
@@ -10,8 +9,8 @@ from src.helpers import random_sample
 from src.output import generation_finished
 from src.MOOA import operators as moo
 from src.MOOA.NSGA_II import nsga_ii
+import src.jobs.TF_launcher as launcher
 
-# from src.jobs import pre_trainer as pretrain
 from src.jobs import scheduler
 
 import builtins
@@ -32,8 +31,7 @@ def evolve_architecture(selection, config):
     )
 
     # Training initial population:
-    scheduler.queue_all(population, config)
-    scheduler.await_all_jobs_finish()
+    launcher.run_jobs(population, config)
     upload_population(population)
     seen_modules += population
 
@@ -49,29 +47,28 @@ def evolve_architecture(selection, config):
         update_status("Mutating")
         for selected in selection(population, config["population size"]):
             draw = random.uniform(0, 1)
+            mutated = None
             if draw < 0.6:
                 print("    - Operation Mutation for {}".format(selected.ID))
                 mutated = mutate(selected)
             elif draw < 0.9:
                 print("    - Creating new net randomly")
                 mutated = init_population(1, config["input"], 3, 30)[0]
-            else:
-                print("    - Sub-module insert for {}".format(selected.ID))
-                mutated = sub_module_insert(
-                    selected, random_sample(seen_modules), config
-                )
+            # else:
+            #     print("    - Sub-module insert for {}".format(selected.ID))
+            #     mutated = sub_module_insert(
+            #         selected, random_sample(seen_modules), config
+            #     )
 
             if mutated:
-                scheduler.queue(mutated, config)
                 children += [mutated]
 
         # Training networks:
-        children = list(children)  # Preventing inbreeding
-        scheduler.queue_all(population, config)
-        scheduler.await_all_jobs_finish()  # Blocking...
+        children = list(set(children))  # Preventing inbreeding
 
         # Elitism:
         population += children
+        launcher.run_jobs(population, config)
         population = nsga_ii(population, moo.objectives(), moo.domination_operator)
         population = population[len(population) - config["population size"] :]
 
@@ -81,9 +78,9 @@ def evolve_architecture(selection, config):
 
 
 def run(config, training_algorithm, job_start_callback, job_end_callback):
-    scheduler.initialize(
-        config, training_algorithm, job_start_callback, job_end_callback
-    )
+    # scheduler.initialize(
+    #     config, training_algorithm, job_start_callback, job_end_callback
+    # )
     print("\n\nEvolving architecture")
     start_time = time.time()
 

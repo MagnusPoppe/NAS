@@ -15,11 +15,14 @@ def domination_operator(p, q) -> bool:
         2. p is strictly better than q on at least one objective
     """
     operators = objectives()
-    comparison = [
-        operators[0](q) - operators[0](p),  # Less is better
-        operators[1](q) - operators[1](p),  # Less is better
-        operators[2](p) - operators[2](q),  # More is better
-        operators[3](q) - operators[3](p),  # Less is better
-    ]
+    try:
+        comparison = [
+            operators[0](q) - operators[0](p),  # Less is better
+            operators[1](q) - operators[1](p),  # Less is better
+            operators[2](p) - operators[2](q),  # More is better
+            operators[3](q) - operators[3](p),  # Less is better
+        ]
+    except IndexError as e:
+        print(e)
     # "Strictly better" and "no worse"
     return any(c > 0 for c in comparison) and all(c >= 0 for c in comparison)

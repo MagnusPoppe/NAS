@@ -1,0 +1,37 @@
+{
+  "dataset": "CIFAR-10",
+  "trainingFilepath": "/work/magnuspw/ea-nas/datasets/cifar10.py",
+  "input": [
+    32,
+    32,
+    3
+  ],
+  "classes": 10,
+  "batch size": 100,
+  "epochs": 1,
+  "population size": 8,
+  "generations": 20,
+  "number of gpus": 2,
+  "allow gpu memory growth": true,
+  "memory per process": 0.5,
+  "concurrency": 2,
+  "run id": "local_no_firebase",
+    "servers": [{
+      "name": "V100 1",
+      "type": "local",
+      "cwd": "/work/magnuspw/ea-nas",
+      "device": "/GPU:0",
+      "allow gpu memory growth": true,
+      "memory per process": 0.5,
+      "concurrency": 2
+    }, {
+      "name": "V100 2",
+      "type": "local",
+      "cwd": "/work/magnuspw/ea-nas",
+      "device": "/GPU:1",
+      "allow gpu memory growth": true,
+      "memory per process": 0.5,
+      "concurrency": 2
+    }
+  ]
+}

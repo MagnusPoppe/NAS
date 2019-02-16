@@ -17,7 +17,7 @@ COPY ./datasets /src/datasets
 COPY ./firebase /src/firebase
 COPY ./resources /src/resources
 COPY ./src /src/src
-COPY ./tests /src/tests
+COPY src/jobs/tests /src/tests
 COPY ./start.py /src/start.py
 
 WORKDIR /src

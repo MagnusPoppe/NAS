@@ -26,8 +26,7 @@ def configure(classes, server) -> (callable, callable):
                         allow_growth=server["allow gpu memory growth"],
                         per_process_gpu_memory_fraction=server["memory per process"],
                     ),
-                    allow_soft_placement=True,
-                    log_device_placement=True
+                    allow_soft_placement=True
                 )
             )
         )
@@ -91,7 +90,14 @@ def shuffle(y_train, x_train):
 
 
 def main(individ, config, server):
+    import setproctitle
     from src.frameworks.keras_decoder import assemble
+    # Setup:
+    setproctitle.setproctitle("EA-NAS-TRAINER " + server["device"])
+    os.environ["TF_CPP_MIN_LOG_LEVEL"] = "1"
+    device_id = server["device"].split(":")[-1]
+    os.environ["CUDA_VISIBLE_DEVICES"] = device_id
+
 
     training, evalutation, name, inputs = configure(config["classes"], server)
     compiled = False
@@ -117,20 +123,10 @@ def main(individ, config, server):
 
 
 def execnet_setup(individ_str, config_str, server_str) -> tuple:
-    import pickle, setproctitle
-
+    import pickle
     individ = pickle.loads(individ_str)
     config = pickle.loads(config_str)
     server = pickle.loads(server_str)
-    setproctitle.setproctitle("EA-NAS-TRAINER " + server["device"])
-
-    # Removing all debugging output from TF:
-    os.environ["TF_CPP_MIN_LOG_LEVEL"] = "1"
-
-    # Setup GPUs for tensorflow
-    device_id = server["device"].split(":")[-1]
-    os.environ["CUDA_VISIBLE_DEVICES"] = device_id
-
     return individ, config, server
 
 
