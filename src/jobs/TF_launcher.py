@@ -18,16 +18,21 @@ def unpack_arguments_and_run(args):
     individ = pickle.loads(individ_bytes)
     config = json.loads(config_str)
 
+    # Finding save directory and saving genotype:
+    savepath = individ.absolute_save_path(config)
+    with open(os.path.join(savepath, "genotype.obj"), "wb") as f_ptr:
+        pickle.dump(individ, f_ptr)
+
     # Running training:
     training_module = module_from_file('cifar10', config['trainingFilepath'])
     model, training_history, after = training_module.main(individ, config, config['servers'][server_id])
 
     # Creating results:
-    model_path = os.path.join(individ.absolute_save_path(config), "model.h5")
-    image_path = os.path.join(individ.absolute_save_path(config), individ.ID + ".png")
+    model_path = os.path.join(savepath, "model.h5")
+    image_path = os.path.join(savepath, individ.ID + ".png")
     keras.models.save_model(model, model_path, overwrite=True, include_optimizer=True)
     # save_model_image(model, image_path)
-    print(f"--> [{job_id}] {individ.ID} finished training")
+    print(f"    - [{job_id}] {individ.ID} finished training")
     return {
         "job": job_id,
         "image": image_path,
@@ -39,7 +44,7 @@ def unpack_arguments_and_run(args):
         "eval": {
             "epoch": str(len(training_history) + len(individ.fitness) - 2),
             "accuracy": after,
-        },
+        }
     }
 
 def pack_args(population, config):
@@ -49,12 +54,14 @@ def pack_args(population, config):
     # Each server gets a portion of the jobs:
     server_job_args = [[] for _ in range(len(config["servers"]))]
 
+    # TODO: Pack according to size as a mini-plan...
     for job_id, arg in enumerate(population):
         server_id = job_id % len(config["servers"])
         server_job_args[server_id] += [(pickle.dumps(arg), config_str, server_id, job_id)]
     return server_job_args
 
 def run_jobs(population, config):
+    print(f"--> Running training for {len(population)} phenotypes")
     server_args = pack_args(population, config)
 
     # Spawning jobs:
@@ -66,7 +73,7 @@ def run_jobs(population, config):
         pools += [pool]
 
     # Awaiting results:
-    results = []#
+    results = []
     for pool, res in zip(pools, pool_res):
         pool.close()
         results += res.get()
