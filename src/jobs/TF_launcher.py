@@ -1,5 +1,7 @@
 import pickle
 import json
+import sys
+
 import os
 import multiprocessing as mp
 
@@ -55,9 +57,17 @@ def pack_args(population, config):
     server_job_args = [[] for _ in range(len(config["servers"]))]
 
     # TODO: Pack according to size as a mini-plan...
-    for job_id, arg in enumerate(population):
-        server_id = job_id % len(config["servers"])
-        server_job_args[server_id] += [(pickle.dumps(arg), config_str, server_id, job_id)]
+    # for job_id, arg in enumerate(population):
+    #     server_id = job_id % len(config["servers"])
+    #     server_job_args[server_id] += [(pickle.dumps(arg), config_str, server_id, job_id)]
+
+    # Create balanced workloads for each process by estimate:
+    sized = [ind.number_of_operations() * config['epochs'] if config['epochs'] > 0 else 1 for ind in population]
+    for i in range(len(population)):
+        server_id = i % len(config['servers'])
+        job_id = sized.index(max(sized))
+        sized[job_id] = - sys.maxsize
+        server_job_args[server_id] +=  [(pickle.dumps(population[job_id]), config_str, server_id, job_id)]
     return server_job_args
 
 def run_jobs(population, config):
