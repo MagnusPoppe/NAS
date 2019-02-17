@@ -11,15 +11,15 @@
   "population size": 8,
   "generations": 20,
   "servers": [{
-      "name": "P100 1",
+      "name": "V100 1",
       "type": "local",
       "cwd": "~/ea-nas",
       "device": "/GPU:0",
       "allow gpu memory growth": true,
-      "memory per process": 0.5,
-      "concurrency": 2
+      "memory per process": 1,
+      "concurrency": 0.5
     }, {
-      "name": "P100 2",
+      "name": "V100 2",
       "type": "local",
       "cwd": "~/ea-nas",
       "device": "/GPU:1",
