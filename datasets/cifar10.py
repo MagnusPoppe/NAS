@@ -3,8 +3,8 @@ from tensorflow import keras
 import numpy as np
 import json
 import os
+from sklearn.metrics import classification_report
 from src.frameworks.weight_transfer import transfer_model_weights
-
 
 def configure(classes, server) -> (callable, callable):
     (x_train, y_train), (x_test, y_test) = keras.datasets.cifar10.load_data()
@@ -15,7 +15,7 @@ def configure(classes, server) -> (callable, callable):
     x_test = x_test / 255
 
     y_train = keras.utils.to_categorical(y_train, num_classes=classes)
-    y_test = keras.utils.to_categorical(y_test, num_classes=classes)
+    # y_test = keras.utils.to_categorical(y_test, num_classes=classes)
     y_val = keras.utils.to_categorical(y_val, num_classes=classes)
 
     with tf.device(server["device"]):
@@ -72,8 +72,9 @@ def configure(classes, server) -> (callable, callable):
                 model.compile(loss=loss, optimizer=sgd, metrics=["accuracy"])
 
             # EVALUATING
-            metrics = model.evaluate(x_test, y_test, verbose=0)
-            return metrics[1]  # Accuracy
+            predictions = model.predict(x_test)
+            pred = np.argmax(predictions, axis=1)
+            return classification_report(y_test, pred, output_dict=True)
 
     return train, evaluate, "CIFAR 10", (32, 32, 3)
 
@@ -118,8 +119,8 @@ def main(individ, config, server):
         batch_size=config["batch size"],
         compiled=compiled,
     )
-    after = evalutation(model, server["device"], compiled=True)
-    return model, training_history, after
+    report = evalutation(model, server["device"], compiled=True)
+    return model, training_history, report
 
 
 def execnet_setup(individ_str, config_str, server_str) -> tuple:

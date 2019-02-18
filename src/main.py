@@ -69,7 +69,13 @@ def evolve_architecture(selection, config):
         # Elitism:
         population += children
         launcher.run_jobs(population, config)
-        population = nsga_ii(population, moo.objectives(), moo.domination_operator)
+        population = nsga_ii(
+            population,
+            moo.classification_objectives(config),
+            moo.classification_domination_operator(
+                moo.classification_objectives(config)
+            )
+        )
         population = population[len(population) - config["population size"] :]
 
         upload_population(population)

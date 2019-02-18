@@ -27,7 +27,7 @@ def unpack_arguments_and_run(args):
 
     # Running training:
     training_module = module_from_file('cifar10', config['trainingFilepath'])
-    model, training_history, after = training_module.main(individ, config, config['servers'][server_id])
+    model, training_history, report = training_module.main(individ, config, config['servers'][server_id])
 
     # Creating results:
     model_path = os.path.join(savepath, "model.h5")
@@ -45,8 +45,9 @@ def unpack_arguments_and_run(args):
         "validation loss": training_history["val_loss"],
         "eval": {
             "epoch": str(len(training_history) + len(individ.fitness) - 2),
-            "accuracy": after,
-        }
+            "accuracy": report['weighted avg']['precision'],
+        },
+        "report": report
     }
 
 def pack_args(population, config):
@@ -96,6 +97,7 @@ def run_jobs(population, config):
         individ.validation_fitness += res['validation accuracy']
         individ.validation_loss += res['validation loss']
         individ.evaluation[res['eval']['epoch']] = res['eval']['accuracy']
+        individ.report = res['report']
         individ.saved_model = res['model']
         individ.model_image_path = res['image']
     return population
