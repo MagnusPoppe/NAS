@@ -64,9 +64,9 @@ def crowding_distance_assignment(solutions: list, objectives: [callable]):
         objective_max = max([objective(s) for s in solutions])
 
         # Initializing values for objective:
-        solutions.sort(key=lambda s: objective(s))
-        solutions[0].distance = sys.maxsize
-        solutions[-1].distance = sys.maxsize
+        solutions.sort(key=objective)
+        solutions[0].distance = len(solutions) * 1.0  # (sys.maxsize) Max reward per category
+        solutions[-1].distance = len(solutions) * 1.0  # (sys.maxsize) Max reward per category
 
         # Setting distances:
         for i in range(1, len(solutions) - 1):

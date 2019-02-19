@@ -34,7 +34,7 @@ def unpack_arguments_and_run(args):
     image_path = os.path.join(savepath, individ.ID + ".png")
     keras.models.save_model(model, model_path, overwrite=True, include_optimizer=True)
     # save_model_image(model, image_path)
-    print(f"    - [{job_id}] {individ.ID} finished training")
+    # print(f"    - [{job_id}] {individ.ID} finished training")
     return {
         "job": job_id,
         "image": image_path,
