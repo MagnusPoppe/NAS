@@ -9,10 +9,10 @@
   "classes": 10,
   "batch size": 100,
   "epochs": 2,
-  "population size": 2,
-  "generations": 5,
+  "population size": 8,
+  "generations": 10,
   "allow gpu memory growth": true,
-  "run id": "local_no_firebase",
+  "run id": "x1",
     "servers": [{
       "name": "V100 1",
       "type": "local",

@@ -90,7 +90,7 @@ def shuffle(x_train, y_train):
     return labels, data
 
 
-def main(individ, config, server):
+def main(individ, epochs, config, server):
     import setproctitle
     from src.frameworks.keras_decoder import assemble
     # Setup:
@@ -115,7 +115,7 @@ def main(individ, config, server):
     training_history = training(
         model=model,
         device=server["device"],
-        epochs=config["epochs"],
+        epochs=epochs,
         batch_size=config["batch size"],
         compiled=compiled,
     )
