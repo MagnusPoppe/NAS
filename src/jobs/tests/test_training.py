@@ -90,7 +90,7 @@ class TestTraining(unittest.TestCase):
         y_test = keras.utils.to_categorical(y_test, num_classes=10)
         y_val = keras.utils.to_categorical(y_val, num_classes=10)
 
-        labels, data = shuffle(y_train, x_train)
+        labels, data = shuffle(x_train, y_train)
         with tf.device("/GPU:0"):
             keras.backend.set_session(
                 tf.Session(

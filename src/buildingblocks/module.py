@@ -53,6 +53,7 @@ class Module(Base):
         self.loss = []
         self.validation_fitness = []
         self.validation_loss = []
+        self.report = {}
 
         # Database:
         self.db_ref = None

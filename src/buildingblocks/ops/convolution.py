@@ -14,7 +14,6 @@ class Conv2D(Operation):
         self.activation = activation
         self.padding = "same"
         self.bias = bias
-        # TODO self.shape =
 
     def to_keras(self):
         from tensorflow import keras

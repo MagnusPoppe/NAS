@@ -45,7 +45,7 @@ def configure(classes, server) -> (callable, callable):
             history = {}
             for epoch in range(0, training_epochs, shuffle_interval):
                 # SHUFFLE DATASET:
-                labels, data = shuffle(y_train, x_train)
+                labels, data = shuffle(x_train, y_train)
 
                 # RUNNING TRAINING:
                 metric = model.fit(
@@ -79,7 +79,7 @@ def configure(classes, server) -> (callable, callable):
     return train, evaluate, "CIFAR 10", (32, 32, 3)
 
 
-def shuffle(y_train, x_train):
+def shuffle(x_train, y_train):
     index = np.array(list(range(len(y_train))))
     np.random.shuffle(index)
     data = np.zeros(x_train.shape)
