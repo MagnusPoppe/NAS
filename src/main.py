@@ -48,10 +48,10 @@ def evolve_architecture(selection, config):
         for selected in selection(population, config["population size"]):
             draw = random.uniform(0, 1)
             mutated = None
-            if draw < 0.6:
+            if draw < 0.5:
                 print("    - Operation Mutation for {}".format(selected.ID))
                 mutated = mutate(selected)
-            elif draw < 0.9:
+            else: # elif draw < 0.9:
                 print("    - Creating new net randomly")
                 mutated = init_population(1, config["input"], 3, 30)[0]
             # else:

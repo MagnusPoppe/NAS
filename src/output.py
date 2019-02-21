@@ -14,7 +14,7 @@ def generation_finished(generation, population):
     print("--> Generation {} Leaderboards:".format(generation))
 
     for i, individ in enumerate(population):
-        print("\t{rank}. {name}: TRN={acc}%, VAL={vacc}% ".format(
+        print("\t{rank}. {name}: TRN={acc}%, VAL={vacc}% \t".format(
             rank=i+1,
             name=population[i].ID,
             acc=round(population[i].fitness[-1] * 100, 2),

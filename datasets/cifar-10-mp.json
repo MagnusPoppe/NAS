@@ -7,12 +7,12 @@
     3
   ],
   "classes": 10,
-  "batch size": 100,
-  "epochs": 2,
+  "batch size": 40,
+  "epochs": 0.75,
   "population size": 8,
-  "generations": 10,
+  "generations": 5,
   "allow gpu memory growth": true,
-  "run id": "x1",
+  "run id": "8x075x250",
     "servers": [{
       "name": "V100 1",
       "type": "local",
