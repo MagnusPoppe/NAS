@@ -42,6 +42,27 @@ def progress_report(report: dict) -> pd.DataFrame:
 
     return final_report
 
+def create_images(individs: [Module], config):
+    import multiprocessing as mp
+
+    def save_kears_model_images(individ: Module):
+        from firebase.upload import save_model_image
+        from tensorflow import keras
+        path = individ.absolute_save_path(config)
+        model = keras.models.load_model(os.path.join(path, "model.h5"))
+        image_path = os.path.join(path, "img.png")
+        save_model_image(model, image_path)
+        return image_path
+
+    args = [(individ) for individ in individs]
+    pool = mp.Pool()
+    mapper = pool.apply_async(save_kears_model_images, args=args)
+    pool.close()
+    results = mapper.get()
+    for i in range(len(individs)):
+        individs[i].model_image_path = results[i]
+    return individs
+
 if __name__ == '__main__':
     import sys
     import src.laboratory.common as fn
