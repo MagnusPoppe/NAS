@@ -8,27 +8,28 @@
   ],
   "classes": 10,
   "batch size": 40,
-  "epochs": 0.75,
-  "population size": 24,
-  "generations": 15,
+  "epochs": 0.50,
+  "population size": 16,
+  "generations": 10,
   "allow gpu memory growth": true,
-  "run id": "25x0.75x40",
+  "run id": "16x0.50x40",
+  "keep all results": true,
     "servers": [{
       "name": "V100 1",
       "type": "local",
       "cwd": "/work/magnuspw/ea-nas",
       "device": "/GPU:0",
       "allow gpu memory growth": true,
-      "memory per process": 0.5,
-      "concurrency": 2
+      "memory per process": 1,
+      "concurrency": 1
     }, {
       "name": "V100 2",
       "type": "local",
       "cwd": "/work/magnuspw/ea-nas",
       "device": "/GPU:1",
       "allow gpu memory growth": true,
-      "memory per process": 0.5,
-      "concurrency": 2
+      "memory per process": 1,
+      "concurrency": 1
     }
   ]
 }

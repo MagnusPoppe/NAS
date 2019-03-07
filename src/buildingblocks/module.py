@@ -63,7 +63,7 @@ class Module(Base):
         self.epochs_trained = 0
 
     def __str__(self):
-        return "Module [{}]".format(", ".join([str(c) for c in self.children]))
+        return "{} [{}]".format(self.ID, ", ".join([str(c) for c in self.children]))
 
     def __deepcopy__(self, memodict={}):
         """ Does not retain connectivity on module level. """

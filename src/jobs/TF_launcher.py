@@ -39,8 +39,9 @@ def unpack_arguments_and_run(args):
     model_path = os.path.join(savepath, "model.h5")
     image_path = os.path.join(savepath, individ.ID + ".png")
     keras.models.save_model(model, model_path, overwrite=True, include_optimizer=True)
-    # save_model_image(model, image_path)
 
+    # save_model_image(model, image_path)
+    print("=", end="")
     return {
         "job": job_id,
         "image": image_path,
@@ -56,7 +57,7 @@ def unpack_arguments_and_run(args):
 
 
 def pack_args(population, config):
-    """Compiles a list of arguments for parallel training """
+    """ Compiles a list of arguments for parallel training """
     config_str = json.dumps(config)
 
     # Each server gets a portion of the jobs:
@@ -90,6 +91,7 @@ def pack_args(population, config):
 def run_jobs(population, config):
     server_args, epochs = pack_args(population, config)
     print(f"--> Running {epochs} epoch(s) of training for {len(population)} phenotype(s)")
+    print("  |", end="")
 
     # Spawning jobs:
     pools = []
@@ -106,6 +108,7 @@ def run_jobs(population, config):
     for pool, res in zip(pools, pool_res):
         pool.close()
         results += res.get()
+    print("|")
 
     # Applying results:
     results.sort(key=lambda x: x["job"])

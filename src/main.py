@@ -11,7 +11,7 @@ from src.MOOA import operators as moo
 from src.MOOA.NSGA_II import nsga_ii
 import src.jobs.TF_launcher as launcher
 
-from src.jobs import scheduler
+from src.jobs import scheduler, garbage_collector
 
 import builtins
 
@@ -20,20 +20,18 @@ builtins.generation = 0
 
 def evolve_architecture(selection, config):
     update_status("Creating initial population")
-    seen_modules = []
 
     # initializing population
     population = init_population(
         individs=config["population size"],
         in_shape=config["input"],
         network_min_layers=3,
-        network_max_layers=10,
+        network_max_layers=20,
     )
 
     # Training initial population:
     launcher.run_jobs(population, config)
     upload_population(population)
-    seen_modules += population
 
     # Running EA algorithm:
     for generation in range(config["generations"]):
@@ -54,6 +52,7 @@ def evolve_architecture(selection, config):
             else: # elif draw < 0.9:
                 print("    - Creating new net randomly")
                 mutated = init_population(1, config["input"], 3, 30)[0]
+            # TODO: Replace seen_modules:
             # else:
             #     print("    - Sub-module insert for {}".format(selected.ID))
             #     mutated = sub_module_insert(
@@ -76,10 +75,14 @@ def evolve_architecture(selection, config):
                 moo.classification_objectives(config)
             )
         )
-        population = population[len(population) - config["population size"] :]
 
+        removable = len(population) - config["population size"]
+        population, removed = population[removable:], population[:removable]
+
+        # Removing unused models:
+        if not config['keep all results']:
+            garbage_collector.collect_garbage(removed, population, config)
         upload_population(population)
-        seen_modules += children
         generation_finished(generation, population)
 
 
