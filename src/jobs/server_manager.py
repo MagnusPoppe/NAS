@@ -29,12 +29,12 @@ class ServerManager:
         def get_local_gateway(server):
             return execnet.makegateway()
 
-        if server_config['type'] == 'ssh':
+        if server_config.type == 'remote':
             return get_ssh_gateway(server_config)
-        elif server_config['type'] == 'local':
+        elif server_config.type == 'local':
             return get_local_gateway(server_config)
         else:
-            raise AttributeError('Unknown server "type": ' + server_config['type'])
+            raise AttributeError('Unknown server "type": ' + server_config.type)
 
     def __get_free_server(self):
         free_servers = sorted([

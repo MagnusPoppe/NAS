@@ -1,7 +1,4 @@
 import pandas as pd
-import os
-if not os.path.basename(os.getcwd()) in ["ea-nas", "EA-architecture-search"]:
-    os.chdir("../../")
 from src.buildingblocks.module import Module
 
 def load_json_config(filepath:str) -> dict:
@@ -17,30 +14,30 @@ def load_module(filepath:str) -> Module:
         module = pickle.load(f)
     return module
 
+def load_all_modules_from_run(run_filepath: str) -> [Module]:
+    import os
+    modules = {}
+    for name in os.listdir(run_filepath):
+        modules[name] = []
+        for version in os.listdir(os.path.join(run_filepath, name)):
+            path = os.path.join(run_filepath, name, version, "genotype.obj")
+            modules[name] += [load_module(path)]
+    return modules
 
-def progress_report(report: dict) -> pd.DataFrame:
-    from copy import deepcopy
+def progress_report(report: dict, name:str) -> pd.DataFrame:
     cifar_keys = ["Airplane", "Automobile", "Bird", "Cat", "Deer", "Dog", "Frog", "Horse", "Ship", "Truck"]
-
-    indexes = [
-        list(report.keys()),
-        list(report[list(report.keys())[0]].keys())
-    ]
-    codes = [
-        list(range(len(indexes[0]))) * 13,
-        list(range(len(indexes[1]))) * 2,
-    ]
-
-    superindex = pd.MultiIndex(levels=indexes, codes=codes, names=["Epoch recorded", "Classes"])
-    final_report = pd.DataFrame(columns=superindex)
-
-    for epoch, trained_report in report.items():
-        new_report = {}
-        for i, metrics in enumerate(trained_report.values()):
-            for metric, val in metrics:
-                final_report(axis=1)[(epoch, metrics), metric] = val
-
-    return final_report
+    dataframes = [pd.DataFrame.from_dict(rep) for _, rep in report.items()]
+    df = pd.concat(dataframes, keys=report.keys())
+    df.name = name
+    cols = []
+    for col in df.columns:
+        try:
+            i = int(col)
+            cols += [f"{i}, {cifar_keys[i]}"]
+        except ValueError:
+            cols += [col]
+    df.columns = cols
+    return df
 
 def create_images(individs: [Module], config):
     import multiprocessing as mp
@@ -64,21 +61,21 @@ def create_images(individs: [Module], config):
     return individs
 
 if __name__ == '__main__':
-    import sys
-    import src.laboratory.common as fn
-
+    import os
     # Usually like: ./results/<run-name>/<individ-name>/<version>/
     module_stores = [
-        "./results/8x2/Angelika/v0/",
-        "./results/8x2/Angelika/v2/"
+        "./results/8x075x250/Mai/v0/",
+        "./results/8x075x250/Mai/v2/",
+        "./results/8x075x250/Mai/v4/",
+        "./results/8x075x250/Mai/v6/"
     ]
 
     # Configuration file:
     config_file = "./datasets/cifar-10-mp.json"
-    config = fn.load_json_config(config_file)
+    config = load_json_config(config_file)
     modules = []
     for model_path in module_stores:
-        module = fn.load_module(os.path.join(model_path, "genotype.obj"))
+        module = load_module(os.path.join(model_path, "genotype.obj"))
         print("Loaded module {}".format(module.ID))
         modules += [module]
-    fn.progress_report(modules[0].report)
+    progress_report(modules[0].report)

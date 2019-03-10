@@ -79,6 +79,15 @@ def nsga_ii(solutions: list, objectives: [callable], domination_operator: callab
     """
     https://ieeexplore.ieee.org/document/996017
     """
+
+    # Removing networks without scores:
+    # TODO:
+    # filtered_solutions = []
+    # for solution in solutions:
+    #     if any(x > 0.0 for key, x in list(solution.report.values())[-1] if key.isdigit()):
+    #         filtered_solutions += [solution]
+    # solutions = filtered_solutions
+
     # Sorting by multiple objectives:
     frontieer = fast_non_dominated_sort(solutions, domination_operator)
 

@@ -5,6 +5,8 @@ import sys
 import os
 import multiprocessing as mp
 
+from src.configuration import Configuration
+
 
 def module_from_file(module_name, file_path):
     import importlib.util
@@ -17,9 +19,9 @@ def module_from_file(module_name, file_path):
 def unpack_arguments_and_run(args):
     from tensorflow import keras
     # Unpacking arguments:
-    individ_bytes, config_str, epochs, server_id, job_id = args
+    individ_bytes, config_str, epochs, server_id, device_id, job_id = args
     individ = pickle.loads(individ_bytes)
-    config = json.loads(config_str)
+    config = pickle.loads(config_str)
 
     # Finding save directory and saving genotype:
     savepath = individ.absolute_save_path(config)
@@ -27,12 +29,12 @@ def unpack_arguments_and_run(args):
         pickle.dump(individ, f_ptr)
 
     # Running training:
-    training_module = module_from_file('cifar10', config['trainingFilepath'])
+    training_module = module_from_file('cifar10', config.training_loop_path)
     model, training_history, report = training_module.main(
         individ,
         epochs,
         config,
-        config['servers'][server_id]
+        config.servers[server_id].devices[device_id]
     )
 
     # Creating results:
@@ -56,31 +58,32 @@ def unpack_arguments_and_run(args):
     }
 
 
-def pack_args(population, config):
+def pack_args(population, server_id, config: Configuration):
     """ Compiles a list of arguments for parallel training """
-    config_str = json.dumps(config)
+    config_str = pickle.dumps(config)
 
     # Each server gets a portion of the jobs:
-    server_job_args = [[] for _ in range(len(config["servers"]))]
+    server_job_args = [[] for _ in range(len(config.servers[server_id].devices))]
 
     # Calculating size of each job:
     sized = []
     for ind in population:
-        epochs = int(ind.number_of_operations() * config['epochs'])
+        epochs = int(ind.number_of_operations() * config.epochs_per_layer)
         sized += [epochs if epochs > 0 else 1]
     total_epochs = sum(sized)
 
     # Create balanced workloads for each process by estimate:
     for i in range(len(population)):
-        server_id = i % len(config['servers'])
+        dev_id = i % len(config.servers[server_id].devices)
         job_id = sized.index(max(sized))
 
         # Compiling list of arguments:
-        server_job_args[server_id] += [(
+        server_job_args[dev_id] += [(
             pickle.dumps(population[job_id]),
             config_str,
             int(sized[job_id]),
             server_id,
+            dev_id,
             job_id
         )]
         sized[job_id] = - sys.maxsize
@@ -88,18 +91,18 @@ def pack_args(population, config):
     return server_job_args, total_epochs
 
 
-def run_jobs(population, config):
-    server_args, epochs = pack_args(population, config)
+def run_jobs(population, server_id, config):
+    server_args, epochs = pack_args(population, server_id, config)
     print(f"--> Running {epochs} epoch(s) of training for {len(population)} phenotype(s)")
     print("  |", end="")
 
     # Spawning jobs:
     pools = []
     pool_res = []
-    for server_id, server in enumerate(config['servers']):
-        pool = mp.Pool(processes=server['concurrency'])
+    for id, device in enumerate(config.servers[server_id].devices):
+        pool = mp.Pool(processes=device.concurrency)
         pool_res += [
-            pool.map_async(unpack_arguments_and_run, server_args[server_id])
+            pool.map_async(unpack_arguments_and_run, server_args[id])
         ]
         pools += [pool]
 

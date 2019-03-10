@@ -16,7 +16,7 @@ class JobManager:
         self.job_start = job_start_callback
         self.job_end = job_end_callback
 
-        self.server_manager = ServerManager(config['servers'])
+        self.server_manager = ServerManager(config.servers)
 
         self.gateways = {}          # Started sessions
         self.channels = {}          # Started programs
@@ -134,7 +134,7 @@ class JobManager:
         def download_models(individ, config, server_config):
             ssh.rsync(
                 os.path.join(os.getcwd(), individ.relative_save_path(config)),
-                os.path.join(server_config['cwd'], individ.relative_save_path(config)),
+                os.path.join(server_config.cwd, individ.relative_save_path(config)),
                 server_config,
                 to_source=True
             )
@@ -142,17 +142,17 @@ class JobManager:
         def upload_models(individ, config, server_config):
 
             local_path = os.path.join(os.getcwd(), individ.relative_save_path(config))
-            server_path = os.path.join(server_config['cwd'], individ.relative_save_path(config))
+            server_path = os.path.join(server_config.cwd, individ.relative_save_path(config))
             ssh.rsync(local_path, server_path, server_config, to_source=False)
             if individ.predecessor:
                 local_path = os.path.join(os.getcwd(), individ.predecessor.relative_save_path(config))
-                server_path = os.path.join(server_config['cwd'],
+                server_path = os.path.join(server_config.cwd,
                                            individ.predecessor.relative_save_path(config))
                 ssh.rsync(local_path, server_path, server_config, to_source=False)
 
         individ, config, server_config = self.jobs[job_id]
 
-        if server_config['type'] != 'local':
+        if server_config.type != 'local':
             if download:
                 download_models(individ, config, server_config)
             if upload:

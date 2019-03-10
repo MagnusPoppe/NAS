@@ -1,6 +1,9 @@
 import os
 import pickle
 import setproctitle
+
+from src.configuration import Configuration
+
 setproctitle.setproctitle("EA-NAS-EVOLVE")
 
 from datasets import cifar10
@@ -30,15 +33,10 @@ if __name__ == '__main__':
     if not os.path.isfile(sys.argv[1]):
         raise IOError("File {} does not exist!".format(sys.argv[1]))
 
-    config_file = sys.argv[1]
-    with open(file=config_file, mode="r") as js:
-        config = json.load(js)
-
-    config['input'] = tuple(config['input'])
+    config = Configuration.from_json(sys.argv[1])
     run_id = create_new_run(config)
     if run_id:
-        config['run id'] = run_id
-
+        config.results_name = run_id
     status = "Running"
     try:
         ea_nas.run(config, cifar10, job_start_callback, job_end_callback)

@@ -1,27 +1,27 @@
 #!/bin/sh
-#SBATCH --partition=EPIC2
-#SBATCH --time=00:10:00
-#SBATCH --nodes=2
-#SBATCH --gres=gpu:V100:3
-#SBATCH --mem=12000
-# Memory per node specification is in MB. It is optional. 
-# The default limit is 3000MB per core.
-#SBATCH --job-name="TESTING GPU LAYOUT"
-#SBATCH --output=test.out
+#SBATCH --partition=EPICALL
+#SBATCH --time=00:05:00
+#SBATCH --nodes=28
+#SBATCH --gres=gpu:2
+#SBATCH --mem=3000
+#SBATCH --job-name="megatest"
+#SBATCH --output=gputest.log
 #SBATCH --mail-user=magnuspw@stud.ntnu.no
 #SBATCH --mail-type=ALL
- 
+
 WORKDIR=${SLURM_SUBMIT_DIR}
 cd ${WORKDIR}
+echo "-- SLURM INFORMATION --"
 echo "we are running from this directory: $SLURM_SUBMIT_DIR"
-echo " the name of the job is: $SLURM_JOB_NAME"
-echo "Th job ID is $SLURM_JOB_ID"
+echo "The name of the job is: $SLURM_JOB_NAME"
+echo "The job ID is $SLURM_JOB_ID"
 echo "The job was run on these nodes: $SLURM_JOB_NODELIST"
 echo "Number of nodes: $SLURM_JOB_NUM_NODES"
 echo "We are using $SLURM_CPUS_ON_NODE cores"
 echo "We are using $SLURM_CPUS_ON_NODE cores per node"
 echo "Total of $SLURM_NTASKS cores"
- 
+echo
+
 # TENSORFLOW 1.10.1 running on CUDA 9.0 setup:
 module load GCC/6.4.0-2.28
 module load CUDA/9.0.176
@@ -34,5 +34,5 @@ export CUDA_HOME="/usr/local/cuda-9.0"
 export LD_LIBRARY_PATH="/usr/local/cuda-9.0/lib64:$LD_LIBRARY_PATH"
 export EA_NAS_UPLOAD_TO_FIREBASE="0"
 
-cd /home/magnuspw/EPIC_server_testing
-py363/bin/python -c "import subprocess; print(subprocess.check_output(['nvidia-smi', '-L']))"
+echo "-- OUTPUT OF MAIN PROGRAM --"; echo;
+venv/bin/python slurm_nodes.py "$SLURM_JOB_NODELIST"

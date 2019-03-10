@@ -1,6 +1,6 @@
 {
   "dataset": "CIFAR-10",
-  "trainingFilepath": "/work/magnuspw/ea-nas/datasets/cifar10.py",
+  "trainingFilepath": "datasets/cifar10.py",
   "input": [
     32,
     32,
@@ -9,27 +9,25 @@
   "classes": 10,
   "batch size": 40,
   "epochs": 0.50,
-  "population size": 16,
-  "generations": 10,
-  "allow gpu memory growth": true,
-  "run id": "16x0.50x40",
-  "keep all results": true,
-    "servers": [{
-      "name": "V100 1",
-      "type": "local",
-      "cwd": "/work/magnuspw/ea-nas",
-      "device": "/GPU:0",
+  "population size": 2,
+  "generations": 3,
+  "run id": "8x2",
+  "keep all results": false,
+  "servers": [{
+    "name": "ANAKIN01",
+    "type": "local",
+    "cwd": "/work/magnuspw/ea-nas",
+    "address": "anakin01.idi.ntnu.no",
+    "devices": [{
+      "device_str": "/GPU:0",
       "allow gpu memory growth": true,
-      "memory per process": 1,
-      "concurrency": 1
+      "memory per process": 0.5,
+      "concurrency": 2
     }, {
-      "name": "V100 2",
-      "type": "local",
-      "cwd": "/work/magnuspw/ea-nas",
-      "device": "/GPU:1",
+      "device_str": "/GPU:1",
       "allow gpu memory growth": true,
-      "memory per process": 1,
-      "concurrency": 1
-    }
-  ]
+      "memory per process": 0.5,
+      "concurrency": 2
+    }]
+  }]
 }

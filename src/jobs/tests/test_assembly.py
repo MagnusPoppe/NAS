@@ -91,7 +91,7 @@ class TestAssembly(unittest.TestCase):
     def test_assemble_with_pooling_op(self):
         with open("./datasets/cifar10-home-ssh.json", "r") as f:
             config = json.load(f)
-        server = config['servers'][0]
+        server = config.servers[0]
 
         individ = Module()
         individ = mutation_ops.append(individ, Conv3x3())
@@ -102,9 +102,9 @@ class TestAssembly(unittest.TestCase):
         individ = mutation_ops.insert(individ, individ.children[1], individ.children[2], AvgPooling2x2())
         individ = mutation_ops.append(individ, dense.DenseL())
 
-        training, evalutation, name, inputs = cifar10.configure(config['classes'], server)
+        training, evalutation, name, inputs = cifar10.configure(config.classes_in_classifier, server)
 
-        model = assemble(individ, config['input'], config['classes'])
+        model = assemble(individ, config.input_format, config.classes_in_classifier)
 
         training_history = training(
             model=model,

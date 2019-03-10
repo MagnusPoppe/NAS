@@ -119,7 +119,7 @@ class Module(Base):
 
     def relative_save_path(self, config):
         """ Reveals the storage directory relative to work directory """
-        path = 'results/{}/{}/v{}'.format(config['run id'], self.name, self.version)
+        path = 'results/{}/{}/v{}'.format(config.results_name, self.name, self.version)
         os.makedirs(path, exist_ok=True)
         return path
 

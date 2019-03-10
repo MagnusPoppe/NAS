@@ -4,9 +4,10 @@ import numpy as np
 import json
 import os
 from sklearn.metrics import classification_report
+
 from src.frameworks.weight_transfer import transfer_model_weights
 
-def configure(classes, server) -> (callable, callable):
+def configure(classes, device) -> (callable, callable):
     (x_train, y_train), (x_test, y_test) = keras.datasets.cifar10.load_data()
     x_val = x_train[45000:] / 255
     y_val = y_train[45000:]
@@ -18,13 +19,13 @@ def configure(classes, server) -> (callable, callable):
     # y_test = keras.utils.to_categorical(y_test, num_classes=classes)
     y_val = keras.utils.to_categorical(y_val, num_classes=classes)
 
-    with tf.device(server["device"]):
+    with tf.device(device.device):
         keras.backend.set_session(
             tf.Session(
                 config=tf.ConfigProto(
                     gpu_options=tf.GPUOptions(
-                        allow_growth=server["allow gpu memory growth"],
-                        per_process_gpu_memory_fraction=server["memory per process"],
+                        allow_growth=device.allow_memory_growth,
+                        per_process_gpu_memory_fraction=device.memory_per_process,
                     ),
                     allow_soft_placement=True
                 )
@@ -32,9 +33,8 @@ def configure(classes, server) -> (callable, callable):
         )
 
     def train(
-        model, device, epochs=1.2, batch_size=64, compiled=False, shuffle_interval=3
+        model, device, epochs, batch_size=64, compiled=False, shuffle_interval=3
     ):
-        training_epochs = int(epochs * len(model.layers)) if epochs > 0 else 1
         with tf.device(device):
             # DEFINING FUNCTIONS FOR COMPILATION
             if not compiled:
@@ -43,24 +43,24 @@ def configure(classes, server) -> (callable, callable):
                 model.compile(loss=loss, optimizer=optimizer, metrics=["accuracy"])
 
             history = {}
-            for epoch in range(0, training_epochs, shuffle_interval):
+            # for epoch in range(0, training_epochs, shuffle_interval):
                 # SHUFFLE DATASET:
-                labels, data = shuffle(x_train, y_train)
+            labels, data = shuffle(x_train, y_train)
 
-                # RUNNING TRAINING:
-                metric = model.fit(
-                    data,
-                    labels,
-                    epochs=shuffle_interval,
-                    batch_size=batch_size,
-                    verbose=0,
-                    validation_data=(x_val, y_val),
-                )
-                for key, value in metric.history.items():
-                    try:
-                        history[key] += value
-                    except KeyError:
-                        history[key] = value
+            # RUNNING TRAINING:
+            metric = model.fit(
+                data,
+                labels,
+                epochs=epochs,
+                batch_size=batch_size,
+                verbose=0,
+                validation_data=(x_val, y_val),
+            )
+            for key, value in metric.history.items():
+                try:
+                    history[key] += value
+                except KeyError:
+                    history[key] = value
         return history
 
     def evaluate(model, device: str, compiled=True):
@@ -90,36 +90,37 @@ def shuffle(x_train, y_train):
     return labels, data
 
 
-def main(individ, epochs, config, server):
+def main(individ, epochs, config, device):
     import setproctitle
     from src.frameworks.keras_decoder import assemble
     # Setup:
-    setproctitle.setproctitle("EA-NAS-TRAINER " + server["device"])
+    setproctitle.setproctitle("EA-NAS-TRAINER " + device.device)
     os.environ["TF_CPP_MIN_LOG_LEVEL"] = "1"
-    device_id = server["device"].split(":")[-1]
+    device_id = device.device.split(":")[-1]
     os.environ["CUDA_VISIBLE_DEVICES"] = device_id
 
 
-    training, evalutation, name, inputs = configure(config["classes"], server)
+    training, evalutation, name, inputs = configure(config.classes_in_classifier, device)
     compiled = False
     if individ.saved_model:
         compiled = True
-        with tf.device(server["device"]):
+        with tf.device(device.device):
             model = keras.models.load_model(individ.saved_model)
     else:
-        model = assemble(individ, config["input"], config["classes"])
+        model = assemble(individ, config.input_format, config.classes_in_classifier)
         if individ.predecessor and individ.predecessor.saved_model:
             predecessor_model = keras.models.load_model(individ.predecessor.saved_model)
             transfer_model_weights(model, predecessor_model)
 
+    epochs = 1
     training_history = training(
         model=model,
-        device=server["device"],
+        device=device.device,
         epochs=epochs,
-        batch_size=config["batch size"],
+        batch_size=config.batch_size,
         compiled=compiled,
     )
-    report = evalutation(model, server["device"], compiled=True)
+    report = evalutation(model, device.device, compiled=True)
     return model, training_history, report
 
 

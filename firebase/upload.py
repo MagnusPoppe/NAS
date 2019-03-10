@@ -115,14 +115,14 @@ def update_status(msg):
 def create_new_run(config):
     global db
     if not db: return
-    config['started'] = datetime.datetime.now()
+    config.started = datetime.datetime.now()
     timestamp, ref = db.collection("runs").add({
-        u"dataset": config['dataset'],
-        u"epochsOfTraining": config['epochs'],
-        u"batchSizeForTraining": config['batch size'],
-        u"generations": config['generations'],
-        u"populationSize": config['population size'],
-        u"started": config['started'],
+        u"dataset": config.dataset_name,
+        u"epochsOfTraining": config.epochs_per_layer,
+        u"batchSizeForTraining": config.batch_size,
+        u"generations": config.generations,
+        u"populationSize": config.population_size,
+        u"started": config.started,
         u"status": "Running"
     })
     global run
@@ -135,11 +135,11 @@ def update_run(config, status):
     if not db: return
 
     return db.collection("runs").document(run.id).set({
-        u"dataset": config['dataset'],
-        u"epochsOfTraining": config['epochs'],
-        u"batchSizeForTraining": config['batch size'],
-        u"generations": config['generations'],
-        u"populationSize": config['population size'],
-        u"started": config['started'],
+        u"dataset": config.dataset_name,
+        u"epochsOfTraining": config.epochs,
+        u"batchSizeForTraining": config.batch_size,
+        u"generations": config.generations,
+        u"populationSize": config.population_size,
+        u"started": config.started,
         u"status": status
     })

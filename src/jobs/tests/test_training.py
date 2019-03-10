@@ -28,7 +28,7 @@ class TestTraining(unittest.TestCase):
                 individ = pickle.load(f)
             with open("./datasets/cifar10-local.json", "r") as f:
                 config = json.load(f)
-                server = config['servers'][0]
+                server = config.servers[0]
 
             # Running training:
             model, training_history, after = main(individ, config, server)

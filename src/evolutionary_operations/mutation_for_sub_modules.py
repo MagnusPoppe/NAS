@@ -67,7 +67,7 @@ def sub_module_insert(module: Module, target_module: Module, config: dict) -> Mo
 
     if new:
         new_config = deepcopy(config)
-        new_config['epochs'] = 0
+        new_config.epochs = 0
         scheduler.queue_all(new, new_config, priority=True)
         scheduler.await_all_jobs_finish()
         new.sort(key=lambda x: x.fitness[-1] if x.fitness else 0.0)

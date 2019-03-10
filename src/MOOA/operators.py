@@ -10,7 +10,7 @@ def acc_objectives() -> [callable]:
 def classification_objectives(config) -> [callable]:
     def get_precision(i):
         return lambda p: p.report[p.epochs_trained][str(i)]['f1-score']
-    return [get_precision(cls) for cls in range(config['classes'])]
+    return [get_precision(cls) for cls in range(config.classes_in_classifier)]
 
 
 def classification_domination_operator(objectives: [callable]) -> callable:
