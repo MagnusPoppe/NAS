@@ -1,11 +1,12 @@
 import os
 import pickle
-import setproctitle
 
 from src.configuration import Configuration
 
-setproctitle.setproctitle("EA-NAS-EVOLVE")
-
+try:
+    import setproctitle
+    setproctitle.setproctitle("EA-NAS-EVOLVE")
+except ImportError: pass
 from datasets import cifar10
 from firebase.upload import create_new_run, update_run
 

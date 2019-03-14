@@ -9,8 +9,8 @@
   "classes": 10,
   "batch size": 40,
   "epochs": 0.50,
-  "population size": 2,
-  "generations": 3,
+  "population size": 4,
+  "generations": 10,
   "run id": "8x2",
   "keep all results": false,
   "servers": [{

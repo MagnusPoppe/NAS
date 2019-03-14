@@ -1,12 +1,13 @@
 #!/bin/sh
 #SBATCH --partition=EPICALL
 #SBATCH --time=00:05:00
-#SBATCH --nodes=28
+#SBATCH --nodes=2
 #SBATCH --gres=gpu:2
-#SBATCH --mem=3000
+#SBATCH --mem=32000
+#SBATCH --ntasks-per-node=8
 #SBATCH --job-name="megatest"
 #SBATCH --output=gputest.log
-#SBATCH --mail-user=magnuspw@stud.ntnu.no
+#SBATCH --mail-user=magnuspw@stud.ntnu.no,
 #SBATCH --mail-type=ALL
 
 WORKDIR=${SLURM_SUBMIT_DIR}
@@ -20,7 +21,7 @@ echo "Number of nodes: $SLURM_JOB_NUM_NODES"
 echo "We are using $SLURM_CPUS_ON_NODE cores"
 echo "We are using $SLURM_CPUS_ON_NODE cores per node"
 echo "Total of $SLURM_NTASKS cores"
-echo
+echo ;
 
 # TENSORFLOW 1.10.1 running on CUDA 9.0 setup:
 module load GCC/6.4.0-2.28
@@ -34,5 +35,8 @@ export CUDA_HOME="/usr/local/cuda-9.0"
 export LD_LIBRARY_PATH="/usr/local/cuda-9.0/lib64:$LD_LIBRARY_PATH"
 export EA_NAS_UPLOAD_TO_FIREBASE="0"
 
+echo "-- SETTING UP SERVERS --"
+venv/bin/python slurm_nodes.py $SLURM_JOB_NODELIST "./datasets/slurm.json"
+
 echo "-- OUTPUT OF MAIN PROGRAM --"; echo;
-venv/bin/python slurm_nodes.py "$SLURM_JOB_NODELIST"
+venv/bin/python start.py ./datasets/slurm.json

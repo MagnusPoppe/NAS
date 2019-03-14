@@ -7,6 +7,7 @@ from sklearn.metrics import classification_report
 
 from src.frameworks.weight_transfer import transfer_model_weights
 
+
 def configure(classes, device) -> (callable, callable):
     (x_train, y_train), (x_test, y_test) = keras.datasets.cifar10.load_data()
     x_val = x_train[45000:] / 255
@@ -91,10 +92,14 @@ def shuffle(x_train, y_train):
 
 
 def main(individ, epochs, config, device):
-    import setproctitle
     from src.frameworks.keras_decoder import assemble
     # Setup:
-    setproctitle.setproctitle("EA-NAS-TRAINER " + device.device)
+
+    try:
+        import setproctitle
+        setproctitle.setproctitle("EA-NAS-TRAINER " + device.device)
+    except ImportError:
+        pass
     os.environ["TF_CPP_MIN_LOG_LEVEL"] = "1"
     device_id = device.device.split(":")[-1]
     os.environ["CUDA_VISIBLE_DEVICES"] = device_id
@@ -112,7 +117,6 @@ def main(individ, epochs, config, device):
             predecessor_model = keras.models.load_model(individ.predecessor.saved_model)
             transfer_model_weights(model, predecessor_model)
 
-    epochs = 1
     training_history = training(
         model=model,
         device=device.device,
