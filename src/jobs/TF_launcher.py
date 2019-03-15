@@ -42,8 +42,11 @@ def unpack_arguments_and_run(args):
     image_path = os.path.join(savepath, individ.ID + ".png")
     keras.models.save_model(model, model_path, overwrite=True, include_optimizer=True)
 
-    # save_model_image(model, image_path)
-    print("=", end="")
+    try:
+        from firebase.upload import save_model_image
+        save_model_image(model, image_path)
+    except Exception: pass
+    print("=", end="", flush=True)
     return {
         "job": job_id,
         "image": image_path,
@@ -114,7 +117,6 @@ def run_jobs(population, server_id, config):
     print("|")
 
     # Applying results:
-    results.sort(key=lambda x: x["job"])
     for individ, res in zip(population, results):
         individ.fitness += res['accuracy']
         individ.loss += res['loss']

@@ -1,6 +1,9 @@
+import os
 import sys
 import time
+import json
 import subprocess as ps
+
 
 def slurm_nodelist_to_list(_input):
     """
@@ -42,25 +45,22 @@ def exec_remote(server, commands):
     def read(out, name="STDOUT"):
         line = out.readline()
         output = line
-        while line != '':
+        while line != "":
             line = out.readline()
             output += line
-
-        if output != "":
-            print("{} reads:\n{}".format(name, output))
         return output
 
     ssh_process = ps.Popen(
-        args=['ssh', "-T", '{}'.format(server)],
+        args=["ssh", "-T", "{}".format(server)],
         stdin=ps.PIPE,
         stdout=ps.PIPE,
         stderr=ps.PIPE,
         universal_newlines=True,
-        bufsize=0
+        bufsize=0,
     )
     for command in commands:
         ssh_process.stdin.write(command + "\n")
-    ssh_process.stdin.write('logout\n')
+    ssh_process.stdin.write("logout\n")
 
     while ssh_process.poll() is not None:
         time.sleep(0.01)
@@ -72,12 +72,45 @@ def exec_remote(server, commands):
     ssh_process.stderr.close()
     return stdout, stderr
 
-# config_json = "./datasets/cifar10-slurm.py"  # sys.argv[2]
+
 arg = sys.argv[1]
-servers = slurm_nodelist_to_list(arg)
-for address in servers:
-    print("Executing nvidia-smi on node", address)
-    exec_remote(address, commands=[
-        'python -c ' +
-        "'import subprocess; print(subprocess.check_output([\"nvidia-smi\", \"-L\"]))'"
-    ])
+config_json = sys.argv[2]
+with open(config_json, "r") as f:
+    config = json.load(f)
+
+servers = []
+for address in slurm_nodelist_to_list(arg):
+    out, err = exec_remote(
+        address,
+        commands=[
+            "python -c "
+            + '\'import subprocess; print(subprocess.check_output(["nvidia-smi", "-L"]))\''
+        ],
+    )
+    if err:
+        raise Exception(err)
+    server = {
+        "name": "EPIC-" + address,
+        "type": "remote",
+        "cwd": os.getcwd(),
+        "address": address,
+        "python": os.path.join(os.getcwd(), "venv/bin/python"),
+        "devices": [],
+    }
+    gpu_strings = [g for g in out.split("\n") if g]
+    for gpu_line in gpu_strings:
+        gpu_id = gpu_line.split(":")[0].split(" ")[1]
+        concurreny = 2 if "Tesla V100" in gpu_line else 1
+        server["devices"] += [
+            {
+                "device_str": f"/GPU:{gpu_id}",
+                "allow gpu memory growth": True,
+                "memory per process": 1 / concurreny,
+                "concurrency": concurreny,
+            }
+        ]
+    servers += [server]
+
+config["servers"] = servers
+with open(config_json, "w") as f:
+    json.dump(config, f)

@@ -1,12 +1,12 @@
 #!/bin/sh
 #SBATCH --partition=EPICALL
-#SBATCH --time=00:05:00
-#SBATCH --nodes=2
+#SBATCH --time=10:05:00
+#SBATCH --nodes=4
 #SBATCH --gres=gpu:2
 #SBATCH --mem=32000
 #SBATCH --ntasks-per-node=8
-#SBATCH --job-name="megatest"
-#SBATCH --output=gputest.log
+#SBATCH --job-name="EA NAS"
+#SBATCH --output=ea-nas-output.log
 #SBATCH --mail-user=magnuspw@stud.ntnu.no,
 #SBATCH --mail-type=ALL
 

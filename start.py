@@ -46,6 +46,8 @@ if __name__ == '__main__':
         status = "Closed"
     except Exception as e:
         status = "Crashed"
+        print("\nException caught in outermost loop:")
+        print(e)
         raise e
     finally:
         update_run(config, status)

@@ -30,7 +30,7 @@ def evolve_architecture(selection, config: Configuration):
     )
 
     # Training initial population:
-    workers.start(population, config)
+    population = workers.start(population, config)
     upload_population(population)
 
     # Running EA algorithm:
@@ -67,7 +67,7 @@ def evolve_architecture(selection, config: Configuration):
 
         # Elitism:
         population += children
-        workers.start(population, config)
+        population = workers.start(population, config)
         population = nsga_ii(
             population,
             moo.classification_objectives(config),

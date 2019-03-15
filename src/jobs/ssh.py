@@ -1,6 +1,8 @@
 import time
 import subprocess as ps
 
+from src.configuration import Server
+
 
 def read(out):
     line = out.readline()
@@ -11,9 +13,9 @@ def read(out):
     return output
 
 
-def exec_remote(server: dict, commands: [str]) -> (str, str):
+def exec_remote(server: Server, commands: [str]) -> (str, str):
     ssh_process = ps.Popen(
-        args=['ssh', "-T", '{}'.format(server)],
+        args=['ssh', "-T", '{}'.format(server.address)],
         stdin=ps.PIPE,
         stdout=ps.PIPE,
         stderr=ps.PIPE,
@@ -35,9 +37,9 @@ def exec_remote(server: dict, commands: [str]) -> (str, str):
     return stdout, stderr
 
 
-def rsync(source: str, dest: str, server: dict, to_source: bool = True):
+def rsync(source: str, dest: str, server: Server, to_source: bool = True):
     exec_remote(server, ['mkdir -r {}'.format(dest)])
-    server_address = server['address']
+    server_address = server.address
     if to_source:
         source = "/".join(source.split("/")[:-1])
         command = ['rsync', '-r', '-azh',  f"{server_address}:{dest}", source]
@@ -64,7 +66,10 @@ def rsync(source: str, dest: str, server: dict, to_source: bool = True):
     process.stderr.close()
 
 def _par_rsync(args):
-    rsync(*args)
+    import pickle
+    source, dest, server_str, to_source = args
+    server = pickle.loads(server_str)
+    rsync(source, dest, server, to_source)
 
 def rsync_parallel(transfer_args: [(str, str, dict, bool)]):
     """

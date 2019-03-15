@@ -18,8 +18,8 @@ class ComputeDevice(ValidatedInput):
     def validate(self):
         safe = self.device[0] == "/" and (
                 (
-                    self.device.strip("/").split(":")[0] == "device" and
-                    self.device.strip("/").split(":")[1] in ["CPU", "GPU"]
+                        self.device.strip("/").split(":")[0] == "device" and
+                        self.device.strip("/").split(":")[1] in ["CPU", "GPU"]
                 ) or (self.device.strip("/").split(":")[0] in ["CPU", "GPU"])
         ) and self.device.split(":")[-1].isnumeric()
 
@@ -31,13 +31,22 @@ class ComputeDevice(ValidatedInput):
 
 
 class Server(ValidatedInput):
-    def __init__(self, name: str, type: str, cwd: str, address: str = "", devices: [ComputeDevice] = None):
+    def __init__(
+            self,
+            name: str,
+            type: str,
+            cwd: str,
+            address: str = "",
+            devices: [ComputeDevice] = None,
+            python: str = "python3"
+    ):
         super().__init__()
         self.name = name
         self.type = type.lower()
         self.cwd = cwd
         self.address = address
         self.devices = devices if devices else []
+        self.python = python
         self.validate()
 
     def validate(self):
@@ -98,7 +107,7 @@ class Configuration(ValidatedInput):
                         dev["memory per process"],
                         dev["concurrency"])
                 ]
-            servers += [Server(server['name'], server['type'], server['cwd'], server['address'], compute)]
+            servers += [Server(server['name'], server['type'], server['cwd'], server['address'], compute, server['python'])]
 
         return Configuration(
             conf['dataset'],
