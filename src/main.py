@@ -26,7 +26,7 @@ def evolve_architecture(selection, config: Configuration):
         individs=config.population_size,
         in_shape=config.input_format,
         network_min_layers=3,
-        network_max_layers=10,
+        network_max_layers=30
     )
 
     # Training initial population:
@@ -46,10 +46,10 @@ def evolve_architecture(selection, config: Configuration):
         for selected in selection(population, config.population_size):
             draw = random.uniform(0, 1)
             mutated = None
-            if draw < 0.5:
+            if draw < 0.9:
                 print("    - Operation Mutation for {}".format(selected.ID))
                 mutated = mutate(selected)
-            else: # elif draw < 0.9:
+            else:  # elif draw < 0.9:
                 print("    - Creating new net randomly")
                 mutated = init_population(1, config.input_format, 3, 30)[0]
             # TODO: Replace seen_modules:
@@ -83,7 +83,11 @@ def evolve_architecture(selection, config: Configuration):
         if not config.save_all_results:
             garbage_collector.collect_garbage(removed, population, config)
         upload_population(population)
-        generation_finished(generation, population)
+        print("--> Generation {} Leaderboards:".format(generation))
+        generation_finished(population)
+        print("--> The following individs were removed by elitism:")
+        generation_finished(removed)
+
 
 
 def run(config, training_algorithm, job_start_callback, job_end_callback):

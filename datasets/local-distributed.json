@@ -8,22 +8,32 @@
   ],
   "classes": 10,
   "batch size": 40,
-  "epochs": 0.5,
-  "population size": 1,
-  "generations": 1,
-  "run id": "new",
+  "epochs": 1.5,
+  "population size": 16,
+  "generations": 30,
+  "run id": "simulation06moo",
   "keep all results": false,
-  "servers": [{
-    "name": "COMPUTE",
-    "type": "remote",
-    "cwd": "/home/magnus/projects/ea-nas",
-    "python": "/home/magnus/projects/ea-nas/venv/bin/python",
-    "address": "192.168.1.2",
-    "devices": [{
-      "device_str": "/GPU:0",
-      "allow gpu memory growth": true,
-      "memory per process": 1,
-      "concurrency": 1
-    }]
-  }]
+  "servers": [
+    {
+      "name": "ANAKIN01",
+      "type": "local",
+      "cwd": "/work/magnuspw/ea-nas",
+      "address": "anakin02.idi.ntnu.no",
+      "python": "/work/magnuspw/ea-nas/venv/bin/python",
+      "devices": [
+        {
+          "device_str": "/GPU:0",
+          "allow gpu memory growth": true,
+          "memory per process": 0.5,
+          "concurrency": 2
+        },
+        {
+          "device_str": "/GPU:1",
+          "allow gpu memory growth": true,
+          "memory per process": 0.5,
+          "concurrency": 2
+        }
+      ]
+    }
+  ]
 }

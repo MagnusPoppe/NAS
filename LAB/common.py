@@ -1,11 +1,6 @@
 import pandas as pd
 from src.buildingblocks.module import Module
-
-def load_json_config(filepath:str) -> dict:
-    import json
-    with open(filepath, "r") as f:
-        config = json.load(f)
-    return config
+from src.configuration import Configuration
 
 
 def load_module(filepath:str) -> Module:
@@ -39,21 +34,21 @@ def progress_report(report: dict, name:str) -> pd.DataFrame:
     df.columns = cols
     return df
 
+def _save_kears_model_images(individ_str: str):
+    from tensorflow import keras
+    import pickle
+    individ = pickle.loads(individ_str)
+    path = individ.absolute_save_path(config)
+    model = keras.models.load_model(os.path.join(path, "model.h5"))
+    keras.utils.plot_model(model, to_file=os.path.join(path, "img.png"))
+    return os.path.join(path, "img.png")
+
 def create_images(individs: [Module], config):
     import multiprocessing as mp
-
-    def save_kears_model_images(individ: Module):
-        from firebase.upload import save_model_image
-        from tensorflow import keras
-        path = individ.absolute_save_path(config)
-        model = keras.models.load_model(os.path.join(path, "model.h5"))
-        image_path = os.path.join(path, "img.png")
-        save_model_image(model, image_path)
-        return image_path
-
-    args = [(individ) for individ in individs]
+    import pickle
+    args = [pickle.dumps(individ) for individ in individs]
     pool = mp.Pool()
-    mapper = pool.apply_async(save_kears_model_images, args=args)
+    mapper = pool.map_async(_save_kears_model_images, args)
     pool.close()
     results = mapper.get()
     for i in range(len(individs)):
@@ -64,18 +59,19 @@ if __name__ == '__main__':
     import os
     # Usually like: ./results/<run-name>/<individ-name>/<version>/
     module_stores = [
-        "./results/8x075x250/Mai/v0/",
-        "./results/8x075x250/Mai/v2/",
-        "./results/8x075x250/Mai/v4/",
-        "./results/8x075x250/Mai/v6/"
+        "./results/simulation01/anne-sofie/v0/",
+        "./results/simulation01/anne-sofie/v2/",
+        "./results/simulation01/anne-sofie/v4/"
     ]
 
     # Configuration file:
-    config_file = "./datasets/cifar-10-mp.json"
-    config = load_json_config(config_file)
+    config_file = "./datasets/tester.json"
+    config = Configuration.from_json(config_file)
     modules = []
     for model_path in module_stores:
         module = load_module(os.path.join(model_path, "genotype.obj"))
         print("Loaded module {}".format(module.ID))
         modules += [module]
-    progress_report(modules[0].report)
+    # progress_report(modules[0].report)
+    for x in create_images(modules, config):
+        print(f"Saved image to {x.model_image_path}")

@@ -1,0 +1,29 @@
+{
+  "dataset": "CIFAR-10",
+  "trainingFilepath": "datasets/cifar10.py",
+  "input": [
+    32,
+    32,
+    3
+  ],
+  "classes": 10,
+  "batch size": 40,
+  "epochs": 1,
+  "population size": 2,
+  "generations": 10,
+  "run id": "simulation01",
+  "keep all results": false,
+  "servers": [{
+    "name": "COMPUTE",
+    "type": "local",
+    "cwd": "/Users/magnus/projects/python/EA-architecture-search",
+    "python": "/Users/magnus/projects/python/EA-architecture-search/venv/bin/python",
+    "address": "192.168.1.2",
+    "devices": [{
+      "device_str": "/GPU:0",
+      "allow gpu memory growth": true,
+      "memory per process": 1,
+      "concurrency": 1
+    }]
+  }]
+}

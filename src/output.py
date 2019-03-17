@@ -9,9 +9,7 @@ def get_improvement(individ):
     else:
         return 0
 
-def generation_finished(generation, population):
-
-    print("--> Generation {} Leaderboards:".format(generation))
+def generation_finished(population):
 
     for i, individ in enumerate(population):
         print("\t{rank}. {name}: TRN={acc}%, VAL={vacc}% \t".format(

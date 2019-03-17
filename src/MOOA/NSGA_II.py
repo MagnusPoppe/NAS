@@ -1,6 +1,8 @@
 import sys
 import functools
 
+from src.buildingblocks.module import Module
+
 
 def fast_non_dominated_sort(solutions: list, dominates: callable):
     """
@@ -75,6 +77,15 @@ def crowding_distance_assignment(solutions: list, objectives: [callable]):
             ) / (objective_max - objective_min)
 
 
+def weighted_overfit_score(x: Module):
+    keys = list(x.report.keys())
+    keys.sort()
+    test_score = x.report[keys[-1]]['weighted avg']['f1-score']
+    overfit = ((1 - abs(x.fitness[-1] - x.validation_fitness[-1])))
+
+    return (overfit * 0.60) + (test_score * 0.40)
+
+
 def nsga_ii(solutions: list, objectives: [callable], domination_operator: callable):
     """
     https://ieeexplore.ieee.org/document/996017
@@ -87,6 +98,13 @@ def nsga_ii(solutions: list, objectives: [callable], domination_operator: callab
     #     if any(x > 0.0 for key, x in list(solution.report.values())[-1] if key.isdigit()):
     #         filtered_solutions += [solution]
     # solutions = filtered_solutions
+
+    # Compatibility requirement: 10 objectives requires at least 10 objects to sort.
+    if len(solutions) < 20:
+        # Alternative sort, find the least overfitted with the best validation accuracy:
+        # inverse of overfit + validation accuracy
+        solutions.sort(key=weighted_overfit_score, reverse=False)
+        return solutions
 
     # Sorting by multiple objectives:
     frontieer = fast_non_dominated_sort(solutions, domination_operator)
