@@ -6,7 +6,7 @@ counter = 0
 
 class Conv2D(Operation):
 
-    def __init__(self, ID, kernel, filters, strides=(1, 1), activation="relu", bias=True):
+    def __init__(self, ID, kernel, filters, strides=(1, 1), activation="relu", bias=True, dropout=True, dropout_probability=0.3):
         super().__init__(ID)
         self.kernel = kernel
         self.filters = filters
@@ -14,6 +14,8 @@ class Conv2D(Operation):
         self.activation = activation
         self.padding = "same"
         self.bias = bias
+        self.dropout = dropout
+        self.dropout_probability = dropout_probability
 
     def to_keras(self):
         from tensorflow import keras
@@ -37,12 +39,12 @@ class Conv2D(Operation):
 
 class Conv3x3(Conv2D):
 
-    def __init__(self, ID=None, kernel=(3, 3), filters=50):
+    def __init__(self, ID=None, kernel=(3, 3), filters=50, dropout=True, dropout_probability=0.3):
         if not ID:
             global counter
             ID = "Conv3x3_{}".format(counter)
             counter += 1
-        super().__init__(ID, kernel, filters)
+        super().__init__(ID, kernel, filters, dropout=dropout, dropout_probability=dropout_probability)
 
     def __deepcopy__(self, memodict={}):
         return self.transfer_values(Conv3x3())
@@ -50,12 +52,12 @@ class Conv3x3(Conv2D):
 
 class Conv5x5(Conv2D):
 
-    def __init__(self, ID=None, kernel=(5, 5), filters=50):
+    def __init__(self, ID=None, kernel=(5, 5), filters=50, dropout=True, dropout_probability=0.3):
         if not ID:
             global counter
             ID = "Conv5x5_{}".format(counter)
             counter += 1
-        super().__init__(ID, kernel, filters)
+        super().__init__(ID, kernel, filters, dropout=dropout, dropout_probability=dropout_probability)
 
     def __deepcopy__(self, memodict={}):
         return self.transfer_values(Conv5x5())

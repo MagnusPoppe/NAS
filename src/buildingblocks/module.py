@@ -136,6 +136,10 @@ class Module(Base):
             except AttributeError: pass
             try: del obj.keras_tensor
             except AttributeError: pass
+            try: del obj.layer
+            except AttributeError: pass
+            try: del obj.tensor
+            except AttributeError: pass
 
         detach_keras(self)
         for child in self.children:

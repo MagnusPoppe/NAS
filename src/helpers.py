@@ -5,7 +5,7 @@ from src.buildingblocks.ops.dense import (
     DenseS as DenseSmall,
     DenseM as DenseMedium,
     DenseL as DenseLarge,
-    Dropout,
+    # Dropout,
 )
 from src.buildingblocks.ops.pooling import MaxPooling2x2, AvgPooling2x2
 
@@ -24,7 +24,7 @@ def random_sample_remove(collection: list) -> object:
 
 
 def generate_votes(weights: [(object, int)]) -> list:
-    """ 
+    """
         Converts a list of (<object>, <votes>)
         :param weights: A list of tuples containing (<object>, <votes>)
     """
@@ -45,7 +45,7 @@ OPERATORS_1D_WEIGHTS = [
     (DenseSmall, 3),
     (DenseMedium, 5),
     (DenseLarge, 7),
-    (Dropout, 5),
+    # (Dropout, 5),
 ]
 
 operators2D = generate_votes(OPERATORS_2D_WEIGHTS)
