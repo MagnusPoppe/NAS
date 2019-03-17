@@ -113,7 +113,7 @@ def nsga_ii(solutions: list, objectives: [callable], domination_operator: callab
     crowding_distance_assignment(solutions, objectives)
 
     solutions.sort(
-        reverse=True,
+        reverse=False,
         key=functools.cmp_to_key(
             lambda p, q: 1
             if p.rank < q.rank or (p.rank == q.rank and p.distance > q.distance)
