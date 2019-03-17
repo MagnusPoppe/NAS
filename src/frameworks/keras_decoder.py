@@ -4,7 +4,7 @@ from tensorflow import keras
 
 from src.buildingblocks.base import Base
 from src.buildingblocks.ops.convolution import Conv2D
-from src.buildingblocks.ops.dense import Dense, Dropout
+from src.buildingblocks.ops.dense import Dense # , Dropout
 from src.buildingblocks.module import Module
 from src.evolutionary_operations.mutation_for_operators import is1D, is2D
 from src.frameworks.common import rank_children

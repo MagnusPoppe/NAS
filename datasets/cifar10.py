@@ -92,9 +92,9 @@ def shuffle(x_train, y_train):
 
 
 def main(individ, epochs, config, device):
-    from src.frameworks.keras_decoder import assemble
+    # from src.frameworks.keras_decoder import assemble
+    from src.frameworks.keras import module_to_model as assemble
     # Setup:
-
     try:
         import setproctitle
         setproctitle.setproctitle("EA-NAS-TRAINER " + device.device)
@@ -103,7 +103,6 @@ def main(individ, epochs, config, device):
     os.environ["TF_CPP_MIN_LOG_LEVEL"] = "1"
     device_id = device.device.split(":")[-1]
     os.environ["CUDA_VISIBLE_DEVICES"] = device_id
-
 
     training, evalutation, name, inputs = configure(config.classes_in_classifier, device)
     compiled = False
@@ -126,50 +125,3 @@ def main(individ, epochs, config, device):
     )
     report = evalutation(model, device.device, compiled=True)
     return model, training_history, report
-
-
-def execnet_setup(individ_str, config_str, server_str) -> tuple:
-    import pickle
-    individ = pickle.loads(individ_str)
-    config = pickle.loads(config_str)
-    server = pickle.loads(server_str)
-    return individ, config, server
-
-
-if __name__ == "__channelexec__":
-    from firebase.upload import save_model_image
-
-    # Reading input from main process:
-    individ_str, config_str, server_str, job = channel.receive()
-    individ, config, server = execnet_setup(individ_str, config_str, server_str)
-
-    # Running training:
-    try:
-        model, training_history, after = main(individ, config, server)
-
-        # Saving keras model and image of model:
-        model_path = os.path.join(individ.absolute_save_path(config), "model.h5")
-        image_path = os.path.join(individ.absolute_save_path(config), individ.ID + ".png")
-        keras.models.save_model(model, model_path, overwrite=True, include_optimizer=True)
-        save_model_image(model, image_path)
-
-        channel.send(
-            json.dumps(
-                {
-                    "job": job,
-                    "image": image_path,
-                    "model": model_path,
-                    "accuracy": training_history["acc"],
-                    "validation accuracy": training_history["val_acc"],
-                    "loss": training_history["loss"],
-                    "validation loss": training_history["val_loss"],
-                    "eval": {
-                        "epoch": str(len(training_history) + len(individ.fitness) - 2),
-                        "accuracy": after,
-                    },
-                }
-            )
-        )
-    except Exception as e:
-        channel.send(str(e))
-

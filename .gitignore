@@ -9,6 +9,7 @@
 results/*
 firebase/secrets/*
 */.png
+tests/output/*
 
 
 # Byte-compiled / optimized / DLL files

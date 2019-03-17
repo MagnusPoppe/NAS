@@ -18,7 +18,7 @@ from src.helpers import (
 )
 from src.buildingblocks.base import Base
 from src.buildingblocks.ops.convolution import Conv2D
-from src.buildingblocks.ops.dense import Dense, Dropout
+from src.buildingblocks.ops.dense import Dense # , Dropout
 from src.buildingblocks.module import Module
 
 
@@ -39,7 +39,7 @@ def is2D(op):
 
 
 def is1D(op):
-    return isinstance(op, Dense) or isinstance(op, Dropout)
+    return isinstance(op, Dense) # or isinstance(op, Dropout)
 
 
 def get_possible_insertion_points(module: Module, operation: Base) -> (list, list):

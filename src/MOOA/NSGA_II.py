@@ -92,12 +92,6 @@ def nsga_ii(solutions: list, objectives: [callable], domination_operator: callab
     """
 
     # Removing networks without scores:
-    # TODO:
-    # filtered_solutions = []
-    # for solution in solutions:
-    #     if any(x > 0.0 for key, x in list(solution.report.values())[-1] if key.isdigit()):
-    #         filtered_solutions += [solution]
-    # solutions = filtered_solutions
 
     # Compatibility requirement: 10 objectives requires at least 10 objects to sort.
     if len(solutions) < 20:

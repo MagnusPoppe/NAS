@@ -6,7 +6,7 @@ import unittest
 from copy import deepcopy
 
 from src.frameworks.keras_decoder import assemble
-from src.buildingblocks.ops.dense import Dropout, DenseL, DenseM, DenseS
+from src.buildingblocks.ops.dense import DenseL, DenseM, DenseS #, Dropout
 from src.buildingblocks.module import Module
 from src.evolutionary_operations import mutation_for_operators as mutation_ops
 from src.frameworks.weight_transfer import transfer_predecessor_weights
