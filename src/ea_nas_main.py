@@ -9,7 +9,6 @@ from firebase.upload import update_status, upload_population
 from src.output import generation_finished
 from src.MOOA import operators as moo
 from src.MOOA.NSGA_II import nsga_ii
-# import src.jobs.TF_launcher as launcher
 import src.jobs.job_initializer as workers
 from src.jobs import garbage_collector
 

@@ -18,7 +18,7 @@ COPY ./firebase /src/firebase
 COPY ./resources /src/resources
 COPY ./src /src/src
 COPY src/jobs/tests /src/tests
-COPY ./start.py /src/start.py
+COPY start_ea_nas.py /src/start.py
 
 WORKDIR /src
 

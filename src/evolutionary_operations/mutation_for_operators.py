@@ -11,9 +11,9 @@ from src.evolutionary_operations.mutation_operators import (
 )
 from src.helpers import (
     random_sample,
-    operators,
-    operators1D,
-    operators2D,
+    operators_votes,
+    operators1D_votes,
+    operators2D_votes,
     generate_votes,
 )
 from src.buildingblocks.base import Base
@@ -90,9 +90,9 @@ def apply_mutation_operator(module: Module, operator: Base, operators: list) -> 
     if operator == "append":
         last = module.find_last()[0]
         if is1D(last):
-            operation = random_sample(operators1D)()
+            operation = random_sample(operators1D_votes)()
         else:
-            operation = random_sample(operators2D + operators1D)()
+            operation = random_sample(operators2D_votes + operators1D_votes)()
         module = append(module, operation)
 
     elif operator == "remove":
@@ -131,5 +131,5 @@ def apply_mutation_operator(module: Module, operator: Base, operators: list) -> 
 def mutate(module: Module, make_copy: bool = True) -> Module:
     # Copying module to do non-destructive changes.
     mutated = deepcopy(module) if make_copy else module
-    mutated = apply_mutation_operator(mutated, select_operator(mutated), operators)
+    mutated = apply_mutation_operator(mutated, select_operator(mutated), operators_votes)
     return mutated

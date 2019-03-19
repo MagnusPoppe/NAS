@@ -17,7 +17,7 @@ versions = {}
 def get_name_and_version(name: str) -> (str, int):
     global versions
     global names
-    name = random_sample_remove(names) if not name else name
+    name = name if name else random_sample_remove(names)
 
     if name in versions:
         version = versions[name]
