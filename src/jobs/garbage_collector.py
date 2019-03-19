@@ -72,3 +72,13 @@ def collect_garbage(delete_subset: [Module], rest_population: [Module], config: 
 #
 #     subset, population= population[:10], population[10:]
 #     collect_garbage(subset, population, config)
+
+def find_genotypes(original_path):
+    size = 0
+    for f in os.listdir(original_path):
+        n_path = os.path.join(original_path, f)
+        if f == "genotype.obj":
+            size += os.stat(n_path).st_size
+        elif os.path.isdir(n_path):
+            size += find_genotypes(n_path)
+    return size
