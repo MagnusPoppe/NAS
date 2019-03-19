@@ -32,6 +32,7 @@ def evolve_architecture(selection, config: Configuration):
     # Training initial population:
     population = workers.start(population, config)
     upload_population(population)
+    generation_finished(population, f"--> Initialization complete. Leaderboards:")
 
     # Running EA algorithm:
     for generation in range(config.generations):
@@ -52,12 +53,6 @@ def evolve_architecture(selection, config: Configuration):
             else:  # elif draw < 0.9:
                 print("    - Creating new net randomly")
                 mutated = init_population(1, config.input_format, 3, 30)[0]
-            # TODO: Replace seen_modules:
-            # else:
-            #     print("    - Sub-module insert for {}".format(selected.ID))
-            #     mutated = sub_module_insert(
-            #         selected, random_sample(seen_modules), config
-            #     )
 
             if mutated:
                 children += [mutated]
@@ -83,11 +78,8 @@ def evolve_architecture(selection, config: Configuration):
         if not config.save_all_results:
             garbage_collector.collect_garbage(removed, population, config)
         upload_population(population)
-        print("--> Generation {} Leaderboards:".format(generation))
-        generation_finished(population)
-        print("--> The following individs were removed by elitism:")
-        generation_finished(removed)
-
+        generation_finished(population, f"--> Generation {generation} Leaderboards:")
+        generation_finished(removed, "--> The following individs were removed by elitism:")
 
 
 def run(config, training_algorithm, job_start_callback, job_end_callback):

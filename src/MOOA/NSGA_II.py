@@ -83,7 +83,7 @@ def weighted_overfit_score(x: Module):
     test_score = x.report[keys[-1]]['weighted avg']['f1-score']
     overfit = ((1 - abs(x.fitness[-1] - x.validation_fitness[-1])))
 
-    return (overfit * 0.60) + (test_score * 0.40)
+    return (overfit * 0.30) + (test_score * 0.70)
 
 
 def nsga_ii(solutions: list, objectives: [callable], domination_operator: callable):

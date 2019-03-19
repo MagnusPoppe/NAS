@@ -9,9 +9,9 @@
   "classes": 10,
   "batch size": 40,
   "epochs": 1.5,
-  "population size": 16,
-  "generations": 30,
-  "run id": "simulation06moo",
+  "population size": 5,
+  "generations": 15,
+  "run id": "simulation07dropout",
   "keep all results": false,
   "servers": [
     {

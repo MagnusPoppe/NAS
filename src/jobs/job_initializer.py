@@ -58,9 +58,7 @@ def start(population: [Module], config: Configuration) -> [Module]:
     """
     # CASE 1, Runs locally:
     if len(config.servers) == 1 and config.servers[0].type == "local":
-        start = time.time()
         new_population = run_jobs(population, server_id=0, config=config)
-        print(f"    - Time used {(time.time() - start):.2f} sec")
         return new_population
 
     # CASE 2, Runs distributed:

@@ -61,6 +61,7 @@ class Module(Base):
         self.model_image_link = None
         self.saved_model = None
         self.epochs_trained = 0
+        self.transferred_knowledge_epochs = 0
 
     def __str__(self):
         return "{} [{}]".format(self.ID, ", ".join([str(c) for c in self.children]))
@@ -76,6 +77,7 @@ class Module(Base):
         # Identity and version-control:
         new_mod.name, new_mod.version = get_name_and_version(self.name)
         new_mod.ID = "{} v{}".format(new_mod.name, new_mod.version)
+        new_mod.transferred_knowledge_epochs = self.transferred_knowledge_epochs + self.epochs_trained
 
         # Connectivity:
         new_mod.predecessor = self

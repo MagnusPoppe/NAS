@@ -11,7 +11,7 @@
   "epochs": 1,
   "population size": 2,
   "generations": 10,
-  "run id": "simulation01",
+  "run id": "simulation06Dropout",
   "keep all results": false,
   "servers": [{
     "name": "mac",

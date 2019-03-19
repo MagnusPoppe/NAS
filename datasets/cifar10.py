@@ -17,7 +17,6 @@ def configure(classes, device) -> (callable, callable):
     x_test = x_test / 255
 
     y_train = keras.utils.to_categorical(y_train, num_classes=classes)
-    # y_test = keras.utils.to_categorical(y_test, num_classes=classes)
     y_val = keras.utils.to_categorical(y_val, num_classes=classes)
 
     with tf.device(device.device):
@@ -34,7 +33,7 @@ def configure(classes, device) -> (callable, callable):
         )
 
     def train(
-        model, device, epochs, batch_size=64, compiled=False, shuffle_interval=3
+        model, device, epochs, batch_size=64, compiled=False
     ):
         with tf.device(device):
             # DEFINING FUNCTIONS FOR COMPILATION
@@ -43,26 +42,18 @@ def configure(classes, device) -> (callable, callable):
                 loss = keras.losses.categorical_crossentropy
                 model.compile(loss=loss, optimizer=optimizer, metrics=["accuracy"])
 
-            history = {}
-            # for epoch in range(0, training_epochs, shuffle_interval):
-                # SHUFFLE DATASET:
-            labels, data = shuffle(x_train, y_train)
-
+            data, labels = x_train, y_train
             # RUNNING TRAINING:
             metric = model.fit(
-                data,
-                labels,
+                x=data,
+                y=labels,
                 epochs=epochs,
                 batch_size=batch_size,
                 verbose=0,
+                shuffle=True,
                 validation_data=(x_val, y_val),
             )
-            for key, value in metric.history.items():
-                try:
-                    history[key] += value
-                except KeyError:
-                    history[key] = value
-        return history
+        return metric.history
 
     def evaluate(model, device: str, compiled=True):
         with tf.device(device):
@@ -75,25 +66,27 @@ def configure(classes, device) -> (callable, callable):
             # EVALUATING
             predictions = model.predict(x_test)
             pred = np.argmax(predictions, axis=1)
-            return classification_report(y_test, pred, output_dict=True)
-
+        return classification_report(y_test, pred, output_dict=True)
     return train, evaluate, "CIFAR 10", (32, 32, 3)
 
 
-def shuffle(x_train, y_train):
-    index = np.array(list(range(len(y_train))))
-    np.random.shuffle(index)
-    data = np.zeros(x_train.shape)
-    labels = np.zeros(y_train.shape)
-    for new, old in enumerate(index):
-        data[new] = x_train[old]
-        labels[new] = y_train[old]
-    return labels, data
+def prepare_model(config, device, individ):
+    from src.frameworks.keras import module_to_model as assemble
+
+    compiled = False
+    if individ.saved_model:
+        compiled = True
+        with tf.device(device.device):
+            model = keras.models.load_model(individ.saved_model)
+    else:
+        model = assemble(individ, config.input_format, config.classes_in_classifier)
+        if individ.predecessor and individ.predecessor.saved_model:
+            predecessor_model = keras.models.load_model(individ.predecessor.saved_model)
+            transfer_model_weights(model, predecessor_model)
+    return compiled, model
 
 
 def main(individ, epochs, config, device):
-    # from src.frameworks.keras_decoder import assemble
-    from src.frameworks.keras import module_to_model as assemble
     # Setup:
     try:
         import setproctitle
@@ -105,16 +98,7 @@ def main(individ, epochs, config, device):
     os.environ["CUDA_VISIBLE_DEVICES"] = device_id
 
     training, evalutation, name, inputs = configure(config.classes_in_classifier, device)
-    compiled = False
-    if individ.saved_model:
-        compiled = True
-        with tf.device(device.device):
-            model = keras.models.load_model(individ.saved_model)
-    else:
-        model = assemble(individ, config.input_format, config.classes_in_classifier)
-        if individ.predecessor and individ.predecessor.saved_model:
-            predecessor_model = keras.models.load_model(individ.predecessor.saved_model)
-            transfer_model_weights(model, predecessor_model)
+    compiled, model = prepare_model(config, device, individ)
 
     training_history = training(
         model=model,

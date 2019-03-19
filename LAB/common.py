@@ -34,10 +34,10 @@ def progress_report(report: dict, name:str) -> pd.DataFrame:
     df.columns = cols
     return df
 
-def _save_kears_model_images(individ_str: str):
+def _save_kears_model_images(args: str):
     from tensorflow import keras
-    import pickle
-    individ = pickle.loads(individ_str)
+    import pickle, os
+    individ, config = pickle.loads(args)
     path = individ.absolute_save_path(config)
     model = keras.models.load_model(os.path.join(path, "model.h5"))
     keras.utils.plot_model(model, to_file=os.path.join(path, "img.png"))
@@ -46,7 +46,7 @@ def _save_kears_model_images(individ_str: str):
 def create_images(individs: [Module], config):
     import multiprocessing as mp
     import pickle
-    args = [pickle.dumps(individ) for individ in individs]
+    args = [pickle.dumps((individ, config)) for individ in individs]
     pool = mp.Pool()
     mapper = pool.map_async(_save_kears_model_images, args)
     pool.close()

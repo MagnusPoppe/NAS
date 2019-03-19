@@ -1,12 +1,27 @@
 from src.buildingblocks.module import Module
 from src.buildingblocks.ops.convolution import Conv2D
-from src.buildingblocks.ops.dense import Dense
+from src.buildingblocks.ops.dense import Dense, DenseS
 from tensorflow import keras
 
 from src.buildingblocks.ops.pooling import AvgPooling2x2, MaxPooling2x2
 from src.evolutionary_operations.mutation_for_operators import is2D, is1D
 
-def ensure_correct_tensor(op, inputs):
+
+def ensure_correct_tensor_by_shape(tensors):
+    def flatten(_tensors):
+        flattened = []
+        for tensor in _tensors:
+            if len(tensor.shape) > 2:
+                flattened += [keras.layers.Flatten()(tensor)]
+            else:
+                flattened += [tensor]
+        return flattened
+
+    tensors = flatten(tensors)
+    return tensors[0] if len(tensors) == 1 else keras.layers.Concatenate()(tensors)
+
+
+def ensure_correct_tensor_by_op(op, inputs):
     # Fixing previous tensors:
     # Requirements:
     # 1. Must be single tensor. Multiple tensors must be concatinated.
@@ -81,7 +96,7 @@ def build_model(op, inputs):
         return
 
     # Connecting the Keras tensor operations:
-    prev = ensure_correct_tensor(op, inputs)
+    prev = ensure_correct_tensor_by_op(op, inputs)
     op.tensor = convert_to_keras_tensor(op, prev)
 
     # Continuing work:
@@ -95,12 +110,8 @@ def build_model(op, inputs):
 
 
 def create_output_tensor(final_tensors, classes):
-    if len(final_tensors) > 1:
-        final_tensor = keras.layers.Concatenate()([tensor for tensor in final_tensors])
-    else:
-        final_tensor = final_tensors[0]
-
-    return keras.layers.Dense(units=classes, activation='softmax')(final_tensor)
+    tensor = ensure_correct_tensor_by_shape(final_tensors)
+    return keras.layers.Dense(units=classes, activation='softmax')(tensor)
 
 
 def module_to_model(module, input_shape, classes):
