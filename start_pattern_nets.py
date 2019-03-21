@@ -3,7 +3,7 @@ import sys
 import time
 
 from src.configuration import Configuration
-from src.evolutionary_operations.selection import tournament
+from src.ea_nas.evolutionary_operations.selection import tournament
 from src.pattern_nets_main import main as evolve
 
 print("\n\nEvolving architecture")

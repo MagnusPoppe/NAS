@@ -1,6 +1,6 @@
 from src.configuration import Configuration
-from src.pattern.initialization import initialize_patterns
-from src.pattern import recombination
+from src.pattern_nets.initialization import initialize_patterns
+from src.pattern_nets import recombination
 import src.jobs.job_initializer as workers
 
 def main(selection: callable, config: Configuration):

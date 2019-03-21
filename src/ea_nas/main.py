@@ -2,12 +2,12 @@ import time
 import random
 
 from src.configuration import Configuration
-from src.evolutionary_operations.initialization import init_population
-from src.evolutionary_operations.mutation_for_operators import mutate
-from src.evolutionary_operations.selection import tournament
+from src.ea_nas.evolutionary_operations.initialization import init_population
+from src.ea_nas.evolutionary_operations.mutation_for_operators import mutate
+from src.ea_nas.evolutionary_operations.selection import tournament
 from firebase.upload import update_status, upload_population
 from src.output import generation_finished
-from src.MOOA import operators as moo
+from src.ea_nas import operators as moo
 from src.MOOA.NSGA_II import nsga_ii
 import src.jobs.job_initializer as workers
 from src.jobs import garbage_collector

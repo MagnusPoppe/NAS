@@ -1,7 +1,7 @@
 import random
 
-from src.evolutionary_operations.mutation_for_operators import mutate
-from src.evolutionary_operations.mutation_operators import append
+from src.ea_nas.evolutionary_operations.mutation_for_operators import mutate
+from src.ea_nas.evolutionary_operations.mutation_operators import append
 from src.helpers import random_sample, operators1D_votes, operators2D_votes
 from src.buildingblocks.module import Module
 

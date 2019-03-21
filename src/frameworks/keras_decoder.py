@@ -3,10 +3,8 @@ from operator import attrgetter
 from tensorflow import keras
 
 from src.buildingblocks.base import Base
-from src.buildingblocks.ops.convolution import Conv2D
-from src.buildingblocks.ops.dense import Dense # , Dropout
 from src.buildingblocks.module import Module
-from src.evolutionary_operations.mutation_for_operators import is1D, is2D
+from src.ea_nas.evolutionary_operations.mutation_for_operators import is1D, is2D
 from src.frameworks.common import rank_children
 
 def assemble(module:Module, in_shape:tuple=(784,), classes:int=10, is_root:bool=True, indent=""):

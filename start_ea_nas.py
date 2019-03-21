@@ -7,10 +7,10 @@ try:
     import setproctitle
     setproctitle.setproctitle("EA-NAS-EVOLVE")
 except ImportError: pass
-from datasets import cifar10
+from src.training import cifar10
 from firebase.upload import create_new_run, update_run
 
-import src.ea_nas_main as ea_nas
+import src.ea_nas.main as ea_nas
 
 def job_start_callback(individ, config, _):
     with open(individ.relative_save_path(config) + "/genotype.obj", "wb") as f:

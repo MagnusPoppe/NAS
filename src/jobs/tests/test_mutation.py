@@ -9,7 +9,7 @@ os.chdir("..")
 from src.buildingblocks.module import Module
 from src.buildingblocks.ops import dense
 
-from src.evolutionary_operations import mutation_operators as mutation_ops, mutation_for_operators as mutation
+from src.ea_nas.evolutionary_operations import mutation_for_operators as mutation, mutation_operators as mutation_ops
 
 
 def check_for_duplicates(self, connection_list, msg):

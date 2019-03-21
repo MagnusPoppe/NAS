@@ -2,7 +2,7 @@ from random import randint
 
 from src.buildingblocks.pattern import Pattern
 from src import helpers as common
-from src.pattern.operations import connect
+from src.pattern_nets.operations import connect
 
 
 def initialize_patterns(count: int) -> [Pattern]:

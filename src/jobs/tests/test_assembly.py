@@ -3,20 +3,17 @@ import unittest
 import os
 from copy import deepcopy
 
-from src.buildingblocks.ops.dense import DenseL
-
 os.chdir("..")
 
-from datasets import cifar10
+from src.training import cifar10
 from src.buildingblocks.ops.convolution import Conv3x3
 from src.buildingblocks.ops.pooling import MaxPooling2x2, AvgPooling2x2
 
 
 from src.frameworks.keras_decoder import assemble
-from datasets.mnist import configure
 from src.buildingblocks.module import Module
 from src.buildingblocks.ops import dense
-from src.evolutionary_operations import mutation_for_operators as mutation_ops
+from src.ea_nas.evolutionary_operations import mutation_for_operators as mutation_ops
 
 
 class TestAssembly(unittest.TestCase):

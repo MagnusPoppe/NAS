@@ -2,7 +2,7 @@ import random
 from copy import deepcopy
 
 from src.buildingblocks.ops.pooling import Pooling
-from src.evolutionary_operations.mutation_operators import (
+from src.ea_nas.evolutionary_operations.mutation_operators import (
     connect,
     insert,
     remove,

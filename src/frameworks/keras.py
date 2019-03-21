@@ -1,10 +1,10 @@
 from src.buildingblocks.module import Module
 from src.buildingblocks.ops.convolution import Conv2D
-from src.buildingblocks.ops.dense import Dense, DenseS
+from src.buildingblocks.ops.dense import Dense
 from tensorflow import keras
 
 from src.buildingblocks.ops.pooling import AvgPooling2x2, MaxPooling2x2
-from src.evolutionary_operations.mutation_for_operators import is2D, is1D
+from src.ea_nas.evolutionary_operations.mutation_for_operators import is2D, is1D
 
 
 def ensure_correct_tensor_by_shape(tensors):

@@ -36,7 +36,7 @@ class Server(ValidatedInput):
             name: str,
             type: str,
             cwd: str,
-            address: str = "",
+            address: str = "localhost",
             devices: [ComputeDevice] = None,
             python: str = "python3"
     ):
@@ -107,6 +107,7 @@ class Configuration(ValidatedInput):
                         dev["memory per process"],
                         dev["concurrency"])
                 ]
+
             servers += [Server(server['name'], server['type'], server['cwd'], server['address'], compute, server['python'])]
 
         return Configuration(

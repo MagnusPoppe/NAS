@@ -1,7 +1,7 @@
 import os
 os.chdir("..")
 import unittest
-from src.pattern.initialization import initialize_patterns
+from src.pattern_nets.initialization import initialize_patterns
 
 class TestPatterns(unittest.TestCase):
 
@@ -18,6 +18,6 @@ class TestPatterns(unittest.TestCase):
         #     self.assertTrue(name not in names, "Found duplicate name...")
 
     def test_recombination(self):
-        from src.pattern import recombination
+        from src.pattern_nets import recombination
         patterns = initialize_patterns(count=10)
 
