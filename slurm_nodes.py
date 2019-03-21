@@ -23,6 +23,7 @@ def slurm_nodelist_to_list(_input):
 
         if not "[" in inn:
             server_addresses += [inn]
+            continue
 
         root, raw = inn.split("[")
         raw_ids = raw.strip("]").split(",")
@@ -94,7 +95,7 @@ for address in slurm_nodelist_to_list(arg):
         "type": "remote",
         "cwd": os.getcwd(),
         "address": address,
-        "python": os.path.join(os.getcwd(), "venv/bin/python"),
+        "python": "~/ea-nas/venv/bin/python",
         "devices": [],
     }
     gpu_strings = [g for g in out.split("\n") if g]

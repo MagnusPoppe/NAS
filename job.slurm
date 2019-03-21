@@ -1,7 +1,7 @@
 #!/bin/sh
 #SBATCH --partition=EPICALL
 #SBATCH --time=10:05:00
-#SBATCH --nodes=2
+#SBATCH --nodes=1
 #SBATCH --gres=gpu:2
 #SBATCH --mem=32000
 #SBATCH --ntasks-per-node=8
@@ -35,10 +35,8 @@ export CUDA_HOME="/usr/local/cuda-9.0"
 export LD_LIBRARY_PATH="/usr/local/cuda-9.0/lib64:$LD_LIBRARY_PATH"
 export EA_NAS_UPLOAD_TO_FIREBASE="0"
 
-source venv/bin/activate
-
 echo "-- SETTING UP SERVERS --"
-venv/bin/python slurm_nodes.py $SLURM_JOB_NODELIST "./datasets/slurm.json"
+python slurm_nodes.py $SLURM_JOB_NODELIST "./datasets/slurm.json"
 
 echo "-- OUTPUT OF MAIN PROGRAM --"; echo;
-venv/bin/python start.py ./datasets/slurm.json
+srun /home/magnuspw/ea_nas/python start.py ./datasets/slurm.json
