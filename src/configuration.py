@@ -72,19 +72,32 @@ class Configuration(ValidatedInput):
             generations: int,
             results_name: str,
             save_all_results: bool,
+            initial_min_network_size: int,
+            initial_max_network_size: int,
             servers: [Server]
     ):
         super().__init__()
+        # Dataset Properties
         self.dataset_name = dataset_name
         self.training_loop_path = training_loop_path
+
+        # Network Properties
         self.input_format = input_format
         self.classes_in_classifier = classes_in_classifier
         self.batch_size = batch_size
         self.epochs_per_layer = epochs_per_layer
+        self.min_size = initial_min_network_size
+        self.max_size = initial_max_network_size
+
+        # EA Properties
         self.population_size = population_size
         self.generations = generations
+
+        # Results properties
         self.results_name = results_name
         self.save_all_results = save_all_results
+
+        # Compute Environment:
         self.servers = servers
         self.validate()
 
@@ -111,15 +124,17 @@ class Configuration(ValidatedInput):
             servers += [Server(server['name'], server['type'], server['cwd'], server['address'], compute, server['python'])]
 
         return Configuration(
-            conf['dataset'],
-            conf['trainingFilepath'],
-            tuple(conf['input']),
-            conf['classes'],
-            conf['batch size'],
-            conf['epochs'],
-            conf['population size'],
-            conf['generations'],
-            conf['run id'],
-            conf['keep all results'],
-            servers
+            dataset_name=conf['dataset'],
+            training_loop_path=conf['trainingFilepath'],
+            input_format=tuple(conf['input']),
+            classes_in_classifier=conf['classes'],
+            batch_size=conf['batch size'],
+            epochs_per_layer=conf['epochs'],
+            population_size=conf['population size'],
+            generations=conf['generations'],
+            results_name=conf['run id'],
+            save_all_results=conf['keep all results'],
+            initial_min_network_size=conf['initial network size']['min'],
+            initial_max_network_size=conf['initial network size']['max'],
+            servers=servers
         )

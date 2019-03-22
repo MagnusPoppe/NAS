@@ -84,8 +84,13 @@ for address in slurm_nodelist_to_list(arg):
     out, err = exec_remote(
         address,
         commands=[
-            "python -c "
-            + '\'import subprocess; print(subprocess.check_output(["nvidia-smi", "-L"]))\''
+            "source ~/ea_nas/venv/bin/activate"
+            "module load GCC / 6.4.0 - 2.28",
+            "module load CUDA / 9.0.176",
+            "module load OpenMPI / 2.1.1",
+            "module load cuDNN / 7",
+            "module load Python / 3.6.3",
+            'python -c \'import subprocess; print(subprocess.check_output(["nvidia-smi", "-L"]))\''
         ],
     )
     if err:

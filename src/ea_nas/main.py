@@ -24,8 +24,8 @@ def evolve_architecture(selection, config: Configuration):
     population = init_population(
         individs=config.population_size,
         in_shape=config.input_format,
-        network_min_layers=3,
-        network_max_layers=30
+        network_min_layers=config.min_size,
+        network_max_layers=config.max_size
     )
 
     # Training initial population:
