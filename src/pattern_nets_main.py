@@ -8,11 +8,14 @@ def main(selection: callable, config: Configuration):
     patterns = initialize_patterns(config.population_size)
 
     # 2. Evaluation of initial Genepool. Fitness calculation
-    modules = recombination.combine(patterns, count=config.population_size)
-    modules = workers.start([pattern.flatten() for pattern in modules], config)
+    nets = recombination.combine_random(patterns, num_nets=3)
+    nets = workers.start([pattern.flatten() for pattern in nets], config)
 
     # 3. Evolve for x generations:
     for generation in range(config.generations):
+        nets = recombination.combine_random(patterns, num_nets=3)
+        nets = workers.start([pattern.flatten() for pattern in nets], config)
+
         # 3.1 Select some patterns for mutation. Tournament
         pass
 

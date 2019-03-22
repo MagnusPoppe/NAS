@@ -1,10 +1,13 @@
+from src.buildingblocks.base import Base
 
-def swap_if_before(a, b) -> tuple:
+
+def swap_if_before(a, b) -> (Base, Base):
     """
     :param a: Node
     :param b: Node
-    :return: True if a is before b in directed graph
+    :return: True if a is before b in directed graph genotype
     """
+
     def match(node, target):
         if target in node.prev:
             return True
@@ -12,10 +15,14 @@ def swap_if_before(a, b) -> tuple:
             match(prev, target)
             for prev in node.prev
         )
-    return b, a if match(a, b) else a, b
+
+    return (b, a) if match(a, b) else (a, b)
 
 
 def connect(a, b):
     a, b = swap_if_before(a, b)
-    a.next += [b]
-    b.prev += [a]
+
+    if not a in b.prev:
+        b.prev += [a]
+    if not b in a.next:
+        a.next += [b]

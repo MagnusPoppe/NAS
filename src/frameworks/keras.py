@@ -118,14 +118,17 @@ def module_to_model(module, input_shape, classes):
     # Preparing module:
     if any([isinstance(op, Module) for op in module.children]):
         module = module.flatten()
-    first = module.find_first()
     for op in module.children:
         op.layer = None
         op.tensor = None
 
     # Build model:
     inputs = keras.layers.Input(shape=input_shape)
-    softmax = create_output_tensor(build_model(first, inputs), classes)
+
+    out = []
+    for first in module.find_firsts():
+        out += build_model(first, inputs)
+    softmax = create_output_tensor(out, classes)
     model = keras.models.Model(inputs=[inputs], outputs=[softmax])
 
     # Clean up module:

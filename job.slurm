@@ -39,4 +39,4 @@ echo "-- SETTING UP SERVERS --"
 python slurm_nodes.py $SLURM_JOB_NODELIST "./datasets/slurm.json"
 
 echo "-- OUTPUT OF MAIN PROGRAM --"; echo;
-srun /home/magnuspw/ea_nas/python start.py ./datasets/slurm.json
+srun /home/magnuspw/ea_nas/venv/bin/python start.py ./datasets/slurm.json

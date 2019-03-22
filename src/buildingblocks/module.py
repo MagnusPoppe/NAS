@@ -14,6 +14,13 @@ names = load_name_list()
 versions = {}
 
 
+def reset_naming():
+    global versions
+    global names
+    names = load_name_list()
+    versions = {}
+
+
 def get_name_and_version(name: str) -> (str, int):
     global versions
     global names
@@ -103,21 +110,46 @@ class Module(Base):
             return operation
         return on(self.children[0])
 
+    def find_firsts(self) -> [Base]:
+        """ Finds all first nodes in module directional graph of operations """
+        def find_start(comp, seen):
+            starts = []
+            if comp in seen:
+                return starts
+            seen += [comp]
+            if comp.prev:
+                for _prev in comp.prev:
+                    starts += find_start(_prev, seen)
+            else:
+                starts += [comp]
+            return starts
+
+        start = []
+        seen = []
+        for child in self.children:
+            start += find_start(child, seen)
+        return start
+
     def find_last(self) -> [Base]:
         """ Finds all ends in the directional graph of operations """
         def find_end(comp:Base, seen) -> list:
             ends = []
-            if comp in seen: return ends
-            else:
-                seen += [comp]
-                if comp.next:
-                    for next_module in comp.next:
-                        ends += find_end(next_module, seen)
-                else:
-                    ends += [comp]
+            if comp in seen:
                 return ends
 
-        return find_end(self.children[0], [])
+            seen += [comp]
+            if comp.next:
+                for next_module in comp.next:
+                    ends += find_end(next_module, seen)
+            else:
+                ends += [comp]
+            return ends
+
+        ends = []
+        seen = []
+        for child in self.children:
+            ends += find_end(child, seen)
+        return ends
 
     def relative_save_path(self, config):
         """ Reveals the storage directory relative to work directory """
@@ -149,3 +181,34 @@ class Module(Base):
                 child.clean()
             else:
                 detach_keras(child)
+
+    def flatten(self):
+        import copy
+        from src.pattern_nets.operations import connect
+        clone = copy.deepcopy(self)
+        children = []
+        for sub in clone.children:
+            children += sub.children
+
+        for module in clone.children:
+            if module.prev:
+                first_list = module.find_firsts()
+                for _prev in module.prev:
+                    for last in _prev.find_last():
+                        for first in first_list:
+                            if not last in first.prev: first.prev += [last]
+                            if not first in last.next: last.next += [first]
+            if module.next:
+                last_list = module.find_last()
+                for _next in module.next:
+                    for first in _next.find_firsts():
+                        for last in last_list:
+                            if last in first.next or first in last.prev:
+                                temp = last
+                                last = first
+                                first = temp
+                            if not last in first.prev: first.prev += [last]
+                            if not first in last.next: last.next += [first]
+
+        clone.children = children
+        return clone
