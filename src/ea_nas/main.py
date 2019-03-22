@@ -35,6 +35,8 @@ def evolve_architecture(selection, config: Configuration):
 
     # Running EA algorithm:
     for generation in range(config.generations):
+        config.generation = generation
+
         # Preparation:
         print("\nGeneration", generation)
         builtins.generation = generation
@@ -81,7 +83,7 @@ def evolve_architecture(selection, config: Configuration):
         generation_finished(removed, "--> The following individs were removed by elitism:")
 
 
-def run(config, training_algorithm, job_start_callback, job_end_callback):
+def run(config):
     print("\n\nEvolving architecture")
     start_time = time.time()
 

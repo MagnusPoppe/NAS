@@ -11,20 +11,28 @@
   "epochs": 0,
   "population size": 1,
   "generations": 1,
+  "initial network size": {
+    "min": 1,
+    "max": 4
+  },
   "run id": "simulation01",
   "keep all results": false,
-  "servers": [{
-    "name": "COMPUTE",
-    "type": "local",
-    "cwd": "/Users/magnus/projects/python/nas",
-    "python": "/Users/magnus/projects/python/nas/venv/bin/python",
-    "address": "localhost",
-    "devices": [{
-      "device_str": "/CPU:0",
-      "allow gpu memory growth": true,
-      "memory per process": 1,
-      "concurrency": 1
-    }]
-  }]
+  "servers": [
+    {
+      "name": "COMPUTE",
+      "type": "local",
+      "cwd": "/Users/magnus/Projects/Python/EA-architecture-search",
+      "python": "python",
+      "address": "localhost",
+      "devices": [
+        {
+          "device_str": "/CPU:0",
+          "allow gpu memory growth": true,
+          "memory per process": 1,
+          "concurrency": 1
+        }
+      ]
+    }
+  ]
 }
 

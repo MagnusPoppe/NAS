@@ -40,7 +40,7 @@ if __name__ == '__main__':
         config.results_name = run_id
     status = "Running"
     try:
-        ea_nas.run(config, cifar10, job_start_callback, job_end_callback)
+        ea_nas.run(config)
         status = "Finished"
     except KeyboardInterrupt:
         status = "Closed"

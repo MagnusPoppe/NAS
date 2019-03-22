@@ -90,14 +90,16 @@ class Configuration(ValidatedInput):
         self.max_size = initial_max_network_size
 
         # EA Properties
-        self.population_size = population_size
+        self.generation = 0
         self.generations = generations
+        self.population_size = population_size
 
         # Results properties
         self.results_name = results_name
         self.save_all_results = save_all_results
 
         # Compute Environment:
+        self.MPI = False
         self.servers = servers
         self.validate()
 

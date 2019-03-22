@@ -124,7 +124,7 @@ def unpack_arguments_and_run(args):
     }
 
 
-def run_jobs(population, server_id, config):
+def run_jobs(population, server_id, config, verbose=True):
     start = time.time()
     server_args, epochs = pack_args(population, server_id, config)
     print(f"--> Running {epochs} epoch(s) of training for {len(population)} phenotype(s)")
@@ -162,10 +162,11 @@ def run_jobs(population, server_id, config):
         timer['Training'] += [res['timer']['Training']]
         timer['WriteToDisk'] += [res['timer']['WriteToDisk']]
 
-    print("--> Finished Training. Time usage:")
-    print(f"    - Average Training:      {sum(timer['Training']) / len(timer['Training']):.2} sec")
-    print(f"    - Average Write to disk: {sum(timer['WriteToDisk']) / len(timer['WriteToDisk']):.2} sec")
-    print(f"    - Total Training:        {sum(timer['Training']):.2} sec")
-    print(f"    - Total Write to disk:   {sum(timer['WriteToDisk']):.2} sec")
-    print(f"    - Total:                 {time.time() - start:.2} sec")
+    if verbose:
+        print("--> Finished Training. Time usage:")
+        print(f"    - Average Training:      {sum(timer['Training']) / len(timer['Training']):.2} sec")
+        print(f"    - Average Write to disk: {sum(timer['WriteToDisk']) / len(timer['WriteToDisk']):.2} sec")
+        print(f"    - Total Training:        {sum(timer['Training']):.2} sec")
+        print(f"    - Total Write to disk:   {sum(timer['WriteToDisk']):.2} sec")
+        print(f"    - Total:                 {time.time() - start:.2} sec")
     return population
