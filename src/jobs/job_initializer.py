@@ -81,7 +81,7 @@ def start(population: [Module], config: Configuration) -> [Module]:
 
     if config.MPI:
         from start_ea_nas_mpi import distribute_with_mpi
-        new_population = distribute_with_mpi(workloads)
+        new_population = distribute_with_mpi(workloads, config)
     else:
         from src.jobs.launch_remote import distribute_with_execnet
         new_population = distribute_with_execnet(config, workloads)

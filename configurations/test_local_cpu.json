@@ -21,7 +21,7 @@
     {
       "name": "COMPUTE",
       "type": "local",
-      "cwd": "/Users/magnus/Projects/Python/EA-architecture-search",
+      "cwd": "/home/magnuspw/ea_nas",
       "python": "python",
       "address": "localhost",
       "devices": [
