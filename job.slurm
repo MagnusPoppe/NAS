@@ -1,10 +1,10 @@
 #!/bin/sh
 #SBATCH --partition=EPICALL
-#SBATCH --time=10:05:00
-#SBATCH --nodes=1
+#SBATCH --time=1-10:00:00
+#SBATCH --nodes=18
 #SBATCH --gres=gpu:2
 #SBATCH --mem=32000
-#SBATCH --ntasks-per-node=8
+#SBATCH --ntasks-per-node=1
 #SBATCH --job-name="EA NAS"
 #SBATCH --output=ea-nas-output.log
 #SBATCH --mail-user=magnuspw@stud.ntnu.no,
@@ -39,4 +39,4 @@ echo "-- SETTING UP SERVERS --"
 python slurm_nodes.py $SLURM_JOB_NODELIST "./datasets/slurm.json"
 
 echo "-- OUTPUT OF MAIN PROGRAM --"; echo;
-srun /home/magnuspw/ea_nas/venv/bin/python slurm_tester.py ./datasets/slurm.json
+mpirun -n $SLURM_JOB_NUM_NODES /home/magnuspw/ea_nas/venv/bin/python start_ea_nas_mpi.py ./configurations/slurm.json
