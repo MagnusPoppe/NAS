@@ -116,8 +116,6 @@ def create_output_tensor(final_tensors, classes):
 
 def module_to_model(module, input_shape, classes):
     # Preparing module:
-    if any([isinstance(op, Module) for op in module.children]):
-        module = module.flatten()
     for op in module.children:
         op.layer = None
         op.tensor = None

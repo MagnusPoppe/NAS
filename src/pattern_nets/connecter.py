@@ -63,8 +63,8 @@ def island_join(patterns):
     # Assign island connections:
     islands = [find_islands(pattern) for pattern in patterns]
     for i in range(1, len(patterns)):
-        current, c_island = patterns[i-1], islands[i-1]
-        next,    n_island = patterns[i], islands[i]
+        c_island = islands[i-1]
+        n_island = islands[i]
 
         # Assign which island connects to which
         if len(c_island) == 1 and len(n_island) == 1:
@@ -76,15 +76,20 @@ def island_join(patterns):
         else:
             reverse = len(c_island) > len(n_island)
             connections = []
-            selectable = randomized_index(n_island) if not reverse else randomized_index(c_island)
+            selectable = randomized_index(n_island if not reverse else c_island)
             for c in (range(len(c_island)) if not reverse else range(len(n_island))):
                 if len(selectable) == 0:
                     selectable = randomized_index(n_island if not reverse else c_island)
                 n, selectable = selectable[0], selectable[1:]
-                connections += [(c, n)]
+                connections += [(c, n) if not reverse else (n, c)]
 
-        # Perform connections:
+        # Connect up the different patterns:
+        ops = []
         for c, n in connections:
             _, c_ends = find_ends(c_island[c])
             n_ends, _ = find_ends(n_island[n])
-            pass
+            for c_end in c_ends:
+                for n_end in n_ends:
+                    n_end.next += [c_end] if c_end not in n_end.next else []
+                    c_end.prev += [n_end] if n_end not in c_end.prev else []
+                    ops += [c_end, n_end]

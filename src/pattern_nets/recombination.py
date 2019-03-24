@@ -1,9 +1,10 @@
+import copy
+
 import numpy as np
 
 from src.buildingblocks.module import Module
 from src.buildingblocks.pattern import Pattern
 from src.pattern_nets import connecter
-from src.pattern_nets.operations import connect
 
 
 def draw_almost_random_net(nets, max_size, avoid=None):
@@ -18,7 +19,7 @@ def draw_almost_random_net(nets, max_size, avoid=None):
     distribution = []
     for i, net in enumerate(nets):
         distribution += [net] * int(probabilities[i] * 100)
-    return distribution[np.random.randint(0, len(distribution))]
+    return distribution[np.random.randint(0, len(distribution))] if distribution else None
 
 
 def combine_random(patterns: [Pattern], num_nets: int, max_size: int, redraw: bool = False) -> [Module]:
@@ -39,7 +40,7 @@ def combine_random(patterns: [Pattern], num_nets: int, max_size: int, redraw: bo
     # Assigning patterns to nets:
     while len(draw) > 0 or redraw:
         index, draw = draw[0], draw[1:]
-        pattern = patterns[index]
+        pattern = copy.deepcopy(patterns[index])
         net = draw_almost_random_net(nets, max_size=max_size)
         if not net:
             break
