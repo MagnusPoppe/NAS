@@ -1,12 +1,12 @@
 #!/bin/sh
 #SBATCH --partition=EPICALL
-#SBATCH --time=1-10:00:00
-#SBATCH --nodes=16
+#SBATCH --time=3-0:00:00
+#SBATCH --nodes=6
 #SBATCH --gres=gpu:2
 #SBATCH --mem=32000
 #SBATCH --ntasks-per-node=1
 #SBATCH --job-name="EA NAS"
-#SBATCH --output=slurm-output.log
+#SBATCH --output=output.log
 #SBATCH --mail-user=magnuspw@stud.ntnu.no,
 #SBATCH --mail-type=ALL
 
@@ -35,8 +35,8 @@ module load Python/3.6.3
 # export LD_LIBRARY_PATH="/usr/local/cuda-9.0/lib64:$LD_LIBRARY_PATH"
 export EA_NAS_UPLOAD_TO_FIREBASE="0"
 
-# echo "-- SETTING UP SERVERS --"; echo;
-# venv/bin/python slurm_nodes.py $SLURM_JOB_NODELIST "./datasets/slurm.json"
+echo "-- SETTING UP SERVERS --"; echo;
+venv/bin/python slurm_nodes.py $SLURM_JOB_NODELIST "./configurations/slurm.json"
 
 echo "-- OUTPUT OF MAIN PROGRAM --"; echo;
 mpirun -n $SLURM_JOB_NUM_NODES venv/bin/python start_ea_nas_mpi.py ./configurations/slurm.json

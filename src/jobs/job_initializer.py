@@ -69,7 +69,7 @@ def start(population: [Module], config: Configuration) -> [Module]:
     training_str = f"--> Training on {len(workloads)} servers. {avg_work} networks/server"
 
     # 2. Transfer necessary data to each node (model.h5 files)
-    if config.servers[0].type == "remote":
+    if not config.MPI and config.servers[0].type == "remote":
         start = time.time()
         print("--> Distributing files to hosts", end="")
         rsync_parallel(transfer_args(workloads, config, to_source=False))
@@ -89,7 +89,7 @@ def start(population: [Module], config: Configuration) -> [Module]:
     print(time_str(start, training_str, offset=0))
 
     # 5. Gather files produced on remote server
-    if config.servers[0].type == "remote":
+    if not config.MPI and config.servers[0].type == "remote":
         start = time.time()
         print("--> Gathering files from hosts", end="")
         rsync_parallel(transfer_args(workloads, config, to_source=True))

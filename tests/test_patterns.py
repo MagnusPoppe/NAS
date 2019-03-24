@@ -1,6 +1,3 @@
-import os
-
-os.chdir("..")
 import unittest
 from src.pattern_nets.initialization import initialize_patterns
 
@@ -45,4 +42,26 @@ class TestPatterns(unittest.TestCase):
                     self.assertTrue(module.next or module.prev, "No dangling operations in nets...")
 
     def test_3_converts_to_keras_model(self):
-        pass
+        import pickle, multiprocessing as mp
+        from src.pattern_nets import recombination
+        patterns = initialize_patterns(count=5)
+        nets = recombination.combine_random(patterns, num_nets=2, max_size=3)
+
+        for net in nets:
+            from src.frameworks.keras import module_to_model
+            model = module_to_model(net, [32, 32, 3], 10)
+            shape = model.output.shape
+            # Checking for model outputs if they are shaped correctly:
+            self.assertEqual(len(shape), 2, "Wrong shape of returned shape...")
+            self.assertTrue(shape[0] is None, "Shape part 1 should be None...")
+            self.assertEqual(shape[1], 10, "Shape part 2 should match classes...")
+
+def parallel_reciever(args):
+    import pickle
+    import os
+    os.environ['TF_CPP_MIN_LOG_LEVEL'] = "1"
+    from src.frameworks.keras import module_to_model
+    module, in_shape, classes = pickle.loads(args)
+    model = module_to_model(module, in_shape, classes)
+    print("=", end="", flush=True)
+    return [shape.value for shape in model.output.shape]
