@@ -33,7 +33,7 @@ scipy==1.2.1
 setproctitle==1.1.10
 six==1.12.0
 tensorboard==1.10.0
-tensorflow==1.10.1
+tensorflow-gpu==1.10.1
 termcolor==1.1.0
 urllib3==1.24.1
 Werkzeug==0.14.1

@@ -1,5 +1,44 @@
 import unittest
+
+from src.buildingblocks.ops.operation import Operation
 from src.pattern_nets.initialization import initialize_patterns
+
+
+def find_islands(pattern):
+    """ Looks for completely separate children,
+        Where there are no connections inbetween
+    """
+    def find_members(child, seen):
+        if child in seen:
+            return []
+        members = [child]
+        seen += [child]
+        for p in child.prev:
+            members += find_members(p, seen)
+        for n in child.next:
+            members += find_members(n, seen)
+        return members
+
+    islands = []
+    seen = []
+    for child in pattern.children:
+        if child in seen:
+            continue
+        members = find_members(child, [])
+        islands += [members]
+        seen += members
+    return islands
+
+
+def find_all_behind(op, seen):
+    if op in seen:
+        return []
+    seen += [op]
+    behind = []
+    for prev in op.prev:
+        behind += [prev] + find_all_behind(prev, seen)
+    return behind
+
 
 
 class TestPatterns(unittest.TestCase):
@@ -8,12 +47,17 @@ class TestPatterns(unittest.TestCase):
         from src.buildingblocks.module import reset_naming
         reset_naming()
 
+    # @unittest.skip("Working on test-3")
     def test_1_initialization(self):
         from src.ea_nas.evolutionary_operations.mutation_for_operators import is1D, is2D
-        def discover_cycle(current):
+        def discover_cycle(current, i, max_rounds):
+            high = 0
+            if i >= max_rounds:
+                return i
             if current.next:
                 for nex in current.next:
-                    discover_cycle(nex)
+                    high = max(i, discover_cycle(nex, i+1, max_rounds))
+            return high
 
         patterns = initialize_patterns(count=20)
         for pattern in patterns:
@@ -25,16 +69,15 @@ class TestPatterns(unittest.TestCase):
                     self.assertTrue(is1D(op))
                 if pattern.type == "2D":
                     self.assertTrue(is2D(op))
-
-            # Has no cycles:
+                # Has no cycles:
+                self.assertLess(discover_cycle(op, 0, 6), 6, "Has cycles... ")
 
 
     def test_2_recombination(self):
-        from src.ea_nas.evolutionary_operations.mutation_for_operators import is1D, is2D
-        from src.pattern_nets import recombination
-        from src.pattern_nets.connecter import find_islands
+        from src.ea_nas.evolutionary_operations.mutation_for_operators import is2D
+        from src.pattern_nets import combiner
         patterns = initialize_patterns(count=1000)
-        nets = recombination.combine_random(patterns, num_nets=50, max_size=50)
+        nets = combiner.combine(patterns, num_nets=50, min_size=10, max_size=100)
 
         for net in nets:
             self.assertGreater(len(net.children), 0, "Should be operations in the nets.")
@@ -44,28 +87,25 @@ class TestPatterns(unittest.TestCase):
                     all(x in net.children for island in islands for x in island),
                     "This network is connected to operations which are not children of this network... "
                 )
+            for op in net.children:
+                self.assertTrue(isinstance(op, Operation), "Only operations in net, no modules or patterns...")
+                if is2D(op):
+                    behind = find_all_behind(op, [])
+                    self.assertTrue(all([is2D(b) for b in behind]), "No 1D before 2D")
 
     def test_3_converts_to_keras_model(self):
-        import pickle, multiprocessing as mp
-        from src.pattern_nets import recombination
-        patterns = initialize_patterns(count=5)
-        nets = recombination.combine_random(patterns, num_nets=2, max_size=3)
+        from src.pattern_nets import combiner
+        patterns = initialize_patterns(count=1000)
+        nets = combiner.combine(patterns, num_nets=1, min_size=20, max_size=59)
 
         for net in nets:
             from src.frameworks.keras import module_to_model
+            from tensorflow import keras
             model = module_to_model(net, [32, 32, 3], 10)
+            keras.utils.plot_model(model, to_file=f"tests/output/{net.ID}.png")
             shape = model.output.shape
+
             # Checking for model outputs if they are shaped correctly:
             self.assertEqual(len(shape), 2, "Wrong shape of returned shape...")
-            self.assertTrue(shape[0] is None, "Shape part 0 should be None...")
-            self.assertEqual(shape[1], 10, "Shape part 2 should match classes...")
-
-def parallel_reciever(args):
-    import pickle
-    import os
-    os.environ['TF_CPP_MIN_LOG_LEVEL'] = "1"
-    from src.frameworks.keras import module_to_model
-    module, in_shape, classes = pickle.loads(args)
-    model = module_to_model(module, in_shape, classes)
-    print("=", end="", flush=True)
-    return [shape.value for shape in model.output.shape]
+            self.assertTrue(shape[0].value is None, "Shape part 0 should be None...")
+            self.assertEqual(shape[1].value, 10, "Shape part 2 should match classes...")

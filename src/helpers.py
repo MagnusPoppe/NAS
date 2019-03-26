@@ -23,6 +23,14 @@ def random_sample_remove(collection: list) -> object:
     return elem
 
 
+def randomized_index(li: [], index_size: int = 0):
+    import numpy as np
+    index_size = len(li) if index_size == 0 else index_size
+    draw = np.arange(len(li))
+    np.random.shuffle(draw)
+    return draw[:index_size]
+
+
 def generate_votes(weights: [(object, int)]) -> list:
     """
         Converts a list of (<object>, <votes>)
