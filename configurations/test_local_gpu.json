@@ -9,8 +9,8 @@
   "classes": 10,
   "batch size": 300,
   "epochs": 0,
-  "population size": 1,
-  "generations": 1,
+  "population size": 2,
+  "generations": 3,
   "initial network size": {
     "min": 1,
     "max": 4

@@ -24,6 +24,9 @@ def reset_naming():
 def get_name_and_version(name: str) -> (str, int):
     global versions
     global names
+    if len(names) == 0:
+        reset_naming()
+
     name = name if name else random_sample_remove(names)
 
     if name in versions:
@@ -73,12 +76,12 @@ class Module(Base):
     def __str__(self):
         return "{} [{}]".format(self.ID, ", ".join([str(c) for c in self.children]))
 
-    def __deepcopy__(self, memodict={}):
+    def __deepcopy__(self, memodict={}, clone=None):
         """ Does not retain connectivity on module level. """
         from copy import deepcopy
 
         # Core values:
-        new_mod = Module(self.name)
+        new_mod = clone if clone else Module(self.name)
         new_mod.logs = deepcopy(self.logs)
 
         # Identity and version-control:

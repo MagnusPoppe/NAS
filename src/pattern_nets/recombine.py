@@ -1,3 +1,5 @@
+import sys
+
 import copy
 import random
 
@@ -34,11 +36,13 @@ def get_connections_between(island_c, island_n):
 
 
 def combine(patterns, num_nets, min_size, max_size):
+    if (num_nets * min_size) < len(patterns):
+        raise ValueError("(Number of networks * minimum size) not big enough to fit all patterns.")
     nets = []
+    draw = randomized_index(patterns)
     for i in range(num_nets):
         # Setup:
         net = Module()
-        draw = randomized_index(patterns)
 
         for _ in range(random.randint(min_size, max_size)):
             # Selecting random patterns:
@@ -47,7 +51,8 @@ def combine(patterns, num_nets, min_size, max_size):
             # Adding to net:
             net.children += [copy.deepcopy(pattern)]
             if len(draw) == 0:
-                break
+                draw = randomized_index(patterns)
+                break  # --> Cannot use same pattern twice in a network...
 
         # Placing 2D layers first:
         net.children.sort(key=lambda x: 0 if x.type == "2D" else 1)
@@ -69,12 +74,25 @@ def combine(patterns, num_nets, min_size, max_size):
 
             # Applying connections:
             for xx, yy in connections:
-                last[xx].next.append(first[yy])
-                first[yy].prev.append(last[xx])
+                last[xx].next += [first[yy]]
+                first[yy].prev += [last[xx]]
 
             # New children:
             ops += x.children
-        net.children = ops + y.children
+        ops += y.children
+
+        # Setting parent for re-traceability:
+        for pattern in net.children:
+            for op in pattern.children:
+                op.parent = pattern
+
+        net.patterns = net.children
+        net.children = ops
+
+        # Logging distance from net start to pattern start normalized by total distance
+        for dist, pattern in enumerate(net.patterns):
+            pattern.distance = dist / len(net.patterns)
+
         # Done
         nets += [net]
 

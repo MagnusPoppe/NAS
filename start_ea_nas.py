@@ -35,6 +35,7 @@ if __name__ == '__main__':
         raise IOError("File {} does not exist!".format(sys.argv[1]))
 
     config = Configuration.from_json(sys.argv[1])
+    config.type = "ea-nas"
     run_id = create_new_run(config)
     if run_id:
         config.results_name = run_id

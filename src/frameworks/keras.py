@@ -84,8 +84,12 @@ def convert_to_keras_tensor(op, prev):
         raise NotImplementedError("Found an unknown op...")
 
     tensor = op.layer(prev)
+
+    # Applying regularizer:
     if (isinstance(op, Dense) or isinstance(op, Conv2D)) and op.dropout:
         tensor = keras.layers.Dropout(rate=op.dropout_probability)(tensor)
+    elif isinstance(op, Conv2D) and op.batch_norm:
+        tensor = keras.layers.BatchNormalization(axis=1)(tensor)
     return tensor
 
 

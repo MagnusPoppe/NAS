@@ -66,6 +66,7 @@ def main():
     # Setting up config with MPI:
     config = Configuration.from_json(sys.argv[1])
     config.MPI = True
+    config.type = "ea-nas"
 
     import subprocess as ps
     host = ps.check_output("hostname")

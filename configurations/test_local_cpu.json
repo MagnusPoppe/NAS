@@ -9,11 +9,11 @@
   "classes": 10,
   "batch size": 300,
   "epochs": 0,
-  "population size": 1,
-  "generations": 1,
+  "population size": 10,
+  "generations": 1000,
   "initial network size": {
-    "min": 1,
-    "max": 4
+    "min": 5,
+    "max": 8
   },
   "run id": "simulation01",
   "keep all results": false,
@@ -21,7 +21,7 @@
     {
       "name": "COMPUTE",
       "type": "local",
-      "cwd": "/home/magnuspw/ea_nas",
+      "cwd": "/Users/magnus/Projects/Python/nas",
       "python": "python",
       "address": "localhost",
       "devices": [
@@ -29,7 +29,7 @@
           "device_str": "/CPU:0",
           "allow gpu memory growth": true,
           "memory per process": 1,
-          "concurrency": 1
+          "concurrency": 2
         }
       ]
     }

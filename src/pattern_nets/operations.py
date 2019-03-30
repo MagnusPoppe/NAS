@@ -1,7 +1,7 @@
 from src.buildingblocks.base import Base
 
 
-def swap_if_before(a, b) -> (Base, Base):
+def is_before(a, b) -> (Base, Base):
     """
     :param a: Node
     :param b: Node
@@ -15,12 +15,12 @@ def swap_if_before(a, b) -> (Base, Base):
             match(prev, target)
             for prev in node.prev
         )
+    return match(a, b)
 
-    return (b, a) if match(a, b) else (a, b)
 
 
 def connect(a, b):
-    a, b = swap_if_before(a, b)
+    a, b = (b, a) if a .is_before(a, b) else (a, b)
 
     if not a in b.prev:
         b.prev += [a]

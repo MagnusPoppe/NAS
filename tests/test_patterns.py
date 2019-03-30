@@ -8,6 +8,7 @@ def find_islands(pattern):
     """ Looks for completely separate children,
         Where there are no connections inbetween
     """
+
     def find_members(child, seen):
         if child in seen:
             return []
@@ -40,7 +41,6 @@ def find_all_behind(op, seen):
     return behind
 
 
-
 class TestPatterns(unittest.TestCase):
 
     def setUp(self):
@@ -56,7 +56,7 @@ class TestPatterns(unittest.TestCase):
                 return i
             if current.next:
                 for nex in current.next:
-                    high = max(i, discover_cycle(nex, i+1, max_rounds))
+                    high = max(i, discover_cycle(nex, i + 1, max_rounds))
             return high
 
         patterns = initialize_patterns(count=20)
@@ -72,12 +72,11 @@ class TestPatterns(unittest.TestCase):
                 # Has no cycles:
                 self.assertLess(discover_cycle(op, 0, 6), 6, "Has cycles... ")
 
-
     def test_2_recombination(self):
         from src.ea_nas.evolutionary_operations.mutation_for_operators import is2D
-        from src.pattern_nets import combiner
-        patterns = initialize_patterns(count=1000)
-        nets = combiner.combine(patterns, num_nets=50, min_size=10, max_size=100)
+        from src.pattern_nets import recombine
+        patterns = initialize_patterns(count=400)
+        nets = recombine.combine(patterns, num_nets=50, min_size=10, max_size=100)
 
         for net in nets:
             self.assertGreater(len(net.children), 0, "Should be operations in the nets.")
@@ -94,18 +93,25 @@ class TestPatterns(unittest.TestCase):
                     self.assertTrue(all([is2D(b) for b in behind]), "No 1D before 2D")
 
     def test_3_converts_to_keras_model(self):
-        from src.pattern_nets import combiner
-        patterns = initialize_patterns(count=1000)
-        nets = combiner.combine(patterns, num_nets=1, min_size=20, max_size=59)
+        from src.pattern_nets import recombine
+        from src.frameworks.keras import module_to_model
+        from tensorflow import keras
+        patterns = initialize_patterns(count=50)
+        nets = recombine.combine(patterns, num_nets=5, min_size=20, max_size=50)
 
         for net in nets:
-            from src.frameworks.keras import module_to_model
-            from tensorflow import keras
+            # Creating model from patterns:
             model = module_to_model(net, [32, 32, 3], 10)
+
+            # Compiling and plotting:
+            model.compile(
+                loss=keras.losses.categorical_crossentropy,
+                optimizer=keras.optimizers.Adam(lr=0.001)
+            )
             keras.utils.plot_model(model, to_file=f"tests/output/{net.ID}.png")
-            shape = model.output.shape
 
             # Checking for model outputs if they are shaped correctly:
+            shape = model.output.shape
             self.assertEqual(len(shape), 2, "Wrong shape of returned shape...")
             self.assertTrue(shape[0].value is None, "Shape part 0 should be None...")
             self.assertEqual(shape[1].value, 10, "Shape part 2 should match classes...")

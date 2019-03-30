@@ -72,7 +72,7 @@ def pack_args(population, server_id, config: Configuration):
 
 
 def unpack_arguments_and_run(args):
-    timings = {'Training': 0, 'WriteToDisk': 0}
+    timings = {'Training': 0.0, 'WriteToDisk': 0.0}
     # Unpacking arguments:
     individ_bytes, config_str, epochs, server_id, device_id, job_id = args
     individ = pickle.loads(individ_bytes)
@@ -103,8 +103,8 @@ def unpack_arguments_and_run(args):
     model_path = try_save_model(model, model_path, individ.ID)
 
     try:
-        from firebase.upload import save_model_image
-        save_model_image(model, image_path)
+        from tensorflow import keras
+        keras.utils.plot_model(model, to_file=image_path)
     except Exception: pass
     timings['WriteToDisk'] += time.time() - start
 

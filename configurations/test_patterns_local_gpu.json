@@ -9,10 +9,10 @@
   "classes": 10,
   "batch size": 300,
   "epochs": 0,
-  "population size": 5,
-  "generations": 1,
+  "population size": 6,
+  "generations": 10000,
   "initial network size": {
-    "min": 2,
+    "min": 3,
     "max": 5
   },
   "run id": "simulation01",
