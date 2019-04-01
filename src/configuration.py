@@ -63,7 +63,8 @@ class Configuration(ValidatedInput):
     def __init__(
             self,
             dataset_name: str,
-            training_loop_path: str,
+            dataset_file_path: str,
+            dataset_file_name: str,
             input_format: (int,),
             classes_in_classifier: int,
             batch_size: int,
@@ -79,7 +80,8 @@ class Configuration(ValidatedInput):
         super().__init__()
         # Dataset Properties
         self.dataset_name = dataset_name
-        self.training_loop_path = training_loop_path
+        self.dataset_file_path = dataset_file_path
+        self.dataset_file_name = dataset_file_name
 
         # Network Properties
         self.input_format = input_format
@@ -127,7 +129,8 @@ class Configuration(ValidatedInput):
 
         return Configuration(
             dataset_name=conf['dataset'],
-            training_loop_path=conf['trainingFilepath'],
+            dataset_file_path=conf['dataset path'],
+            dataset_file_name=conf['dataset name'],
             input_format=tuple(conf['input']),
             classes_in_classifier=conf['classes'],
             batch_size=conf['batch size'],

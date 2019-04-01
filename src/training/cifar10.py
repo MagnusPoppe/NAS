@@ -1,7 +1,6 @@
 import tensorflow as tf
 from tensorflow import keras
 import numpy as np
-import json
 import os
 from sklearn.metrics import classification_report
 
@@ -84,6 +83,7 @@ def prepare_model(config, device, individ):
             transfer_model_weights(model, predecessor_model)
     return compiled, model
 
+
 def prepare_pattern_model(config, device, individ):
     from src.frameworks.keras import module_to_model as assemble
     model = assemble(individ, config.input_format, config.classes_in_classifier)
@@ -94,16 +94,6 @@ def prepare_pattern_model(config, device, individ):
 
 
 def main(individ, epochs, config, device):
-    # Setup:
-    try:
-        import setproctitle
-        setproctitle.setproctitle("EA-NAS-TRAINER " + device.device)
-    except ImportError:
-        pass
-    os.environ["TF_CPP_MIN_LOG_LEVEL"] = "1"
-    device_id = device.device.split(":")[-1]
-    os.environ["CUDA_VISIBLE_DEVICES"] = device_id
-
     training, evalutation, name, inputs = configure(config.classes_in_classifier, device)
 
     preparation = prepare_pattern_model if config.type == "PatternNets" else prepare_model

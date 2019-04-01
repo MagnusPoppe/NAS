@@ -22,7 +22,7 @@ def swap_op(pattern):
         else random_sample(operators1D_votes)
 
     new_op = new_op_class()
-    old_op = random_sample_remove(pattern.children) # type: Operation
+    old_op = random_sample_remove(pattern.children)  # type: Operation
     new_op.inherit_connectivity_from(old_op)
     pattern.children += [new_op]
     return pattern
@@ -31,12 +31,14 @@ def swap_op(pattern):
 def apply(patterns):
     mutated = []
     for i, pattern in enumerate(patterns):
-        if len(pattern.children) < 2:
+        if len(pattern.children) <= 2:
             operators = [swap_op]
         else:
             operators = [remove_op]  # , change_connection ]
 
         p = copy.deepcopy(pattern)
+        for op in p.children:
+            op.set_new_id()
         operator = operators[i % len(operators)]
         p = operator(p)
         mutated += [p]

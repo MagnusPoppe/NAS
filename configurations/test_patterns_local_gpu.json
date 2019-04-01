@@ -1,6 +1,7 @@
 {
   "dataset": "CIFAR-10",
-  "trainingFilepath": "./src/training/cifar10.py",
+  "dataset path": "./data/cifar10.py",
+  "dataset name": "cifar10",
   "input": [
     32,
     32,

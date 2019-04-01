@@ -30,9 +30,11 @@ def striped_crossover(pattern1, pattern2):
     new_children = []
     for i in range(min(len(pattern1.children), len(pattern2.children))):
         if i % 2 == 0:
-            new_children += [copy.deepcopy(pattern1.children[i])]
+            new = copy.deepcopy(pattern1.children[i])
         else:
-            new_children += [copy.deepcopy(pattern2.children[i])]
+            new = copy.deepcopy(pattern2.children[i])
+        new.set_new_id()
+        new_children += [new]
 
     # Creating new pattern:
     pattern = Pattern(type=pattern1.type, layers=len(new_children))
@@ -43,8 +45,10 @@ def striped_crossover(pattern1, pattern2):
     return pattern
 
 
+def already_in_use(new, op):
+    return any(op.ID == n.ID for n in new)
+
+
 def create_learned_knowledge_file(args):
     pattern, parent1, parent2 = pickle.loads(args)
-
-
     return pickle.dumps(pattern)

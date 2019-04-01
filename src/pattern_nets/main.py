@@ -35,12 +35,15 @@ def main(config: Configuration):
 
     # 3. Evolve for x generations:
     for generation in range(config.generations):
+
         # 3.1 Select some patterns for mutation. Tournament
         selected = selection.tournament(patterns, size=int(len(patterns) / 2))
 
         # 3.2 Perform Mutations + Crossover on selected patterns
         mutations, crossovers = selection.divide(selected)
-        patterns = patterns + mutator.apply(mutations) + crossover.apply(crossovers)
+        patterns = patterns + \
+                   mutator.apply(mutations) + \
+                   crossover.apply(crossovers)
 
         # 3.3 Evaluate new patterns. Fitness calculation
         nets = recombine.combine(patterns, compute_capacity, config.min_size, config.max_size)
@@ -55,4 +58,3 @@ def main(config: Configuration):
 
         # 3.6 Feedback:
         generation_finished(nets, f"--> Generation {generation} Leaderboards:")
-

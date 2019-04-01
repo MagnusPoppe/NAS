@@ -185,33 +185,11 @@ class Module(Base):
             else:
                 detach_keras(child)
 
-    def flatten(self):
-        import copy
-        from src.pattern_nets.operations import connect
-        clone = copy.deepcopy(self)
-        children = []
-        for sub in clone.children:
-            children += sub.children
-
-        for module in clone.children:
-            if module.prev:
-                first_list = module.find_firsts()
-                for _prev in module.prev:
-                    for last in _prev.find_last():
-                        for first in first_list:
-                            if not last in first.prev: first.prev += [last]
-                            if not first in last.next: last.next += [first]
-            if module.next:
-                last_list = module.find_last()
-                for _next in module.next:
-                    for first in _next.find_firsts():
-                        for last in last_list:
-                            if last in first.next or first in last.prev:
-                                temp = last
-                                last = first
-                                first = temp
-                            if not last in first.prev: first.prev += [last]
-                            if not first in last.next: last.next += [first]
-
-        clone.children = children
-        return clone
+    def contains_duplicates(self):
+        return any([
+            any([
+                cx.ID == cy.ID and i != j
+                for j, cx in enumerate(self.children)
+            ])
+            for i, cy in enumerate(self.children)
+        ])

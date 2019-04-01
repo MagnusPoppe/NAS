@@ -60,28 +60,31 @@ def combine(patterns, num_nets, min_size, max_size):
 
         # Connecting patterns together:
         ops = []
-        for i in range(1, len(net.children)):
-            # Getting nets sequentially:
-            x = net.children[i - 1]  # type: Pattern
-            y = net.children[i]      # type: Pattern
+        if len(net.children) == 1:
+            ops = net.children[0].children
+        else:
+            for i in range(1, len(net.children)):
+                # Getting nets sequentially:
+                x = net.children[i - 1]  # type: Pattern
+                y = net.children[i]      # type: Pattern
 
-            # Connect x and y by taking ends of x and beginnings
-            # of y and creating connections:
-            last = x.find_last()     # type: [Pattern]
-            first = y.find_firsts()  # type: [Pattern]
+                # Connect x and y by taking ends of x and beginnings
+                # of y and creating connections:
+                last = x.find_last()     # type: [Pattern]
+                first = y.find_firsts()  # type: [Pattern]
 
-            # Finding what last connects to what first:
-            connections = get_connections_between(last, first)  # type: [(int, int)]
+                # Finding what last connects to what first:
+                connections = get_connections_between(last, first)  # type: [(int, int)]
 
-            # Applying connections:
-            for xx, yy in connections:
-                last[xx].next += [first[yy]]
-                first[yy].prev += [last[xx]]
+                # Applying connections:
+                for xx, yy in connections:
+                    last[xx].next += [first[yy]]
+                    first[yy].prev += [last[xx]]
 
-            # New children:
-            ops += x.children
-            if i == len(net.children) - 1:
-                ops += y.children
+                # New children:
+                ops += x.children
+                if i == len(net.children) - 1:
+                    ops += y.children
 
         # Setting parent for re-traceability:
         for pattern in net.children:

@@ -61,6 +61,11 @@ class Conv2D(Operation):
         conv2D.ID = self.ID
         return conv2D
 
+    def set_new_id(self):
+        global counter
+        name = self.ID.split("_")[0].strip()
+        self.ID = f"{name}_{counter}"
+        counter += 1
 
 class Conv3x3(Conv2D):
 
