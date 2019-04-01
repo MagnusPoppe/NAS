@@ -10,7 +10,7 @@
   "batch size": 300,
   "epochs": 0,
   "population size": 6,
-  "generations": 10000,
+  "generations": 3,
   "initial network size": {
     "min": 3,
     "max": 5

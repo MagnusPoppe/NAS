@@ -36,8 +36,8 @@ def get_connections_between(island_c, island_n):
 
 
 def combine(patterns, num_nets, min_size, max_size):
-    if (num_nets * min_size) < len(patterns):
-        raise ValueError("(Number of networks * minimum size) not big enough to fit all patterns.")
+
+    all_patterns_used = False
     nets = []
     draw = randomized_index(patterns)
     for i in range(num_nets):
@@ -52,6 +52,7 @@ def combine(patterns, num_nets, min_size, max_size):
             net.children += [copy.deepcopy(pattern)]
             if len(draw) == 0:
                 draw = randomized_index(patterns)
+                all_patterns_used = True
                 break  # --> Cannot use same pattern twice in a network...
 
         # Placing 2D layers first:
@@ -79,7 +80,8 @@ def combine(patterns, num_nets, min_size, max_size):
 
             # New children:
             ops += x.children
-        ops += y.children
+            if i == len(net.children) - 1:
+                ops += y.children
 
         # Setting parent for re-traceability:
         for pattern in net.children:
@@ -95,5 +97,8 @@ def combine(patterns, num_nets, min_size, max_size):
 
         # Done
         nets += [net]
+
+    if not all_patterns_used:
+        nets += combine([patterns[x] for x in draw], 1, min_size, max_size)
 
     return nets

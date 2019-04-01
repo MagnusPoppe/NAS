@@ -25,6 +25,7 @@ def fake_report():
         i += 3
     return report
 
+
 def start(population, _):
     for individ in population:
         individ.fitness = apply_random_increases(individ.fitness)
