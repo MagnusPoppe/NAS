@@ -2,7 +2,6 @@ from random import randint
 
 from src.buildingblocks.pattern import Pattern
 from src import helpers as common
-from src.pattern_nets.operations import connect
 
 
 def initialize_patterns(count: int) -> [Pattern]:
@@ -37,4 +36,4 @@ def set_random_connections(pattern):
         pool = [c for c in pattern.children]
         op1 = pool.pop(randint(0, len(pool) - 1))
         op2 = pool[0] if len(pool) == 1 else pool[randint(0, len(pool) - 2)]
-        connect(op1, op2)
+        op1.connect_to(op2)

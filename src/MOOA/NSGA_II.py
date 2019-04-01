@@ -94,11 +94,11 @@ def nsga_ii(solutions: list, objectives: [callable], domination_operator: callab
     # Removing networks without scores:
 
     # Compatibility requirement: 10 objectives requires at least 10 objects to sort.
-    if len(solutions) < 20:
-        # Alternative sort, find the least overfitted with the best validation accuracy:
-        # inverse of overfit + validation accuracy
-        solutions.sort(key=weighted_overfit_score, reverse=False)
-        return solutions
+    # if len(solutions) < 20:
+     #    # Alternative sort, find the least overfitted with the best validation accuracy:
+    #     # inverse of overfit + validation accuracy
+    #     solutions.sort(key=weighted_overfit_score, reverse=False)
+    #     return solutions
 
     # Sorting by multiple objectives:
     frontieer = fast_non_dominated_sort(solutions, domination_operator)

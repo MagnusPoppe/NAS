@@ -91,7 +91,7 @@ def combine(patterns, num_nets, min_size, max_size):
 
         # Logging distance from net start to pattern start normalized by total distance
         for dist, pattern in enumerate(net.patterns):
-            pattern.distance = dist / len(net.patterns)
+            pattern.placement = dist / len(net.patterns)
 
         # Done
         nets += [net]

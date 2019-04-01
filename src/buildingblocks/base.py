@@ -30,7 +30,7 @@ class Base():
         old.disconnect()
         self.ensure_connected()
 
-    def is_before(self, other) -> bool:
+    def is_after(self, b) -> bool:
         """
         :param a: Node
         :param b: Node
@@ -43,4 +43,12 @@ class Base():
                 match(prev, target)
                 for prev in node.prev
             )
-        return match(self, other)
+        return match(self, b)
+
+    def connect_to(self, b):
+        self, b = (b, self) if self.is_after(b) else (self, b)
+
+        if not self in b.prev:
+            b.prev += [self]
+        if not b in self.next:
+            self.next += [b]

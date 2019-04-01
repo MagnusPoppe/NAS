@@ -10,19 +10,22 @@ def apply_random_increases(li):
 
 
 def fake_report():
-    def fake_numbers():
-        return {
-            "precision": random.uniform(0, 1),
-            "recall": random.uniform(0, 1),
-            "f1-score": random.uniform(0, 1),
+    import numpy as np
+    report = {}
+    classes = list(range(10)) + ["micro avg", "macro avg", "weighted avg"]
+    numbers = np.random.random(len(classes) * 3)
+    i = 0
+    for cls in classes:
+        report[str(cls)] = {
+            "precision": numbers[i],
+            "recall": numbers[i+1],
+            "f1-score": numbers[i+2],
             "support": 1000
         }
-    report = {}
-    for cls in list(range(10)) + ["micro avg", "macro avg", "weighted avg"]:
-        report[cls] = fake_numbers()
+        i += 3
     return report
 
-def start(population, config):
+def start(population, _):
     for individ in population:
         individ.fitness = apply_random_increases(individ.fitness)
         individ.loss = apply_random_increases(individ.loss)
