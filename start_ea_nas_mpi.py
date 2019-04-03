@@ -10,7 +10,7 @@ from src.jobs.TF_launcher import run_jobs
 try:
     import setproctitle
 
-    setproctitle.setproctitle("EA-NAS-EVOLVE")
+    setproctitle.setproctitle("NAS-EVOLVE")
 except ImportError:
     pass
 
@@ -72,6 +72,8 @@ def main():
     host = ps.check_output("hostname")
     print(f"[{rank}/{size}] Reporting in from {host}")
     if rank == MAIN_RANK:
+        from src.output import print_config_stats
+        print_config_stats(config)
         print(f"Checking if {len(config.servers)} == {size}")
     assert len(config.servers) == size, "Should be as many processes as servers..."
 

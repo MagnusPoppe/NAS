@@ -8,8 +8,12 @@
     3
   ],
   "classes": 10,
-  "batch size": 300,
-  "epochs": 0,
+  "training": {
+    "use restart": true,
+    "batch size": 100,
+    "epochs": 10,
+    "fixed epochs": true
+  },
   "population size": 2,
   "generations": 3,
   "initial network size": {
@@ -18,6 +22,7 @@
   },
   "run id": "simulation01",
   "keep all results": false,
+  "results location": "/home/magnus/nas/tests/output",
   "servers": [
     {
       "name": "COMPUTE",

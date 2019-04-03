@@ -19,3 +19,14 @@ class Pattern(Module):
         new.preferred_placement = self.preferred_placement
         # new.results = self.results
         return new
+
+    def detach(self):
+        for child in self.children:
+            removals = [n for n in child.next if n not in self.children]
+            for rm in removals:
+                rm.prev.remove(child)
+                child.next.remove(rm)
+            removals = [n for n in child.prev if n not in self.children]
+            for rm in removals:
+                rm.next.remove(child)
+                child.prev.remove(rm)

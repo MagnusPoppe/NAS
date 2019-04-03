@@ -58,6 +58,16 @@ class Server(ValidatedInput):
                 raise Exception("Work directory (cwd) does not exist...")
 
 
+class Training(ValidatedInput):
+
+    def __init__(self, epochs: float, batch_size: int, fixed_epochs: bool, use_restart: bool):
+        super().__init__()
+        self.epochs = epochs
+        self.batch_size = batch_size
+        self.fixed_epochs = fixed_epochs
+        self.use_restart = use_restart
+
+
 class Configuration(ValidatedInput):
 
     def __init__(
@@ -67,27 +77,28 @@ class Configuration(ValidatedInput):
             dataset_file_name: str,
             input_format: (int,),
             classes_in_classifier: int,
-            batch_size: int,
-            epochs_per_layer: float,
             population_size: int,
             generations: int,
             results_name: str,
             save_all_results: bool,
+            results_location: str,
             initial_min_network_size: int,
             initial_max_network_size: int,
+            training: Training,
             servers: [Server]
     ):
         super().__init__()
         # Dataset Properties
         self.dataset_name = dataset_name
+
+        # Training Properties
+        self.training = training
         self.dataset_file_path = dataset_file_path
         self.dataset_file_name = dataset_file_name
 
         # Network Properties
         self.input_format = input_format
         self.classes_in_classifier = classes_in_classifier
-        self.batch_size = batch_size
-        self.epochs_per_layer = epochs_per_layer
         self.min_size = initial_min_network_size
         self.max_size = initial_max_network_size
 
@@ -99,6 +110,7 @@ class Configuration(ValidatedInput):
         # Results properties
         self.results_name = results_name
         self.save_all_results = save_all_results
+        self.results_location = results_location
 
         # Compute Environment:
         self.MPI = False
@@ -126,6 +138,12 @@ class Configuration(ValidatedInput):
                 ]
 
             servers += [Server(server['name'], server['type'], server['cwd'], server['address'], compute, server['python'])]
+        training = Training(
+            batch_size=conf["training"]['batch size'],
+            epochs=conf["training"]['epochs'],
+            fixed_epochs=conf["training"]['fixed epochs'],
+            use_restart=conf["training"]['use restart'],
+        )
 
         return Configuration(
             dataset_name=conf['dataset'],
@@ -133,13 +151,13 @@ class Configuration(ValidatedInput):
             dataset_file_name=conf['dataset name'],
             input_format=tuple(conf['input']),
             classes_in_classifier=conf['classes'],
-            batch_size=conf['batch size'],
-            epochs_per_layer=conf['epochs'],
             population_size=conf['population size'],
             generations=conf['generations'],
             results_name=conf['run id'],
             save_all_results=conf['keep all results'],
+            results_location=conf["results location"] if "results location" in conf else None,
             initial_min_network_size=conf['initial network size']['min'],
             initial_max_network_size=conf['initial network size']['max'],
+            training=training,
             servers=servers
         )

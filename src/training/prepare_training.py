@@ -5,7 +5,7 @@ from tensorflow import keras
 
 from src.training import cifar10
 from src.training.prepare_model import get_model
-from src.training.train import train
+from src.training import train as training
 from src.training.evaluate import evaluate
 
 
@@ -15,27 +15,6 @@ def module_from_file(module_name, file_path):
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
-
-
-def try_save_model(model, model_path, identity):
-    """ Saving models will sometimes run out of workers.
-        I cant control how others use the servers, so
-        just retry up to 3 times and give up if not able
-        to save.
-    """
-    saved = False
-    tries = 0
-    while not saved:
-        try:
-            keras.models.save_model(model, model_path, overwrite=True, include_optimizer=True)
-            saved = True
-        except OSError:
-            print("   - Failed to save model, retrying...")
-            tries += 1
-            if tries == 3:
-                print(f"   - Failed to save model for {identity}... Training data lost.")
-                return None
-    return model_path
 
 
 def set_new_session(device):
@@ -62,7 +41,7 @@ def setup(individ, storage_directory, config, server_id, device_id):
     # Setting process name:
     try:
         import setproctitle
-        setproctitle.setproctitle("EA-NAS-TRAINER " + device.device)
+        setproctitle.setproctitle("NAS-TRAINER " + device.device)
     except ImportError:
         pass
 
@@ -74,12 +53,17 @@ def setup(individ, storage_directory, config, server_id, device_id):
     return device
 
 
-def finalize(individ, storage_directory, model):
+def finalize(individ, storage_directory, model, config):
+    from src.pattern_nets import transer_knowlegde
     # Creating results:
     model_path = os.path.join(storage_directory, "model.h5")
     image_path = os.path.join(storage_directory, individ.ID + ".png")
-    model_path = try_save_model(model, model_path, individ.ID)
 
+    if config.type == "ea_nas":
+        model_path = transer_knowlegde.try_save_model(model, model_path, individ.ID)
+    else:
+        transer_knowlegde.store_weights_in_patterns(individ, model, config)
+        model_path = None
     try:
         keras.utils.plot_model(model, to_file=image_path)
     except Exception:
@@ -102,20 +86,23 @@ def run(args):
 
     # Running training:
     dataset = module_from_file(config.dataset_file_name, config.dataset_file_path)
-    training_history = train(
+    training_args = (
         model,
         device,
         epochs,
         *dataset.get_training_data(),
         *dataset.get_validation_data(),
-        config.batch_size,
+        config.training.batch_size,
         compiled
     )
+    if config.training.use_restart:
+        training_history = training.train_until_stale(*training_args)
+    else:
+        training_history = training.train(*training_args)
     report = evaluate(model, *dataset.get_test_data(), device)
 
     # Finalizing and storing results:
-    model_path, image_path = finalize(individ, storage_directory, model)
-    print("=", end="", flush=True)
+    model_path, image_path = finalize(individ, storage_directory, model, config)
     return {
         "job": job_id,
         "image": image_path,

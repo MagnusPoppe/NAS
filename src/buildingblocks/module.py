@@ -154,15 +154,14 @@ class Module(Base):
             ends += find_end(child, seen)
         return ends
 
-    def relative_save_path(self, config):
-        """ Reveals the storage directory relative to work directory """
-        path = 'results/{}/{}/v{}'.format(config.results_name, self.name, self.version)
-        os.makedirs(path, exist_ok=True)
-        return path
 
     def absolute_save_path(self, config):
-        """ Reveals the absolute path to the storage directory"""
-        return os.path.abspath(self.relative_save_path(config))
+        """ Reveals the absolute path to storage directory """
+        location = config.results_location if config.results_location else "./"
+        unique_individ_path = 'results/{}/{}/v{}'.format(config.results_name, self.name, self.version)
+        path = os.path.join(location, unique_individ_path)
+        os.makedirs(path, exist_ok=True)
+        return path
 
     def clean(self):
         """ Removes all traces of keras from the module.
@@ -193,3 +192,10 @@ class Module(Base):
             ])
             for i, cy in enumerate(self.children)
         ])
+
+    def model_file_exists(self, config):
+        path = os.path.join(self.absolute_save_path(config), "model.h5")
+        if os.path.isfile(path):
+            self.saved_model = path
+            return True
+        return False

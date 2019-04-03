@@ -104,4 +104,24 @@ def combine(patterns, num_nets, min_size, max_size):
     if not all_patterns_used:
         nets += combine([patterns[x] for x in draw], 1, min_size, max_size)
 
+    # Checking for duplicated networks:
+    duplicates = []
+    for net in nets:
+        for other_net in nets:
+            if net == other_net \
+            or len(net.patterns) != len(other_net.patterns) \
+            or len(net.children) != len(other_net.children):
+                continue
+            elif all(
+                net.patterns[i].predecessor.ID == other_net.patterns[i].predecessor.ID
+                for i in range(len(net.patterns))
+            ):
+                duplicates += [net]
+
+    if duplicates:
+        duplicates = list(set(duplicates))
+        print(f"--> Found {len(duplicates)} duplicates... Deleting...")
+        for element in duplicates:
+            nets.remove(element)
+
     return nets

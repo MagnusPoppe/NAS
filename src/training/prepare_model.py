@@ -36,4 +36,11 @@ def prepare_ea_nas_model(individ, config, device):
 def prepare_pattern_model(individ, config, device):
     from src.frameworks.keras import module_to_model as assemble
     model = assemble(individ, config.input_format, config.classes_in_classifier)
+
+    for pattern in individ.patterns:
+        pattern.model_file_exists(config)
+        if pattern.saved_model:
+            pattern_model = keras.models.load_model(pattern.saved_model)
+            transfer_model_weights(model, pattern_model)
+
     return False, model

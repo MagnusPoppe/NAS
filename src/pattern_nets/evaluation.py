@@ -16,6 +16,7 @@ def apply_results(patterns, nets):
 
         for net in included_nets:
             i = [i for i, p in enumerate(net.patterns) if p.predecessor.ID == pattern.ID][0]
+
             pattern.results += [
                 Result(
                     net.patterns[i].placement,

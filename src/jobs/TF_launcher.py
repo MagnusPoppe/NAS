@@ -17,7 +17,9 @@ def pack_args(population, server_id, config: Configuration):
     # Calculating size of each job:
     sized = []
     for ind in population:
-        epochs = int(ind.number_of_operations() * config.epochs_per_layer)
+        epochs = config.training.epochs \
+            if config.training.fixed_epochs \
+            else int(ind.number_of_operations() * config.epochs_per_layer)
         sized += [epochs if epochs > 0 else 1]
     total_epochs = sum(sized)
 
@@ -44,7 +46,6 @@ def pack_args(population, server_id, config: Configuration):
 def run_jobs(population, server_id, config, verbose=False):
     server_args, epochs = pack_args(population, server_id, config)
     print(f"--> Running {epochs} epoch(s) of training for {len(population)} phenotype(s)")
-    print("  |", end="")
 
     # Spawning jobs:
     pools = []
@@ -64,11 +65,11 @@ def run_jobs(population, server_id, config, verbose=False):
     print("|")
 
     # Applying results:
-    apply_results(population, results)
+    apply_training_results(population, results)
     return population
 
 
-def apply_results(population, results):
+def apply_training_results(population, results):
     for individ, res in zip(population, results):
         individ.fitness += res['accuracy']
         individ.loss += res['loss']

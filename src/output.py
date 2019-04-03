@@ -1,4 +1,5 @@
 from firebase.upload import upload_population
+from src.configuration import Configuration
 
 
 def get_improvement(individ):
@@ -53,3 +54,27 @@ def generation_finished(population, prefix):
         print(rank)
 
     upload_population(population)
+
+def print_config_stats(config: Configuration):
+    import os
+    epochs_fixed = "(Fixed)" if config.training.fixed_epochs else "(Multiplied by network size)"
+    storage_area = "{config.results_location}/results/{config.results_name}" \
+                 if config.results_location \
+                 else f"{os.getcwd()}/results/{config.results_name}"
+
+    print(f"\nConfiguration for {config.dataset_name}:")
+    print(f"Evolutionary algorithm parameters:")
+    print(f"\tType:                          {config.type}")
+    print(f"\tPopulation size:               {config.population_size}")
+    print(f"\tGenerations:                   {config.generations}")
+    print(f"\tNumber of pattern/layers used: {config.min_size} - {config.max_size}")
+    print(f"Neural network training:")
+    print(f"\tEpochs:                        {config.training.epochs} {epochs_fixed}")
+    print(f"\tMinibatch size:                {config.training.batch_size}")
+    print(f"\tUse restarting:                {config.training.use_restart}")
+    print(f"Servers:")
+    print(f"\tNumber of servers:             {len(config.servers)}")
+    print(f"\tNumber of compute devices:     {sum(len(server.devices) for server in config.servers)}")
+    print(f"\tResults save location:         {storage_area}")
+    print(f"\tDelete unused results:         {not config.save_all_results}")
+    print()

@@ -5,7 +5,7 @@ from src.configuration import Configuration
 
 try:
     import setproctitle
-    setproctitle.setproctitle("EA-NAS-EVOLVE")
+    setproctitle.setproctitle("NAS-EVOLVE")
 except ImportError: pass
 from src.training import cifar10
 from firebase.upload import create_new_run, update_run
@@ -13,7 +13,7 @@ from firebase.upload import create_new_run, update_run
 import src.ea_nas.main as ea_nas
 
 def job_start_callback(individ, config, _):
-    with open(individ.relative_save_path(config) + "/genotype.obj", "wb") as f:
+    with open(individ.absolute_save_path(config) + "/genotype.obj", "wb") as f:
         pickle.dump(individ, f)
 
 def job_end_callback(manager, args, results):
@@ -39,6 +39,7 @@ if __name__ == '__main__':
     run_id = create_new_run(config)
     if run_id:
         config.results_name = run_id
+    print_config_stats(config)
     status = "Running"
     try:
         ea_nas.run(config)

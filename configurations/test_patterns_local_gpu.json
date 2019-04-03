@@ -8,10 +8,14 @@
     3
   ],
   "classes": 10,
-  "batch size": 300,
-  "epochs": 0,
+  "training": {
+    "use restart": true,
+    "batch size": 100,
+    "epochs": 8,
+    "fixed epochs": true
+  },
   "population size": 6,
-  "generations": 3,
+  "generations": 10,
   "initial network size": {
     "min": 3,
     "max": 5
