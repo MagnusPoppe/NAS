@@ -2,6 +2,7 @@ import json, os
 
 from src.helpers import random_sample_remove
 from src.buildingblocks.base import Base
+from src.pattern_nets.pattern_connector import get_connections_between
 
 global_id = 1
 
@@ -14,10 +15,20 @@ names = load_name_list()
 versions = {}
 
 
+def reset_naming():
+    global versions
+    global names
+    names = load_name_list()
+    versions = {}
+
+
 def get_name_and_version(name: str) -> (str, int):
     global versions
     global names
-    name = random_sample_remove(names) if not name else name
+    if len(names) == 0:
+        reset_naming()
+
+    name = name if name else random_sample_remove(names)
 
     if name in versions:
         version = versions[name]
@@ -66,12 +77,12 @@ class Module(Base):
     def __str__(self):
         return "{} [{}]".format(self.ID, ", ".join([str(c) for c in self.children]))
 
-    def __deepcopy__(self, memodict={}):
+    def __deepcopy__(self, memodict={}, clone=None):
         """ Does not retain connectivity on module level. """
         from copy import deepcopy
 
         # Core values:
-        new_mod = Module(self.name)
+        new_mod = clone if clone else Module(self.name)
         new_mod.logs = deepcopy(self.logs)
 
         # Identity and version-control:
@@ -103,31 +114,55 @@ class Module(Base):
             return operation
         return on(self.children[0])
 
+    def find_firsts(self) -> [Base]:
+        """ Finds all first nodes in module directional graph of operations """
+        def find_start(comp, seen):
+            starts = []
+            if comp in seen:
+                return starts
+            seen += [comp]
+            if comp.prev:
+                for _prev in comp.prev:
+                    starts += find_start(_prev, seen)
+            else:
+                starts += [comp]
+            return starts
+
+        start = []
+        seen = []
+        for child in self.children:
+            start += find_start(child, seen)
+        return start
+
     def find_last(self) -> [Base]:
         """ Finds all ends in the directional graph of operations """
         def find_end(comp:Base, seen) -> list:
             ends = []
-            if comp in seen: return ends
-            else:
-                seen += [comp]
-                if comp.next:
-                    for next_module in comp.next:
-                        ends += find_end(next_module, seen)
-                else:
-                    ends += [comp]
+            if comp in seen:
                 return ends
 
-        return find_end(self.children[0], [])
+            seen += [comp]
+            if comp.next:
+                for next_module in comp.next:
+                    ends += find_end(next_module, seen)
+            else:
+                ends += [comp]
+            return ends
 
-    def relative_save_path(self, config):
-        """ Reveals the storage directory relative to work directory """
-        path = 'results/{}/{}/v{}'.format(config.results_name, self.name, self.version)
-        os.makedirs(path, exist_ok=True)
-        return path
+        ends = []
+        seen = []
+        for child in self.children:
+            ends += find_end(child, seen)
+        return ends
+
 
     def absolute_save_path(self, config):
-        """ Reveals the absolute path to the storage directory"""
-        return os.path.abspath(self.relative_save_path(config))
+        """ Reveals the absolute path to storage directory """
+        location = config.results_location if config.results_location else "./"
+        unique_individ_path = 'results/{}/{}/v{}'.format(config.results_name, self.name, self.version)
+        path = os.path.join(location, unique_individ_path)
+        os.makedirs(path, exist_ok=True)
+        return path
 
     def clean(self):
         """ Removes all traces of keras from the module.
@@ -149,3 +184,49 @@ class Module(Base):
                 child.clean()
             else:
                 detach_keras(child)
+
+    def contains_duplicates(self):
+        return any([
+            any([
+                cx.ID == cy.ID and i != j
+                for j, cx in enumerate(self.children)
+            ])
+            for i, cy in enumerate(self.children)
+        ])
+
+    def model_file_exists(self, config):
+        path = os.path.join(self.absolute_save_path(config), "model.h5")
+        if os.path.isfile(path):
+            self.saved_model = path
+            return True
+        return False
+
+    def connect_all_sub_modules_sequential(self):
+        ops = []
+        if len(self.children) == 1:
+            ops = self.children[0].children
+        else:
+            for i in range(1, len(self.children)):
+                # Getting nets sequentially:
+                x = self.children[i - 1]  # type: Pattern
+                y = self.children[i]  # type: Pattern
+
+                # Connect x and y by taking ends of x and beginnings
+                # of y and creating connections:
+                last = x.find_last()  # type: [Pattern]
+                first = y.find_firsts()  # type: [Pattern]
+
+                # Finding what last connects to what first:
+                connections = get_connections_between(last, first)  # type: [(int, int)]
+
+                # Applying connections:
+                for xx, yy in connections:
+                    last[xx].next += [first[yy]]
+                    first[yy].prev += [last[xx]]
+
+                # New children:
+                ops += x.children
+                if i == len(self.children) - 1:
+                    ops += y.children
+        return ops
+

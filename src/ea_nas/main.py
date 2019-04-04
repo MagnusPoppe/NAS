@@ -2,14 +2,13 @@ import time
 import random
 
 from src.configuration import Configuration
-from src.evolutionary_operations.initialization import init_population
-from src.evolutionary_operations.mutation_for_operators import mutate
-from src.evolutionary_operations.selection import tournament
+from src.ea_nas.evolutionary_operations.initialization import init_population
+from src.ea_nas.evolutionary_operations.mutation_for_operators import mutate
+from src.ea_nas.evolutionary_operations.selection import tournament
 from firebase.upload import update_status, upload_population
 from src.output import generation_finished
-from src.MOOA import operators as moo
+from src.ea_nas import operators as moo
 from src.MOOA.NSGA_II import nsga_ii
-# import src.jobs.TF_launcher as launcher
 import src.jobs.job_initializer as workers
 from src.jobs import garbage_collector
 
@@ -25,8 +24,8 @@ def evolve_architecture(selection, config: Configuration):
     population = init_population(
         individs=config.population_size,
         in_shape=config.input_format,
-        network_min_layers=3,
-        network_max_layers=30
+        network_min_layers=config.min_size,
+        network_max_layers=config.max_size
     )
 
     # Training initial population:
@@ -36,6 +35,8 @@ def evolve_architecture(selection, config: Configuration):
 
     # Running EA algorithm:
     for generation in range(config.generations):
+        config.generation = generation
+
         # Preparation:
         print("\nGeneration", generation)
         builtins.generation = generation
@@ -82,7 +83,7 @@ def evolve_architecture(selection, config: Configuration):
         generation_finished(removed, "--> The following individs were removed by elitism:")
 
 
-def run(config, training_algorithm, job_start_callback, job_end_callback):
+def run(config):
     print("\n\nEvolving architecture")
     start_time = time.time()
 

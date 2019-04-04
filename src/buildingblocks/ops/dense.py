@@ -10,7 +10,7 @@ class Dense(Operation):
     def __init__(self, ID, units, activation="relu", bias=True, dropout=True, dropout_probability=0.3):
         global counter
         if not ID:
-            ID = "{}-{}".format(ID, counter)
+            ID = "{}_{}".format(ID, counter)
             counter += 1
         super().__init__(ID)
         self.units = units
@@ -49,6 +49,11 @@ class Dense(Operation):
     def find_shape(self):
         return (None, self.units)
 
+    def set_new_id(self):
+        global counter
+        name = self.ID.split("_")[0].strip()
+        self.ID = f"{name}_{counter}"
+        counter += 1
 
 class DenseS(Dense):
     _min_units = 10
@@ -57,7 +62,7 @@ class DenseS(Dense):
     def __init__(self, ID=None, dropout=True, dropout_probability=0.3):
         global counter
         if not ID:
-            ID = "{}-{}".format("DenseS", counter)
+            ID = "{}_{}".format("DenseS", counter)
             counter += 1
         super().__init__(
             ID=ID,
@@ -76,7 +81,7 @@ class DenseM(Dense):
     def __init__(self, ID=None, dropout=True, dropout_probability=0.3):
         global counter
         if not ID:
-            ID = "{}-{}".format("DenseM", counter)
+            ID = "{}_{}".format("DenseM", counter)
             counter += 1
         super().__init__(
             ID=ID,
@@ -95,7 +100,7 @@ class DenseL(Dense):
     def __init__(self, ID=None, dropout=True, dropout_probability=0.3):
         global counter
         if not ID:
-            ID = "{}-{}".format("DenseL", counter)
+            ID = "{}_{}".format("DenseL", counter)
             counter += 1
         super().__init__(
             ID=ID,

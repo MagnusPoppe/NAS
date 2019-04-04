@@ -22,6 +22,12 @@ class Pooling(Operation):
         pooling.ID = self.ID
         return pooling
 
+    def set_new_id(self):
+        global counter
+        name = self.ID.split("_")[0].strip()
+        self.ID = f"{name}_{counter}"
+        counter += 1
+
 class MaxPooling2x2(Pooling):
 
     def __init__(self):

@@ -8,9 +8,9 @@ from copy import deepcopy
 from src.frameworks.keras_decoder import assemble
 from src.buildingblocks.ops.dense import DenseL, DenseM, DenseS #, Dropout
 from src.buildingblocks.module import Module
-from src.evolutionary_operations import mutation_for_operators as mutation_ops
+from src.ea_nas.evolutionary_operations import mutation_for_operators as mutation_ops
 from src.frameworks.weight_transfer import transfer_predecessor_weights
-from datasets.mnist_dataset import mnist_configure
+from src.training import mnist_configure
 
 class TestWeightRetention(unittest.TestCase):
 

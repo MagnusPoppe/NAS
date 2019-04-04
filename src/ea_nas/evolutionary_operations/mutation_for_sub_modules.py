@@ -1,11 +1,10 @@
 from copy import deepcopy
-from operator import attrgetter
 
-from src.evolutionary_operations.mutation_for_operators import is2D, is1D
-from src.evolutionary_operations.mutation_operators import _is_before, insert
+from src.ea_nas.evolutionary_operations.mutation_for_operators import is2D, is1D
+from src.ea_nas.evolutionary_operations.mutation_operators import _is_before, insert
 from src.buildingblocks.base import Base
 from src.buildingblocks.module import Module
-from src.jobs import pre_trainer as pretrain, scheduler
+from src.jobs import scheduler
 
 
 def get_insertion_points_after(module: Module, target: Module) -> (Base, Base):

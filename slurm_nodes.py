@@ -23,6 +23,7 @@ def slurm_nodelist_to_list(_input):
 
         if not "[" in inn:
             server_addresses += [inn]
+            continue
 
         root, raw = inn.split("[")
         raw_ids = raw.strip("]").split(",")
@@ -79,36 +80,37 @@ with open(config_json, "r") as f:
     config = json.load(f)
 
 servers = []
-for address in slurm_nodelist_to_list(arg):
+nodes = slurm_nodelist_to_list(arg)
+for address in nodes:
     out, err = exec_remote(
         address,
         commands=[
-            "python -c "
-            + '\'import subprocess; print(subprocess.check_output(["nvidia-smi", "-L"]))\''
+            'python -c \'import subprocess; print(subprocess.check_output(["nvidia-smi", "-L"]))\''
         ],
     )
-    if err:
-        raise Exception(err)
+    # if err:
+    #     raise Exception(err)
     server = {
         "name": "EPIC-" + address,
-        "type": "remote",
+        "type": "remote" if len(nodes) > 1 else "local",
         "cwd": os.getcwd(),
         "address": address,
-        "python": os.path.join(os.getcwd(), "venv/bin/python"),
+        "python": "~/ea-nas/venv/bin/python",
         "devices": [],
     }
     gpu_strings = [g for g in out.split("\n") if g]
     for gpu_line in gpu_strings:
         gpu_id = gpu_line.split(":")[0].split(" ")[1]
         concurreny = 2 if "Tesla V100" in gpu_line else 1
-        server["devices"] += [
-            {
-                "device_str": f"/GPU:{gpu_id}",
-                "allow gpu memory growth": True,
-                "memory per process": 1 / concurreny,
-                "concurrency": concurreny,
-            }
-        ]
+        if gpu_id.isnumeric():
+            server["devices"] += [
+                {
+                    "device_str": f"/GPU:{gpu_id}",
+                    "allow gpu memory growth": True,
+                    "memory per process": 1 / concurreny,
+                    "concurrency": concurreny,
+                }
+            ]
     servers += [server]
 
 config["servers"] = servers

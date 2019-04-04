@@ -13,18 +13,18 @@ RUN pip install setproctitle
 
 # Copy over codefiles:
 VOLUME /src
-COPY ./datasets /src/datasets
+COPY src/training /src/datasets
 COPY ./firebase /src/firebase
 COPY ./resources /src/resources
 COPY ./src /src/src
 COPY src/jobs/tests /src/tests
-COPY ./start.py /src/start.py
+COPY start_ea_nas.py /src/start.py
 
 WORKDIR /src
 
 ENV LANG="C.UTF-8"
 ENV EA_NAS_UPLOAD_TO_FIREBASE="1"
 
-# Ready to run: 
+# Ready to run:
 # RUN python tests.py
 CMD python -u start.py ./datasets/cifar10-telenor001.json

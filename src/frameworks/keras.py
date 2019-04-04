@@ -1,17 +1,16 @@
-from src.buildingblocks.module import Module
 from src.buildingblocks.ops.convolution import Conv2D
-from src.buildingblocks.ops.dense import Dense, DenseS
+from src.buildingblocks.ops.dense import Dense
 from tensorflow import keras
 
 from src.buildingblocks.ops.pooling import AvgPooling2x2, MaxPooling2x2
-from src.evolutionary_operations.mutation_for_operators import is2D, is1D
+from src.ea_nas.evolutionary_operations.mutation_for_operators import is2D, is1D
 
 
-def ensure_correct_tensor_by_shape(tensors):
+def ensure_correct_tensor_by_shape(tensors, shape):
     def flatten(_tensors):
         flattened = []
         for tensor in _tensors:
-            if len(tensor.shape) > 2:
+            if len(tensor.shape) > 2 >= len(shape):
                 flattened += [keras.layers.Flatten()(tensor)]
             else:
                 flattened += [tensor]
@@ -44,7 +43,7 @@ def ensure_correct_tensor_by_op(op, inputs):
     elif len(tensors) == 1:
         prev = tensors[0]
     else:
-        prev = inputs
+        prev = ensure_correct_tensor_by_shape([inputs], [None, op.units]) if is1D(op) else inputs
 
     return prev
 
@@ -85,8 +84,12 @@ def convert_to_keras_tensor(op, prev):
         raise NotImplementedError("Found an unknown op...")
 
     tensor = op.layer(prev)
+
+    # Applying regularizer:
     if (isinstance(op, Dense) or isinstance(op, Conv2D)) and op.dropout:
         tensor = keras.layers.Dropout(rate=op.dropout_probability)(tensor)
+    elif isinstance(op, Conv2D) and op.batch_norm:
+        tensor = keras.layers.BatchNormalization(axis=1)(tensor)
     return tensor
 
 
@@ -110,22 +113,25 @@ def build_model(op, inputs):
 
 
 def create_output_tensor(final_tensors, classes):
-    tensor = ensure_correct_tensor_by_shape(final_tensors)
+    tensor = ensure_correct_tensor_by_shape(final_tensors, [None, classes])
     return keras.layers.Dense(units=classes, activation='softmax')(tensor)
 
 
 def module_to_model(module, input_shape, classes):
     # Preparing module:
-    if any([isinstance(op, Module) for op in module.children]):
-        module = module.flatten()
-    first = module.find_first()
     for op in module.children:
         op.layer = None
         op.tensor = None
 
     # Build model:
     inputs = keras.layers.Input(shape=input_shape)
-    softmax = create_output_tensor(build_model(first, inputs), classes)
+
+    out = []
+    for first in module.find_firsts():
+        out_tensor = build_model(first, inputs)
+        if out_tensor:
+            out += out_tensor
+    softmax = create_output_tensor(out, classes)
     model = keras.models.Model(inputs=[inputs], outputs=[softmax])
 
     # Clean up module:

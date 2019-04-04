@@ -33,7 +33,7 @@ else:
 
 
 def blob_filename(run, module):
-    return module.relative_save_path({"run id": run.id}) + module.ID + ".png"
+    return module.absolute_save_path({"run id": run.id}) + module.ID + ".png"
 
 def save_model_image(model, filepath):
     keras.utils.plot_model(model, to_file=filepath)
@@ -43,7 +43,7 @@ def upload_image(module, model=None, run_id = None):
     if not db: return
 
     if not run_id: run_id = run.id
-    folder = module.relative_save_path({'run id': run_id})
+    folder = module.absolute_save_path({'run id': run_id})
     os.makedirs(folder, exist_ok=True)
     filepath = os.path.join(folder, module.ID + ".png")
     if not module.model_image_path:

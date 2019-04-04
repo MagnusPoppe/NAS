@@ -5,15 +5,15 @@ from src.configuration import Configuration
 
 try:
     import setproctitle
-    setproctitle.setproctitle("EA-NAS-EVOLVE")
+    setproctitle.setproctitle("NAS-EVOLVE")
 except ImportError: pass
-from datasets import cifar10
+from src.training import cifar10
 from firebase.upload import create_new_run, update_run
 
-import src.main as ea_nas
+import src.ea_nas.main as ea_nas
 
 def job_start_callback(individ, config, _):
-    with open(individ.relative_save_path(config) + "/genotype.obj", "wb") as f:
+    with open(individ.absolute_save_path(config) + "/genotype.obj", "wb") as f:
         pickle.dump(individ, f)
 
 def job_end_callback(manager, args, results):
@@ -35,12 +35,14 @@ if __name__ == '__main__':
         raise IOError("File {} does not exist!".format(sys.argv[1]))
 
     config = Configuration.from_json(sys.argv[1])
+    config.type = "ea-nas"
     run_id = create_new_run(config)
     if run_id:
         config.results_name = run_id
+    print_config_stats(config)
     status = "Running"
     try:
-        ea_nas.run(config, cifar10, job_start_callback, job_end_callback)
+        ea_nas.run(config)
         status = "Finished"
     except KeyboardInterrupt:
         status = "Closed"

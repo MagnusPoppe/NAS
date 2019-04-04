@@ -4,11 +4,11 @@ os.chdir("..")
 
 from src.buildingblocks.ops.convolution import Conv3x3, Conv5x5
 from src.buildingblocks.ops.pooling import AvgPooling2x2
-from src.evolutionary_operations.initialization import init_population
+from src.ea_nas.evolutionary_operations import init_population
 
 from src.buildingblocks.module import Module
 from src.buildingblocks.ops.dense import DenseS, DenseM, DenseL
-from src.evolutionary_operations import mutation_operators as mutate
+from src.ea_nas.evolutionary_operations import mutation_operators as mutate
 
 
 class TestDropoutIncluded(unittest.TestCase):

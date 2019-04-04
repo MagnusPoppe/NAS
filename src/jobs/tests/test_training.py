@@ -8,7 +8,7 @@ os.chdir("..")
 from tensorflow import keras
 import tensorflow as tf
 
-from datasets.cifar10 import main, shuffle
+from src.training.cifar10 import main, shuffle
 from firebase.upload import save_model_image
 
 
@@ -16,7 +16,6 @@ class TestTraining(unittest.TestCase):
 
     def test_load_model_correctly_from_file(self):
         import pickle, os
-        from src.frameworks.keras_decoder import assemble
 
         # Removing all debugging output from TF:
         os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
@@ -51,19 +50,17 @@ class TestTraining(unittest.TestCase):
 
 
     def test_training_integration(self):
-        import pickle, os
+        import os
         os.chdir("..")
         from src.buildingblocks.module import Module
-        from src.evolutionary_operations import mutation_operators as op
+        from src.ea_nas.evolutionary_operations import mutation_operators as op
 
-        from src.buildingblocks.ops.convolution import Conv3x3, Conv5x5
+        from src.buildingblocks.ops.convolution import Conv3x3
         from src.buildingblocks.ops.dense import (
-            DenseS as DenseSmall,
-            DenseM as DenseMedium,
             DenseL as DenseLarge,
             Dropout,
         )
-        from src.buildingblocks.ops.pooling import MaxPooling2x2, AvgPooling2x2
+        from src.buildingblocks.ops.pooling import MaxPooling2x2
 
         os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
 

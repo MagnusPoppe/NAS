@@ -1,14 +1,19 @@
 {
   "dataset": "CIFAR-10",
-  "trainingFilepath": "datasets/cifar10.py",
+  "dataset path": "./data/cifar10.py",
+  "dataset name": "cifar10",
   "input": [
     32,
     32,
     3
   ],
   "classes": 10,
-  "batch size": 40,
-  "epochs": 1.5,
+  "training": {
+    "use restart": false,
+    "batch size": 40,
+    "epochs": 1.3,
+    "fixed epochs": false
+  },
   "population size": 5,
   "generations": 15,
   "run id": "simulation07dropout",

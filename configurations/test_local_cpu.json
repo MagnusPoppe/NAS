@@ -1,0 +1,43 @@
+{
+  "dataset": "CIFAR-10",
+  "dataset path": "./data/cifar10.py",
+  "dataset name": "cifar10",
+  "input": [
+    32,
+    32,
+    3
+  ],
+  "classes": 10,
+  "training": {
+    "use restart": true,
+    "batch size": 300,
+    "epochs": 10,
+    "fixed epochs": true
+  },
+  "population size": 10,
+  "generations": 1000,
+  "initial network size": {
+    "min": 5,
+    "max": 8
+  },
+  "run id": "simulation01",
+  "keep all results": false,
+  "servers": [
+    {
+      "name": "COMPUTE",
+      "type": "local",
+      "cwd": "/Users/magnus/Projects/Python/nas",
+      "python": "python",
+      "address": "localhost",
+      "devices": [
+        {
+          "device_str": "/CPU:0",
+          "allow gpu memory growth": true,
+          "memory per process": 1,
+          "concurrency": 2
+        }
+      ]
+    }
+  ]
+}
+

@@ -1,13 +1,11 @@
 import os
 import pickle
 import time
-import execnet
 
 from src.buildingblocks.module import Module
 from src.configuration import Configuration
 from src.jobs.TF_launcher import run_jobs
 from src.jobs.ssh import rsync_parallel
-import src.jobs.launch_remote as run_jobs_remote
 
 
 def time_str(started, ts, offset):
@@ -57,7 +55,7 @@ def start(population: [Module], config: Configuration) -> [Module]:
         6. return results
     """
     # CASE 1, Runs locally:
-    if len(config.servers) == 1 and config.servers[0].type == "local":
+    if not config.MPI and len(config.servers) == 1 and config.servers[0].type == "local":
         new_population = run_jobs(population, server_id=0, config=config)
         return new_population
 
@@ -71,40 +69,31 @@ def start(population: [Module], config: Configuration) -> [Module]:
     training_str = f"--> Training on {len(workloads)} servers. {avg_work} networks/server"
 
     # 2. Transfer necessary data to each node (model.h5 files)
-    start = time.time()
-    print("--> Distributing files to hosts", end="")
-    rsync_parallel(transfer_args(workloads, config, to_source=False))
-    print(time_str(start, training_str, offset=31))
+    if not config.MPI and config.servers[0].type == "remote":
+        start = time.time()
+        print("--> Distributing files to hosts", end="")
+        rsync_parallel(transfer_args(workloads, config, to_source=False))
+        print(time_str(start, training_str, offset=31))
 
     # 3. Start the algorithm
     start = time.time()
     print(training_str, end="", flush=True)
-    comms = []
-    for i, server in enumerate(config.servers):
-        gw = execnet.makegateway(f"ssh={server.address}//python={server.python}//chdir={server.cwd}")
-        ch = gw.remote_exec(run_jobs_remote)
-        ch.send(pickle.dumps((workloads[i], i, config)))
-        comms += [(gw, ch)]
 
-    # 4. Gather direct results
-    new_population = []
-    for gw, ch in comms:
-        received = ch.receive()
-        result = pickle.loads(received)
-        if isinstance(result, Exception):
-            raise result
-        new_population += result
+    if config.MPI:
+        from start_ea_nas_mpi import distribute_with_mpi
+        new_population = distribute_with_mpi(workloads, config)
+    else:
+        from src.jobs.launch_remote import distribute_with_execnet
+        new_population = distribute_with_execnet(config, workloads)
 
-    mch = execnet.MultiChannel([ch for _, ch in comms])
-    mch.waitclose()
-    for gw, _ in comms: gw.exit()
     print(time_str(start, training_str, offset=0))
 
     # 5. Gather files produced on remote server
-    start = time.time()
-    print("--> Gathering files from hosts", end="")
-    rsync_parallel(transfer_args(workloads, config, to_source=True))
-    print(time_str(start, training_str, offset=30))
+    if not config.MPI and config.servers[0].type == "remote":
+        start = time.time()
+        print("--> Gathering files from hosts", end="")
+        rsync_parallel(transfer_args(workloads, config, to_source=True))
+        print(time_str(start, training_str, offset=30))
 
     # 6. return results
     return new_population

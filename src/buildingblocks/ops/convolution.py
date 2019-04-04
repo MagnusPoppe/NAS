@@ -4,9 +4,21 @@ from src.buildingblocks.ops.operation import Operation
 
 counter = 0
 
+
 class Conv2D(Operation):
 
-    def __init__(self, ID, kernel, filters, strides=(1, 1), activation="relu", bias=True, dropout=True, dropout_probability=0.3):
+    def __init__(
+            self,
+            ID,
+            kernel,
+            filters,
+            strides=(1, 1),
+            activation="relu",
+            bias=True,
+            batch_norm=True,
+            dropout=False,
+            dropout_probability=0.3
+    ):
         super().__init__(ID)
         self.kernel = kernel
         self.filters = filters
@@ -14,8 +26,20 @@ class Conv2D(Operation):
         self.activation = activation
         self.padding = "same"
         self.bias = bias
-        self.dropout = dropout
-        self.dropout_probability = dropout_probability
+
+        # Regularizer, Dropout and batch normalization are mutex.
+        # If both are set, batch norm will be selected:
+        if dropout and not batch_norm:
+            self.dropout = dropout
+            self.dropout_probability = dropout_probability
+        elif batch_norm:
+            self.dropout = False
+            self.dropout_probability = 0.0
+            self.batch_norm = batch_norm
+        else:
+            self.dropout = False
+            self.dropout_probability = 0.0
+            self.batch_norm = False
 
     def to_keras(self):
         from tensorflow import keras
@@ -37,6 +61,12 @@ class Conv2D(Operation):
         conv2D.ID = self.ID
         return conv2D
 
+    def set_new_id(self):
+        global counter
+        name = self.ID.split("_")[0].strip()
+        self.ID = f"{name}_{counter}"
+        counter += 1
+
 class Conv3x3(Conv2D):
 
     def __init__(self, ID=None, kernel=(3, 3), filters=50, dropout=True, dropout_probability=0.3):
@@ -44,7 +74,14 @@ class Conv3x3(Conv2D):
             global counter
             ID = "Conv3x3_{}".format(counter)
             counter += 1
-        super().__init__(ID, kernel, filters, dropout=dropout, dropout_probability=dropout_probability)
+        super().__init__(
+            ID,
+            kernel,
+            filters,
+            batch_norm=True,
+            dropout=dropout,
+            dropout_probability=dropout_probability
+        )
 
     def __deepcopy__(self, memodict={}):
         return self.transfer_values(Conv3x3())
@@ -57,8 +94,14 @@ class Conv5x5(Conv2D):
             global counter
             ID = "Conv5x5_{}".format(counter)
             counter += 1
-        super().__init__(ID, kernel, filters, dropout=dropout, dropout_probability=dropout_probability)
+        super().__init__(
+            ID,
+            kernel,
+            filters,
+            batch_norm=True,
+            dropout=dropout,
+            dropout_probability=dropout_probability
+        )
 
     def __deepcopy__(self, memodict={}):
         return self.transfer_values(Conv5x5())
-

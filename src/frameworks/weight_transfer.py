@@ -22,7 +22,8 @@ def transfer_model_weights(model, old_model):
                     try:
                         layer.set_weights(from_layer.get_weights())
                     except ValueError as e:
-                        print("Weight incompatability: " + str(e))
+                        pass
+                        # print("Weight incompatability: " + str(e))
 
 
 def transfer_predecessor_weights(module, predecessor):
@@ -74,3 +75,23 @@ def transfer_submodule_weights(module: Module):
         pred_model = keras.models.load_model(sub_module.predecessor.saved_model)
         model = sub_module.keras_operation
         transfer_model_weights(model, pred_model)
+
+
+def transfer_model_weights_to_pattern(model, pattern_model):
+    """ Transfers the weights from one module to its successor. This requires
+        compatibility with changes made to the successor. Some types of changes
+        will change weight matrix sizes.
+
+        These problems raise ValueError.
+         - ValueError is ignored.
+         - Module / Operation keeps its random initialized weights.
+    """
+    not_found = 0
+    for layer in pattern_model.layers:
+        for from_layer in model.layers:
+            if layer.name == from_layer.name:
+                try:
+                    layer.set_weights(from_layer.get_weights())
+                except ValueError as e:
+                    not_found += 1
+    return not_found

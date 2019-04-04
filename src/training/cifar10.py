@@ -1,7 +1,6 @@
 import tensorflow as tf
 from tensorflow import keras
 import numpy as np
-import json
 import os
 from sklearn.metrics import classification_report
 
@@ -42,11 +41,10 @@ def configure(classes, device) -> (callable, callable):
                 loss = keras.losses.categorical_crossentropy
                 model.compile(loss=loss, optimizer=optimizer, metrics=["accuracy"])
 
-            data, labels = x_train, y_train
             # RUNNING TRAINING:
             metric = model.fit(
-                x=data,
-                y=labels,
+                x=x_train,
+                y=y_train,
                 epochs=epochs,
                 batch_size=batch_size,
                 verbose=0,
@@ -72,12 +70,12 @@ def configure(classes, device) -> (callable, callable):
 
 def prepare_model(config, device, individ):
     from src.frameworks.keras import module_to_model as assemble
-
+    import os
     compiled = False
-    if individ.saved_model:
-        compiled = True
+    if individ.saved_model and os.path.isfile(individ.saved_model):
         with tf.device(device.device):
             model = keras.models.load_model(individ.saved_model)
+        compiled = True
     else:
         model = assemble(individ, config.input_format, config.classes_in_classifier)
         if individ.predecessor and individ.predecessor.saved_model:
@@ -86,20 +84,20 @@ def prepare_model(config, device, individ):
     return compiled, model
 
 
+def prepare_pattern_model(config, device, individ):
+    from src.frameworks.keras import module_to_model as assemble
+    model = assemble(individ, config.input_format, config.classes_in_classifier)
+    # if individ.predecessor and individ.predecessor.saved_model:
+    #     predecessor_model = keras.models.load_model(individ.predecessor.saved_model)
+    #     transfer_model_weights(model, predecessor_model)
+    return False, model
+
+
 def main(individ, epochs, config, device):
-    # Setup:
-    try:
-        import setproctitle
-        setproctitle.setproctitle("EA-NAS-TRAINER " + device.device)
-    except ImportError:
-        pass
-    os.environ["TF_CPP_MIN_LOG_LEVEL"] = "1"
-    device_id = device.device.split(":")[-1]
-    os.environ["CUDA_VISIBLE_DEVICES"] = device_id
-
     training, evalutation, name, inputs = configure(config.classes_in_classifier, device)
-    compiled, model = prepare_model(config, device, individ)
 
+    preparation = prepare_pattern_model if config.type == "PatternNets" else prepare_model
+    compiled, model = preparation(config, device, individ)
     training_history = training(
         model=model,
         device=device.device,
