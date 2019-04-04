@@ -55,8 +55,8 @@ def stalling(history, steps=10):
     if not no_improvement:
         print(
             "\t- Found plateauing step for" if stale else "\t- Continuing training. State:",
-            f"\n\t\tAccuracy:            {avg_acc * 0.985:.4} <= {acc} <= {avg_acc * 1.015:.4}"
-            f"\n\t\tValidation accuracy: {avg_vacc * 0.985:.4} <= {vacc} <= {avg_vacc * 1.015:.4}"
+            f"\n\t\tAccuracy:            {avg_acc * 0.98:.4} <= {acc:.4} <= {avg_acc * 1.02:.4}"
+            f"\n\t\tValidation accuracy: {avg_vacc * 0.98:.4} <= {vacc:.4} <= {avg_vacc * 1.02:.4}"
         )
     else:
         print(
