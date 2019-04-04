@@ -46,7 +46,7 @@ def main(config: Configuration):
                    crossover.apply(crossovers)
 
         # 3.3 Evaluate new patterns. Fitness calculation
-        nets = recombine.combine(patterns, compute_capacity, config.min_size, config.max_size)
+        nets = recombine.combine(patterns, compute_capacity, config.min_size, config.max_size, include_optimal=True)
         nets = workers.start(nets, config)
         patterns = evaluation.apply_results(patterns, nets)
 

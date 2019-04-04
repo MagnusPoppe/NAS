@@ -1,4 +1,5 @@
 from src.buildingblocks.module import Module
+from src.pattern_nets.evaluation import Result
 
 
 class Pattern(Module):
@@ -30,3 +31,19 @@ class Pattern(Module):
             for rm in removals:
                 rm.next.remove(child)
                 child.prev.remove(rm)
+
+    def optimal_result(self):
+        def is_better(this: Result, best: Result):
+            return (
+                this.val_accuracy[-1] >= best.val_accuracy[-1] and
+                this.accuracy[-1] >= best.accuracy[-1] and
+                this.report['weighted avg']['f1-score'] >= best.report['weighted avg']['f1-score']
+            )
+
+        if len(self.results) >= 1:
+            best_res = self.results[0]
+            for res in self.results[1:]:
+                if is_better(res, best_res):
+                    best_res = res
+            return best_res
+        return None

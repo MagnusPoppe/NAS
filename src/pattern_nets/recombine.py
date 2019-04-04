@@ -4,42 +4,27 @@ import copy
 import random
 
 from src.buildingblocks.module import Module
-from src.buildingblocks.pattern import Pattern
-from src.helpers import randomized_index
+from src.helpers import randomized_index, shuffle
 
 
-def get_connections_between(island_c, island_n):
-    # Assign which island connects to which
-
-    # Single option on both:
-    if len(island_c) == 1 and len(island_n) == 1:
-        connections = [(0, 0)]
-
-    # Single option for one of the islands:
-    elif len(island_c) > 1 and len(island_n) == 1:
-        connections = [(i, 0) for i in range(len(island_c))]
-    elif len(island_n) > 1 and len(island_c) == 1:
-        connections = [(0, i) for i in range(len(island_n))]
-
-    # Multiple options per island:
-    else:
-        reverse = len(island_c) > len(island_n)
-        connections = []
-        selectable = randomized_index(island_n if reverse else island_c)
-        for c in (range(len(island_c)) if reverse else range(len(island_n))):
-            if len(selectable) == 0:
-                selectable = randomized_index(island_n if reverse else island_c)
-            n, selectable = selectable[0], selectable[1:]
-            connections += [(c, n) if reverse else (n, c)]
-
-    return connections
-
-
-def combine(patterns, num_nets, min_size, max_size):
+def combine(patterns, num_nets, min_size, max_size, include_optimal=False):
 
     all_patterns_used = False
     nets = []
-    draw = randomized_index(patterns)
+    if include_optimal:
+        optimal = combine_optimal(patterns, size=random.randint(min_size, max_size))
+        if optimal:
+            nets += [optimal]
+            draw = shuffle([
+                i
+                for i, p in enumerate(patterns)
+                if not any(p.ID == q.predecessor.ID for q in optimal.patterns)
+            ])
+        else:
+            draw = randomized_index(patterns)
+    else:
+        draw = randomized_index(patterns)
+
     for i in range(num_nets):
         # Setup:
         net = Module()
@@ -59,44 +44,10 @@ def combine(patterns, num_nets, min_size, max_size):
         net.children.sort(key=lambda x: 0 if x.type == "2D" else 1)
 
         # Connecting patterns together:
-        ops = []
-        if len(net.children) == 1:
-            ops = net.children[0].children
-        else:
-            for i in range(1, len(net.children)):
-                # Getting nets sequentially:
-                x = net.children[i - 1]  # type: Pattern
-                y = net.children[i]      # type: Pattern
-
-                # Connect x and y by taking ends of x and beginnings
-                # of y and creating connections:
-                last = x.find_last()     # type: [Pattern]
-                first = y.find_firsts()  # type: [Pattern]
-
-                # Finding what last connects to what first:
-                connections = get_connections_between(last, first)  # type: [(int, int)]
-
-                # Applying connections:
-                for xx, yy in connections:
-                    last[xx].next += [first[yy]]
-                    first[yy].prev += [last[xx]]
-
-                # New children:
-                ops += x.children
-                if i == len(net.children) - 1:
-                    ops += y.children
-
-        # Setting parent for re-traceability:
-        for pattern in net.children:
-            for op in pattern.children:
-                op.parent = pattern
+        ops = net.connect_all_sub_modules_sequential()
 
         net.patterns = net.children
         net.children = ops
-
-        # Logging distance from net start to pattern start normalized by total distance
-        for dist, pattern in enumerate(net.patterns):
-            pattern.placement = dist / len(net.patterns)
 
         # Done
         nets += [net]
@@ -105,23 +56,53 @@ def combine(patterns, num_nets, min_size, max_size):
         nets += combine([patterns[x] for x in draw], 1, min_size, max_size)
 
     # Checking for duplicated networks:
+    remove_duplicates(nets)
+    return nets
+
+
+def combine_optimal(patterns, size):
+    if not all(p.optimal_result() for p in patterns):
+        return None
+
+    optimal = Module()
+    sorted_patterns = [pattern for pattern in patterns]
+    sorted_patterns.sort(
+        key=lambda p: p.optimal_result().score(),
+        reverse=True
+    )
+
+    for i in range(size):
+        optimal.children += [copy.deepcopy(sorted_patterns.pop(0))]
+
+    dim2 = [p for p in optimal.children if p.type == "2D"]
+    dim2.sort(key=lambda p: p.optimal_result().distance)
+    dim1 = [p for p in optimal.children if p.type == "1D"]
+    dim1.sort(key=lambda p: p.optimal_result().distance)
+
+    optimal.children = dim2 + dim1
+    optimal.patterns = optimal.children
+    optimal.children = optimal.connect_all_sub_modules_sequential()
+
+    return optimal
+
+
+def remove_duplicates(nets):
     duplicates = []
     for net in nets:
         for other_net in nets:
             if net == other_net \
-            or len(net.patterns) != len(other_net.patterns) \
-            or len(net.children) != len(other_net.children):
+                    or len(net.patterns) != len(other_net.patterns) \
+                    or len(net.children) != len(other_net.children):
                 continue
             elif all(
-                net.patterns[i].predecessor.ID == other_net.patterns[i].predecessor.ID
-                for i in range(len(net.patterns))
+                    net.patterns[i].predecessor.ID == other_net.patterns[i].predecessor.ID
+                    for i in range(len(net.patterns))
             ):
                 duplicates += [net]
-
     if duplicates:
         duplicates = list(set(duplicates))
         print(f"--> Found {len(duplicates)} duplicates... Deleting...")
         for element in duplicates:
             nets.remove(element)
 
-    return nets
+

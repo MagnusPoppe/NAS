@@ -2,6 +2,7 @@ import json, os
 
 from src.helpers import random_sample_remove
 from src.buildingblocks.base import Base
+from src.pattern_nets.pattern_connector import get_connections_between
 
 global_id = 1
 
@@ -199,3 +200,33 @@ class Module(Base):
             self.saved_model = path
             return True
         return False
+
+    def connect_all_sub_modules_sequential(self):
+        ops = []
+        if len(self.children) == 1:
+            ops = self.children[0].children
+        else:
+            for i in range(1, len(self.children)):
+                # Getting nets sequentially:
+                x = self.children[i - 1]  # type: Pattern
+                y = self.children[i]  # type: Pattern
+
+                # Connect x and y by taking ends of x and beginnings
+                # of y and creating connections:
+                last = x.find_last()  # type: [Pattern]
+                first = y.find_firsts()  # type: [Pattern]
+
+                # Finding what last connects to what first:
+                connections = get_connections_between(last, first)  # type: [(int, int)]
+
+                # Applying connections:
+                for xx, yy in connections:
+                    last[xx].next += [first[yy]]
+                    first[yy].prev += [last[xx]]
+
+                # New children:
+                ops += x.children
+                if i == len(self.children) - 1:
+                    ops += y.children
+        return ops
+

@@ -52,7 +52,7 @@ class Server(ValidatedInput):
     def validate(self):
         if self.type not in ["local", "remote"]:
             raise Exception("Server type must be \"local\" or \"remote\"")
-        if self.type == "local":
+        if self.type == "remote":
             import os
             if not os.path.exists(self.cwd):
                 raise Exception("Work directory (cwd) does not exist...")
