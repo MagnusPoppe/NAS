@@ -2,6 +2,7 @@ import os
 import pickle
 
 from src.configuration import Configuration
+from src.output import print_config_stats
 
 try:
     import setproctitle

@@ -2,6 +2,7 @@ import sys
 import functools
 
 from src.buildingblocks.module import Module
+from src.configuration import Configuration
 
 
 def fast_non_dominated_sort(solutions: list, dominates: callable):
@@ -73,20 +74,31 @@ def crowding_distance_assignment(solutions: list, objectives: [callable]):
         # Setting distances:
         for i in range(1, len(solutions) - 1):
             solutions[i].distance += (
-                objective(solutions[i + 1]) - objective(solutions[i - 1])
-            ) / (objective_max - objective_min)
+                                             objective(solutions[i + 1]) - objective(solutions[i - 1])
+                                     ) / (objective_max - objective_min)
 
 
-def weighted_overfit_score(x: Module):
-    keys = list(x.report.keys())
-    keys.sort()
-    test_score = x.report[keys[-1]]['weighted avg']['f1-score']
-    overfit = ((1 - abs(x.fitness[-1] - x.validation_fitness[-1])))
+def weighted_overfit_score(config: Configuration):
+    def _module_test_score(x):
+        keys = list(x.report.keys())
+        keys.sort()
+        return x.report[keys[-1]]['weighted avg']['f1-score']
 
-    return (overfit * 0.30) + (test_score * 0.70)
+    _module_overfit = lambda x: (1 - abs(x.fitness[-1] - x.validation_fitness[-1]))
+    _pattern_test_score = lambda x: x.results[-1].report['weighted avg']['f1-score']
+    _pattern_overfit = lambda x: (1 - abs(x.results[-1].accuracy[-1] - x.results[-1].val_accuracy[-1]))
+
+    if config.type == "ea-nas":
+        overfit = _module_overfit
+        test_score = _module_test_score
+    else:
+        overfit = _pattern_overfit
+        test_score = _pattern_test_score
+
+    return lambda x: (overfit(x) * 0.30) + (test_score(x) * 0.70)
 
 
-def nsga_ii(solutions: list, objectives: [callable], domination_operator: callable):
+def nsga_ii(solutions: list, objectives: [callable], domination_operator: callable, config: Configuration):
     """
     https://ieeexplore.ieee.org/document/996017
     """
@@ -94,11 +106,12 @@ def nsga_ii(solutions: list, objectives: [callable], domination_operator: callab
     # Removing networks without scores:
 
     # Compatibility requirement: 10 objectives requires at least 10 objects to sort.
-    # if len(solutions) < 20:
-     #    # Alternative sort, find the least overfitted with the best validation accuracy:
-    #     # inverse of overfit + validation accuracy
-    #     solutions.sort(key=weighted_overfit_score, reverse=False)
-    #     return solutions
+    if len(solutions) < 20:
+        # Alternative sort, find the least overfitted with the best validation accuracy:
+        # inverse of overfit + validation accuracy
+
+        solutions.sort(key=weighted_overfit_score(config), reverse=False)
+        return solutions
 
     # Sorting by multiple objectives:
     frontieer = fast_non_dominated_sort(solutions, domination_operator)

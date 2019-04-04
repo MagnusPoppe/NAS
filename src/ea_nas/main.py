@@ -69,7 +69,8 @@ def evolve_architecture(selection, config: Configuration):
             moo.classification_objectives(config),
             moo.classification_domination_operator(
                 moo.classification_objectives(config)
-            )
+            ),
+            config
         )
 
         removable = len(population) - config.population_size

@@ -57,6 +57,7 @@ def generation_finished(population, prefix):
 
 def print_config_stats(config: Configuration):
     import os
+    sort_type = 'Multi-objective' if config.population_size > 15 else 'Weighted scoring'
     epochs_fixed = "(Fixed)" if config.training.fixed_epochs else "(Multiplied by network size)"
     storage_area = "{config.results_location}/results/{config.results_name}" \
                  if config.results_location \
@@ -68,6 +69,7 @@ def print_config_stats(config: Configuration):
     print(f"\tPopulation size:               {config.population_size}")
     print(f"\tGenerations:                   {config.generations}")
     print(f"\tNumber of pattern/layers used: {config.min_size} - {config.max_size}")
+    print(f"\tElitism sorting type:          {sort_type}")
     print(f"Neural network training:")
     print(f"\tEpochs:                        {config.training.epochs} {epochs_fixed}")
     print(f"\tMinibatch size:                {config.training.batch_size}")

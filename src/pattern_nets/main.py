@@ -51,7 +51,7 @@ def main(config: Configuration):
         patterns = evaluation.apply_results(patterns, nets)
 
         # 3.4 Rank all patterns using MOO. Diversity in position, 2D vs 1D, scores ++
-        patterns = nsga_ii(patterns, moo_objectives, domination_operator)
+        patterns = nsga_ii(patterns, moo_objectives, domination_operator, config)
 
         # 3.5 Evolution of the fittest. Elitism
         patterns = patterns[:config.population_size]
