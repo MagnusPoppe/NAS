@@ -12,6 +12,7 @@
     "use restart": false,
     "batch size": 40,
     "epochs": 1.3,
+    "learning rate": 0.001,
     "fixed epochs": false
   },
   "population size": 5,

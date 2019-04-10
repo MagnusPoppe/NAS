@@ -1,11 +1,11 @@
 {
-  "dataset": "CIFAR-10",
-  "dataset path": "./data/cifar10.py",
-  "dataset name": "cifar10",
+  "dataset": "MNIST",
+  "dataset path": "./data/mnist.py",
+  "dataset name": "mnist",
   "input": [
-    32,
-    32,
-    3
+    28,
+    28,
+    1
   ],
   "classes": 10,
   "training": {

@@ -85,8 +85,8 @@ def weighted_overfit_score(config: Configuration):
         return x.report[keys[-1]]['weighted avg']['f1-score']
 
     _module_overfit = lambda x: (1 - abs(x.fitness[-1] - x.validation_fitness[-1]))
-    _pattern_test_score = lambda x: x.results[-1].report['weighted avg']['f1-score']
-    _pattern_overfit = lambda x: (1 - abs(x.results[-1].accuracy[-1] - x.results[-1].val_accuracy[-1]))
+    _pattern_test_score = lambda x: x.optimal_result().report['weighted avg']['f1-score']
+    _pattern_overfit = lambda x: (1 - abs(x.optimal_result().accuracy[-1] - x.results[-1].val_accuracy[-1]))
 
     if config.type == "ea-nas":
         overfit = _module_overfit
@@ -110,7 +110,7 @@ def nsga_ii(solutions: list, objectives: [callable], domination_operator: callab
         # Alternative sort, find the least overfitted with the best validation accuracy:
         # inverse of overfit + validation accuracy
 
-        solutions.sort(key=weighted_overfit_score(config), reverse=False)
+        solutions.sort(key=weighted_overfit_score(config), reverse=True)
         return solutions
 
     # Sorting by multiple objectives:

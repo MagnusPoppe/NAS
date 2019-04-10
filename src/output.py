@@ -16,7 +16,7 @@ def col(val: str, cols: int):
     return val + " " * (cols - len(val))
 
 
-def generation_finished(population, prefix):
+def generation_finished(population, config, prefix):
     print(prefix)
     rankings = []
     longest_string = 14
@@ -44,15 +44,25 @@ def generation_finished(population, prefix):
 
     print(header)
 
-    for rank, individ in zip(rankings, population):
-        rank += " " * (longest_string - len(rank))
-        rank += col(str(round(individ.fitness[-1] * 100, 1)), 7)
-        rank += col(str(round(individ.validation_fitness[-1] * 100, 1)), 7)
-        rank += col(get_improvement(individ), 7)
-        for report in individ.report[individ.epochs_trained].values():
-            rank += f'{col(str(round(report["f1-score"] * 100, 1)), 7)}'
-        print(rank)
-
+    if config.type == "ea-nas":
+        for rank, individ in zip(rankings, population):
+            rank += " " * (longest_string - len(rank))
+            rank += col(str(round(individ.fitness[-1] * 100, 1)), 7)
+            rank += col(str(round(individ.validation_fitness[-1] * 100, 1)), 7)
+            rank += col(get_improvement(individ), 7)
+            for report in individ.report[individ.epochs_trained].values():
+                rank += f'{col(str(round(report["f1-score"] * 100, 1)), 7)}'
+            print(rank)
+    else:
+        for rank, individ in zip(rankings, population):
+            result = individ.optimal_result()
+            rank += " " * (longest_string - len(rank))
+            rank += col(str(round(result.accuracy[-1] * 100, 1)), 7)
+            rank += col(str(round(result.val_accuracy[-1] * 100, 1)), 7)
+            rank += col("-", 7)
+            for report in result.report.values():
+                rank += f'{col(str(round(report["f1-score"] * 100, 1)), 7)}'
+            print(rank)
     upload_population(population)
 
 def print_config_stats(config: Configuration):

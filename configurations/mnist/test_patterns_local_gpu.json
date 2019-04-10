@@ -1,15 +1,15 @@
 {
-  "dataset": "CIFAR-10",
-  "dataset path": "./data/cifar10.py",
-  "dataset name": "cifar10",
+  "dataset": "MNIST",
+  "dataset path": "./data/mnist.py",
+  "dataset name": "mnist",
   "input": [
-    32,
-    32,
-    3
+    28,
+    28,
+    1
   ],
   "classes": 10,
   "training": {
-    "use restart": true,
+    "use restart": false,
     "batch size": 100,
     "epochs": 1,
     "learning rate": 0.005,
@@ -32,7 +32,7 @@
       "address": "192.168.1.2",
       "devices": [
         {
-          "device_str": "/GPU:1",
+          "device_str": "/GPU:0",
           "allow gpu memory growth": true,
           "memory per process": 1,
           "concurrency": 1

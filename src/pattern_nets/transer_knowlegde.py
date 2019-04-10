@@ -29,7 +29,7 @@ def store_weights_in_patterns(individ, model, config):
         pattern.failed_transfers = transfer_model_weights_to_pattern(model, pattern_model)
 
         model_path = os.path.join(pattern.absolute_save_path(config), "model.h5")
-        pattern.saved_model = try_save_model(pattern_model, model_path, pattern.ID)
+        pattern.results[-1].model_path = try_save_model(pattern_model, model_path, pattern.ID)
 
 
 def try_save_model(model, model_path, identity):

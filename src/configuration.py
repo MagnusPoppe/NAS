@@ -60,10 +60,11 @@ class Server(ValidatedInput):
 
 class Training(ValidatedInput):
 
-    def __init__(self, epochs: float, batch_size: int, fixed_epochs: bool, use_restart: bool):
+    def __init__(self, epochs: float, batch_size: int, learning_rate: float, fixed_epochs: bool, use_restart: bool):
         super().__init__()
         self.epochs = epochs
         self.batch_size = batch_size
+        self.learning_rate = learning_rate
         self.fixed_epochs = fixed_epochs
         self.use_restart = use_restart
 
@@ -141,6 +142,7 @@ class Configuration(ValidatedInput):
         training = Training(
             batch_size=conf["training"]['batch size'],
             epochs=conf["training"]['epochs'],
+            learning_rate=conf["training"]['learning rate'],
             fixed_epochs=conf["training"]['fixed epochs'],
             use_restart=conf["training"]['use restart'],
         )

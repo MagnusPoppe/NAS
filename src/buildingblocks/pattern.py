@@ -10,6 +10,7 @@ class Pattern(Module):
         self.layers = layers
         self.placement = 0
         self.preferred_placement = None
+        self.used_result = None
         self.results = []
 
     def __deepcopy__(self, memodict={}, clone=None):

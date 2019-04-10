@@ -39,8 +39,8 @@ def prepare_pattern_model(individ, config, device):
 
     for pattern in individ.patterns:
         pattern.model_file_exists(config)
-        if pattern.saved_model:
-            pattern_model = keras.models.load_model(pattern.saved_model)
+        if pattern.used_result and pattern.used_result.model_path:
+            pattern_model = keras.models.load_model(pattern.used_result.model_path)
             transfer_model_weights(model, pattern_model)
 
     return False, model

@@ -11,12 +11,13 @@ def train(
         val_data,
         val_labels,
         batch_size=64,
+        learning_rate=0.001,
         compiled=False,
 ):
     with tf.device(device.device):
         # DEFINING FUNCTIONS FOR COMPILATION
         if not compiled:
-            optimizer = keras.optimizers.Adam(lr=0.001)
+            optimizer = keras.optimizers.Adam(lr=learning_rate)
             loss = keras.losses.categorical_crossentropy
             model.compile(loss=loss, optimizer=optimizer, metrics=["accuracy"])
 
@@ -30,6 +31,46 @@ def train(
             shuffle=True,
             validation_data=(val_data, val_labels),
         )
+    return metric.history
+
+
+def train_until_stale(
+        model,
+        device,
+        epochs,
+        data,
+        labels,
+        val_data,
+        val_labels,
+        batch_size=64,
+        learning_rate=0.001,
+        compiled=False
+):
+    history = {"acc": [], "val_acc": [], "loss": [], "val_loss": []}
+
+    with tf.device(device.device):
+        # DEFINING FUNCTIONS FOR COMPILATION
+        if not compiled:
+            optimizer = keras.optimizers.Adam(lr=learning_rate)
+            loss = keras.losses.categorical_crossentropy
+            model.compile(loss=loss, optimizer=optimizer, metrics=["accuracy"])
+
+        # RUNNING TRAINING:
+        while not stalling(history):
+            metric = model.fit(
+                x=data,
+                y=labels,
+                epochs=epochs,
+                batch_size=batch_size,
+                verbose=0,
+                shuffle=True,
+                validation_data=(val_data, val_labels),
+            )
+            # Recording training data:
+            history["acc"] += metric.history["acc"]
+            history["val_acc"] += metric.history["val_acc"]
+            history["loss"] += metric.history["loss"]
+            history["val_loss"] += metric.history["val_loss"]
     return metric.history
 
 
@@ -67,42 +108,3 @@ def stalling(history, steps=10, max_steps=100):
         )
 
     return stale or no_improvement
-
-
-def train_until_stale(
-        model,
-        device,
-        epochs,
-        data,
-        labels,
-        val_data,
-        val_labels,
-        batch_size=64,
-        compiled=False
-):
-    history = {"acc": [], "val_acc": [], "loss": [], "val_loss": []}
-
-    with tf.device(device.device):
-        # DEFINING FUNCTIONS FOR COMPILATION
-        if not compiled:
-            optimizer = keras.optimizers.Adam(lr=0.001)
-            loss = keras.losses.categorical_crossentropy
-            model.compile(loss=loss, optimizer=optimizer, metrics=["accuracy"])
-
-        # RUNNING TRAINING:
-        while not stalling(history):
-            metric = model.fit(
-                x=data,
-                y=labels,
-                epochs=epochs,
-                batch_size=batch_size,
-                verbose=0,
-                shuffle=True,
-                validation_data=(val_data, val_labels),
-            )
-            # Recording training data:
-            history["acc"] += metric.history["acc"]
-            history["val_acc"] += metric.history["val_acc"]
-            history["loss"] += metric.history["loss"]
-            history["val_loss"] += metric.history["val_loss"]
-    return metric.history

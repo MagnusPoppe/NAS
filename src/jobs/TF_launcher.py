@@ -62,21 +62,5 @@ def run_jobs(population, server_id, config, verbose=False):
     for pool, res in zip(pools, pool_res):
         pool.close()
         results += res.get()
-    print("|")
 
-    # Applying results:
-    apply_training_results(population, results)
-    return population
-
-
-def apply_training_results(population, results):
-    for individ, res in zip(population, results):
-        individ.fitness += res['accuracy']
-        individ.loss += res['loss']
-        individ.validation_fitness += res['validation accuracy']
-        individ.validation_loss += res['validation loss']
-        individ.evaluation[res['epochs']] = res['test accuracy']
-        individ.epochs_trained += res['epochs']
-        individ.report[individ.epochs_trained] = res['report']
-        individ.saved_model = res['model']
-        individ.model_image_path = res['image']
+    return results

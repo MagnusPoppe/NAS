@@ -7,6 +7,16 @@ from src.buildingblocks.module import Module
 from src.helpers import randomized_index, shuffle
 
 
+def select_result(pattern):
+    if not pattern.results:
+        return None
+    draw = random.uniform(0, 1)
+    if draw > 0.50:
+        return pattern.optimal_result()
+    else:
+        return pattern.results[random.randint(0, len(pattern.results) -1)]
+
+
 def combine(patterns, num_nets, min_size, max_size, include_optimal=False):
 
     all_patterns_used = False
@@ -35,6 +45,8 @@ def combine(patterns, num_nets, min_size, max_size, include_optimal=False):
 
             # Adding to net:
             net.children += [copy.deepcopy(pattern)]
+            net.children[-1].used_result = select_result(pattern)
+
             if len(draw) == 0:
                 draw = randomized_index(patterns)
                 all_patterns_used = True
@@ -72,12 +84,14 @@ def combine_optimal(patterns, size):
     )
 
     for i in range(size):
-        optimal.children += [copy.deepcopy(sorted_patterns.pop(0))]
+        pattern = sorted_patterns.pop(0)
+        optimal.children += [copy.deepcopy(pattern)]
+        optimal.children[-1].used_result = pattern.optimal_result()
 
     dim2 = [p for p in optimal.children if p.type == "2D"]
-    dim2.sort(key=lambda p: p.optimal_result().distance)
+    dim2.sort(key=lambda p: p.used_result.distance)
     dim1 = [p for p in optimal.children if p.type == "1D"]
-    dim1.sort(key=lambda p: p.optimal_result().distance)
+    dim1.sort(key=lambda p: p.used_result.distance)
 
     optimal.children = dim2 + dim1
     optimal.patterns = optimal.children

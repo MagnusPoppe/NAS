@@ -14,8 +14,8 @@ def tournament(population, size):
 
     selected = []
     for x, y in index:
-        x_score = population[x].results[-1].report["weighted avg"]["f1-score"]
-        y_score = population[y].results[-1].report["weighted avg"]["f1-score"]
+        x_score = population[x].optimal_result().report["weighted avg"]["f1-score"]
+        y_score = population[y].optimal_result().report["weighted avg"]["f1-score"]
         selected += [population[x] if x_score > y_score else population[y]]
     return selected
 

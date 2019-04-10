@@ -2,7 +2,7 @@
 def classification_objectives(config) -> [callable]:
     def get_precision(i):
         def _get_report(p):
-            return p.results[-1].report[str(i)]['f1-score']
+            return p.optimal_result().report[str(i)]['f1-score']
         return _get_report
     return [get_precision(cls) for cls in range(config.classes_in_classifier)]
 

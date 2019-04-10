@@ -30,9 +30,9 @@ def main(config: Configuration):
     # 2. Evaluation of initial population. Fitness calculation
     nets = recombine.combine(patterns, compute_capacity, config.min_size, config.max_size)
     nets = workers.start(nets, config)
-    patterns = evaluation.apply_results(patterns, nets)
+    patterns = evaluation.inherit_results(patterns, nets)
 
-    generation_finished(nets, f"--> Initialization Complete:")
+    generation_finished(patterns, config, f"--> Initialization Complete:")
 
     # 3. Evolve for x generations:
     for generation in range(config.generations):
@@ -49,7 +49,7 @@ def main(config: Configuration):
         # 3.3 Evaluate new patterns. Fitness calculation
         nets = recombine.combine(patterns, compute_capacity, config.min_size, config.max_size, include_optimal=True)
         nets = workers.start(nets, config)
-        patterns = evaluation.apply_results(patterns, nets)
+        patterns = evaluation.inherit_results(patterns, nets)
 
         # 3.4 Rank all patterns using MOO. Diversity in position, 2D vs 1D, scores ++
         patterns = nsga_ii(patterns, moo_objectives, domination_operator, config)
@@ -58,4 +58,4 @@ def main(config: Configuration):
         patterns = patterns[:config.population_size]
 
         # 3.6 Feedback:
-        generation_finished(nets, f"--> Generation {generation} Leaderboards:")
+        generation_finished(patterns, config, f"--> Generation {generation} Leaderboards:")

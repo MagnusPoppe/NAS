@@ -10,34 +10,37 @@ class Result():
         self.distance = distance
         self.report = report
         self.preferred_inputs = preferred_inputs
+        self.model_path = ""
 
     def score(self):
         return self.accuracy[-1] * 0.2 \
-            + self.val_accuracy[-1] * 0.4 \
-            + self.report['weighted avg']['f1-score'] * 0.4
+               + self.val_accuracy[-1] * 0.4 \
+               + self.report['weighted avg']['f1-score'] * 0.4
 
 
-def apply_results(patterns, nets):
+def apply_result(net, result):
+    for dist, pattern in enumerate(net.patterns):
+        pattern.results += [
+            Result(
+                result['accuracy'],
+                result['validation accuracy'],
+                result['test accuracy'],
+                result['validation loss'],
+                dist / len(net.patterns),
+                result['report'],
+                net.patterns[dist - 1].find_last() if dist > 0 else None
+            )
+        ]
+
+
+def inherit_results(patterns, nets):
     for pattern in patterns:
-        included_nets = [
-            net for net in nets
+        successor_patterns = [
+            p for net in nets
             for p in net.patterns
             if p.predecessor.ID == pattern.ID
         ]
 
-        for net in included_nets:
-            dist = [i for i, p in enumerate(net.patterns) if p.predecessor.ID == pattern.ID][0]
-            pattern.results += [
-                Result(
-                    net.fitness,
-                    net.validation_fitness,
-                    net.loss,
-                    net.validation_loss,
-                    dist / len(net.patterns),
-                    net.report[list(net.report.keys())[-1]],
-                    net.patterns[dist - 1].find_last() if dist > 0 else None
-                )
-            ]
-
+        for successor in successor_patterns:
+            pattern.results += successor.results
     return patterns
-
