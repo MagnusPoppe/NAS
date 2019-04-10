@@ -33,9 +33,11 @@ def train(
     return metric.history
 
 
-def stalling(history, steps=10):
+def stalling(history, steps=10, max_steps=100):
     if len(history["acc"]) < steps + 1:
         return False
+    if len(history["acc"]) >= max_steps:
+        return True
 
     acc = history["acc"][-1]
     vacc = history["val_acc"][-1]

@@ -19,7 +19,7 @@ def pack_args(population, server_id, config: Configuration):
     for ind in population:
         epochs = config.training.epochs \
             if config.training.fixed_epochs \
-            else int(ind.number_of_operations() * config.epochs_per_layer)
+            else int(ind.number_of_operations() * config.training.epochs)
         sized += [epochs if epochs > 0 else 1]
     total_epochs = sum(sized)
 

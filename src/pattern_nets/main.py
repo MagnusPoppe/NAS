@@ -2,7 +2,7 @@ import sys
 
 from src.MOOA.NSGA_II import nsga_ii
 from src.configuration import Configuration
-from src.output import generation_finished
+from src.output import generation_finished, print_population
 from src.pattern_nets.initialization import initialize_patterns
 from src.pattern_nets import recombine, evaluation, selection, mutator, crossover
 from src.pattern_nets import moo_objectives as moo
@@ -25,6 +25,7 @@ def main(config: Configuration):
 
     # 1. Initialize population:
     patterns = initialize_patterns(config.population_size)
+    print_population(patterns)
 
     # 2. Evaluation of initial population. Fitness calculation
     nets = recombine.combine(patterns, compute_capacity, config.min_size, config.max_size)

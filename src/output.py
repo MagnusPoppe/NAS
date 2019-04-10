@@ -80,3 +80,8 @@ def print_config_stats(config: Configuration):
     print(f"\tResults save location:         {storage_area}")
     print(f"\tDelete unused results:         {not config.save_all_results}")
     print()
+
+def print_population(population):
+    print("Current population:")
+    for p in population:
+        print("\t-", str(p))

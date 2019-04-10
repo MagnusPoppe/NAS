@@ -12,9 +12,10 @@ def initialize_patterns(count: int) -> [Pattern]:
           - Average number of connections: 1.04
     """
     patterns = []
+
     for i in range(count):
         # Creating pattern randomly, starting with settings:
-        dimension = "1D" if randint(0, 1) == 0 else "2D"
+        dimension = "1D" if i < int((count-1)/2) else "2D"
         layer_count = randint(2, 4)
         pattern = Pattern(type=dimension, layers=layer_count)
 
