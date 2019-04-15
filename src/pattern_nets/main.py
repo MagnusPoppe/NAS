@@ -59,3 +59,11 @@ def main(config: Configuration):
 
         # 3.6 Feedback:
         generation_finished(patterns, config, f"--> Generation {generation} Leaderboards:")
+
+    # TODO: Final training step:
+    # To finish up, the best combination of patterns needs to be returned and trained for
+    # much longer than what they are during fitness evaluation. The previous steps should only
+    # be used for verifying that the combination of layers is good.
+    #
+    # This might need to be tried multiple times. When a good result is gotten, the algorithm should
+    # stop and return the final structure with trained weights.
