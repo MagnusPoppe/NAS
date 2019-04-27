@@ -31,7 +31,7 @@ def evolve_architecture(selection, config: Configuration):
     # Training initial population:
     population = workers.start(population, config)
     upload_population(population)
-    generation_finished(population, f"--> Initialization complete. Leaderboards:")
+    generation_finished(population, config, f"--> Initialization complete. Leaderboards:")
 
     # Running EA algorithm:
     for generation in range(config.generations):
@@ -73,15 +73,15 @@ def evolve_architecture(selection, config: Configuration):
             config
         )
 
-        removable = len(population) - config.population_size
-        population, removed = population[removable:], population[:removable]
+        keep = len(population) - config.population_size
+        population, removed = population[keep:], population[:keep]
 
         # Removing unused models:
-        if not config.save_all_results:
-            garbage_collector.collect_garbage(removed, population, config)
+        # if not config.save_all_results:
+        #     garbage_collector.collect_garbage(removed, population, config)
         upload_population(population)
-        generation_finished(population, f"--> Generation {generation} Leaderboards:")
-        generation_finished(removed, "--> The following individs were removed by elitism:")
+        generation_finished(population, config, f"--> Generation {generation} Leaderboards:")
+        generation_finished(removed, config, "--> The following individs were removed by elitism:")
         config.results.store_generation(population, generation)
 
 

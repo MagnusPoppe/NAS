@@ -40,6 +40,9 @@ def try_save_model(model, model_path, identity):
         I cant control how others use the servers, so
         just retry up to 3 times and give up if not able
         to save.
+
+        UPDATE: Cannot save in parallel...
+                So wait until other processes finish saving.
     """
     from tensorflow import keras
     saved = False
@@ -54,5 +57,5 @@ def try_save_model(model, model_path, identity):
             if tries == 3:
                 print(f"   - Failed to save model for {identity}... Training data lost.")
                 return None
-            time.sleep(1)
+            time.sleep(3)
     return model_path

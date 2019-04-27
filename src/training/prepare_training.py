@@ -55,12 +55,10 @@ def finalize(individ, storage_directory, model, config):
     model_path = os.path.join(storage_directory, "model.h5")
     image_path = os.path.join(storage_directory, individ.ID + ".png")
 
-    if config.type == "ea_nas":
-        individ.saved_model = transer_knowlegde.try_save_model(model, model_path, individ.ID)
-
-    else:
+    if config.type == "PatternNets":
         transer_knowlegde.store_weights_in_patterns(individ, model, config)
-        individ.saved_model = None
+    individ.saved_model = transer_knowlegde.try_save_model(model, model_path, individ.ID)
+
     try:
         keras.utils.plot_model(model, to_file=image_path)
         individ.model_image_path = image_path

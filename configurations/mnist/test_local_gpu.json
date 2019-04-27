@@ -9,15 +9,14 @@
   ],
   "classes": 10,
   "training": {
-    "use restart": true,
+    "use restart": false,
     "batch size": 90,
-    "epochs": 10,
+    "epochs": 1,
     "learning rate": 0.001,
     "fixed epochs": true,
-    "accepted_accuracy": 0.90,
-    "trial_score":
+    "accepted_accuracy": 0.98
   },
-  "population size": 6,
+  "population size": 2,
   "generations": 10,
   "initial network size": {
     "min": 2,

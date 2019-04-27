@@ -78,15 +78,24 @@ def crowding_distance_assignment(solutions: list, objectives: [callable]):
                                      ) / (objective_max - objective_min)
 
 
-def weighted_overfit_score(config: Configuration):
+def weighted_overfit_score(config: Configuration) -> callable:
+    """
+    Alternative sort, find the least overfitted with the best validation accuracy:
+    inverse of overfit + validation accuracy
+    """
     def _module_test_score(x):
         keys = list(x.report.keys())
         keys.sort()
-        return x.report[keys[-1]]['weighted avg']['f1-score']
+        return 1 - x.report[keys[-1]]['weighted avg']['f1-score']
 
-    _module_overfit = lambda x: (1 - abs(x.fitness[-1] - x.validation_fitness[-1]))
-    _pattern_test_score = lambda x: x.optimal_result().report['weighted avg']['f1-score']
-    _pattern_overfit = lambda x: (1 - abs(x.optimal_result().accuracy[-1] - x.results[-1].val_accuracy[-1]))
+    def _module_overfit(x):
+        return abs(x.fitness[-1] - x.validation_fitness[-1])
+
+    def _pattern_test_score(x):
+        return 1 - x.optimal_result().report['weighted avg']['f1-score']
+
+    def _pattern_overfit(x):
+        return abs(x.optimal_result().accuracy[-1] - x.results[-1].val_accuracy[-1])
 
     if config.type == "ea-nas":
         overfit = _module_overfit
@@ -95,7 +104,7 @@ def weighted_overfit_score(config: Configuration):
         overfit = _pattern_overfit
         test_score = _pattern_test_score
 
-    return lambda x: (overfit(x) * 0.30) + (test_score(x) * 0.70)
+    return lambda x: abs(overfit(x) * 0.30 + test_score(x) * 0.70)
 
 
 def nsga_ii(solutions: list, objectives: [callable], domination_operator: callable, config: Configuration):
@@ -103,13 +112,9 @@ def nsga_ii(solutions: list, objectives: [callable], domination_operator: callab
     https://ieeexplore.ieee.org/document/996017
     """
 
-    # Removing networks without scores:
+    # TODO: Removing networks without scores:
 
-    # Compatibility requirement: 10 objectives requires at least 10 objects to sort.
     if len(solutions) < 20:
-        # Alternative sort, find the least overfitted with the best validation accuracy:
-        # inverse of overfit + validation accuracy
-
         solutions.sort(key=weighted_overfit_score(config), reverse=True)
         return solutions
 
@@ -117,7 +122,8 @@ def nsga_ii(solutions: list, objectives: [callable], domination_operator: callab
     frontieer = fast_non_dominated_sort(solutions, domination_operator)
 
     # Rewarding diversity by boosting most different types:
-    try: crowding_distance_assignment(solutions, objectives)
+    try:
+        crowding_distance_assignment(solutions, objectives)
     except ZeroDivisionError as zde:
         print("Could not use MOO sort. Using weighted overfit score instead.")
         solutions.sort(key=weighted_overfit_score(config), reverse=True)

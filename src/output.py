@@ -42,16 +42,18 @@ def col(val: str, cols: int):
 def generation_finished(population, config, prefix):
     print(prefix)
     matrix = [
-        ["SPECIMIN", "ACC", "VACC", "IMPR", "LR", "1", "2", "3", "4", "5", "6", "7", "8", "9", "MIAVG", "MAAVG", "WAVG"]
+        ["SPECIMIN", "ACC", "VACC", "IMPR", "LR", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "MIAVG", "MAAVG", "WAVG"]
     ]
 
     if config.type == "ea-nas":
         for individ in population:
             matrix += [
                 [
+                    individ.ID,
                     round(individ.fitness[-1] * 100, 1),
                     round(individ.validation_fitness[-1] * 100, 1),
                     get_improvement(individ),
+                    config.training.learning_rate
                 ] + [
                     round(report["f1-score"] * 100, 1)
                     for report in individ.report[individ.epochs_trained].values()
@@ -62,6 +64,7 @@ def generation_finished(population, config, prefix):
             result = individ.optimal_result()
             matrix += [
                 [
+                    individ.ID,
                     round(result.accuracy[-1] * 100, 1),
                     round(result.val_accuracy[-1] * 100, 1),
                     "-",
@@ -92,6 +95,7 @@ def print_config_stats(config: Configuration):
     print(f"Neural network training:")
     print(f"\tEpochs:                        {config.training.epochs} {epochs_fixed}")
     print(f"\tMinibatch size:                {config.training.batch_size}")
+    print(f"\tLearning rate:                 {config.training.learning_rate}")
     print(f"\tUse restarting:                {config.training.use_restart}")
     print(f"Servers:")
     print(f"\tNumber of servers:             {len(config.servers)}")
