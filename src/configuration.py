@@ -126,13 +126,15 @@ class Server(ValidatedInput):
 
 class Training(ValidatedInput):
 
-    def __init__(self, epochs: float, batch_size: int, learning_rate: float, fixed_epochs: bool, use_restart: bool):
+    def __init__(self, epochs: float, batch_size: int, learning_rate: float, fixed_epochs: bool, use_restart: bool, acceptable_scores: float):
         super().__init__()
         self.epochs = epochs
         self.batch_size = batch_size
         self.learning_rate = learning_rate
         self.fixed_epochs = fixed_epochs
         self.use_restart = use_restart
+        self.acceptable_scores = acceptable_scores
+
 
 
 class Configuration(ValidatedInput):
@@ -184,6 +186,9 @@ class Configuration(ValidatedInput):
     def validate(self):
         pass
 
+    def compute_capacity(self):
+        return sum([dev.concurrency for server in self.servers for dev in server.devices])
+
     @staticmethod
     def from_json(json_path):
         import json
@@ -209,6 +214,7 @@ class Configuration(ValidatedInput):
             learning_rate=conf["training"]['learning rate'],
             fixed_epochs=conf["training"]['fixed epochs'],
             use_restart=conf["training"]['use restart'],
+            acceptable_scores=conf["training"]['accepted_accuracy']
         )
 
         result = ResultStore(

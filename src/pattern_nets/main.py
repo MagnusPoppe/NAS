@@ -35,7 +35,7 @@ def initialize_population(config, compute_capacity):
 def main(config: Configuration):
     # 0.1 How many nets can be trained for each generation?
     solved = False
-    compute_capacity = sum([dev.concurrency for server in config.servers for dev in server.devices])
+    compute_capacity = config.compute_capacity()
 
     # 0.2 Initializing multi objective optimisation sorting:
     moo_objectives = moo.classification_objectives(config)
@@ -98,7 +98,7 @@ def main(config: Configuration):
         config.type = "ea-nas"
         nets.sort(key=weighted_overfit_score(config), reverse=True)
         config.type = "PatternNets"
-        best_net = nets[-1]
+        best_net = nets[0]
 
         # Performing training step:
         best_net = workers.start([best_net], config)[0]
@@ -106,7 +106,7 @@ def main(config: Configuration):
         # Reset settings and return:
         config.training = original_training_settings
 
-        if best_net.validation_fitness[-1] >= 0.9:
+        if best_net.validation_fitness[-1] >= config.training.acceptable_scores:
             print("Found good network! ")
             solved = True
 
