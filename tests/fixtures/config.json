@@ -21,9 +21,11 @@
     "min": 1,
     "max": 4
   },
-  "run id": "simulation01",
-  "keep all results": false,
-  "results location": "/home/magnus/nas/tests/output",
+  "results": {
+    "name": "simulation01",
+    "keep all": false,
+    "location": "/home/magnus/nas/tests/output"
+  },
   "servers": [
     {
       "name": "COMPUTE",

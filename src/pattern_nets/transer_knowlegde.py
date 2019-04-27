@@ -2,6 +2,8 @@ import time
 
 import os
 
+from src.output import no_stdout
+
 
 def find_input_shape(config, pattern):
     if pattern.type == "1D" and len(config.input_format) < 2:
@@ -18,6 +20,7 @@ def find_input_shape(config, pattern):
     return tuple(input_dims)
 
 
+@no_stdout
 def store_weights_in_patterns(individ, model, config):
     from src.frameworks.keras import module_to_model
     from src.frameworks.weight_transfer import transfer_model_weights_to_pattern

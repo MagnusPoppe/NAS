@@ -82,6 +82,7 @@ def evolve_architecture(selection, config: Configuration):
         upload_population(population)
         generation_finished(population, f"--> Generation {generation} Leaderboards:")
         generation_finished(removed, "--> The following individs were removed by elitism:")
+        config.results.store_generation(population, generation)
 
 
 def run(config):

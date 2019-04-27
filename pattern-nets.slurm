@@ -4,7 +4,7 @@
 #SBATCH --nodes=1
 #SBATCH --gres=gpu:2
 #SBATCH --mem=64000
-#SBATCH --ntasks-per-node=1
+#SBATCH --ntasks-per-node=3
 #SBATCH --job-name="EA NAS"
 #SBATCH --output=output.log
 #SBATCH --mail-user=magnuspw@stud.ntnu.no,
@@ -30,12 +30,8 @@ module load OpenMPI/2.1.1
 module load cuDNN/7
 module load Python/3.6.3
 
-# export PATH="/usr/local/cuda-9.0:$PATH"
-# export CUDA_HOME="/usr/local/cuda-9.0"
-# export LD_LIBRARY_PATH="/usr/local/cuda-9.0/lib64:$LD_LIBRARY_PATH"
 export EA_NAS_UPLOAD_TO_FIREBASE="0"
 
-echo "-- SETTING UP SERVERS --"; echo;
 venv/bin/python slurm_nodes.py $SLURM_JOB_NODELIST "./configurations/slurm.json"
 
 echo "-- OUTPUT OF MAIN PROGRAM --"; echo;

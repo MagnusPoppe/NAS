@@ -2,11 +2,12 @@ from src.buildingblocks.module import Module
 
 
 class Result():
-    def __init__(self, accuracy, val_accuracy, loss, val_loss, distance, report, preferred_inputs):
+    def __init__(self, accuracy, val_accuracy, loss, val_loss, learning_rate, distance, report, preferred_inputs):
         self.accuracy = accuracy
         self.val_accuracy = val_accuracy
         self.loss = loss
         self.val_loss = val_loss
+        self.learning_rate = learning_rate
         self.distance = distance
         self.report = report
         self.preferred_inputs = preferred_inputs
@@ -18,17 +19,18 @@ class Result():
                + self.report['weighted avg']['f1-score'] * 0.4
 
 
-def apply_result(net, result):
+def apply_result(net, result, learning_rate):
     for dist, pattern in enumerate(net.patterns):
         pattern.results += [
             Result(
-                result['accuracy'],
-                result['validation accuracy'],
-                result['test accuracy'],
-                result['validation loss'],
-                dist / len(net.patterns),
-                result['report'],
-                net.patterns[dist - 1].find_last() if dist > 0 else None
+                accuracy=result['accuracy'],
+                val_accuracy=result['validation accuracy'],
+                loss=result['test accuracy'],
+                val_loss=result['validation loss'],
+                learning_rate=learning_rate,
+                distance=dist / len(net.patterns),
+                report=result['report'],
+                preferred_inputs=net.patterns[dist - 1].find_last() if dist > 0 else None
             )
         ]
 

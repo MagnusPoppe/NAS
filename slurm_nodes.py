@@ -95,7 +95,7 @@ for address in nodes:
         "type": "remote" if len(nodes) > 1 else "local",
         "cwd": os.getcwd(),
         "address": address,
-        "python": "~/ea-nas/venv/bin/python",
+        "python": os.path.join(os.getcwd(), "venv/bin/python"),
         "devices": [],
     }
     gpu_strings = [g for g in out.split("\n") if g]

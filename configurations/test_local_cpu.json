@@ -21,8 +21,12 @@
     "min": 5,
     "max": 8
   },
-  "run id": "simulation01",
-  "keep all results": false,
+  "results": {
+    "name": "simulation01",
+    "keep all": false,
+    "location": "/Users/magnus/Desktop",
+    "load": null
+  },
   "servers": [
     {
       "name": "COMPUTE",

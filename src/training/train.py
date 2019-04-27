@@ -12,7 +12,7 @@ def train(
         val_labels,
         batch_size=64,
         learning_rate=0.001,
-        compiled=False,
+        compiled=False
 ):
     with tf.device(device.device):
         # DEFINING FUNCTIONS FOR COMPILATION
@@ -71,7 +71,7 @@ def train_until_stale(
             history["val_acc"] += metric.history["val_acc"]
             history["loss"] += metric.history["loss"]
             history["val_loss"] += metric.history["val_loss"]
-    return metric.history
+    return history
 
 
 def stalling(history, steps=10, max_steps=100):

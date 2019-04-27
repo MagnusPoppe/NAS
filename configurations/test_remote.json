@@ -17,8 +17,11 @@
   },
   "population size": 5,
   "generations": 15,
-  "run id": "simulation07dropout",
-  "keep all results": false,
+  "results": {
+    "name": "simulation01",
+    "keep all": false,
+    "location": null
+  },
   "servers": [
     {
       "name": "ANAKIN01",

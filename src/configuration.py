@@ -1,3 +1,9 @@
+import os
+import pickle
+
+from src.buildingblocks.pattern import Pattern
+
+
 class ValidatedInput():
     def __init__(self):
         pass
@@ -5,6 +11,66 @@ class ValidatedInput():
     def validate(self):
         pass
 
+
+class ResultStore(ValidatedInput):
+
+    def __init__(self, name: str, location: str, keep_all: bool = False, load: str = None):
+        super().__init__()
+        self.name = name
+        self.location = location if location else os.path.join(os.getcwd(), "results")
+        self.keep_all = keep_all
+        self.individ_store = os.path.join(self.location, self.name, "individs")
+        self.generations_store = os.path.join(self.location, self.name, "generations")
+        self.load = load
+        os.makedirs(self.individ_store, exist_ok=True)
+        os.makedirs(self.generations_store, exist_ok=True)
+
+    def transfer_and_load_population(self):
+        # Checking load directory:
+        if not all("genotype.obj" in os.listdir(os.path.join(self.load, x)) for x in os.listdir(self.load)):
+            raise IOError("Incomplete generation was tried loaded...")
+
+        import shutil
+        # Load all results from previous:
+        genotypes = []
+        for dir in os.listdir(self.load):
+            filepath = os.path.join(self.load, dir, "genotype.obj")
+            with open(filepath, "rb") as f_ptr:
+                genotype = pickle.load(f_ptr)
+                if not isinstance(genotype, Pattern):
+                    continue
+                genotypes += [genotype]
+
+            # Copy files from previous
+            for content in os.listdir(os.path.join(self.load, dir)):
+                src = os.path.join(self.load, dir, content)
+                dst = os.path.join(self.ensure_individ_path(genotypes[-1]), content)
+                shutil.copy2(src, dst)
+        return genotypes
+
+    def store_generation(self, population, generation:int):
+        # Creating current generation directory:
+        generation_dir = os.path.join(self.generations_store, str(generation))
+        os.makedirs(generation_dir, exist_ok=True)
+
+        # Storing each individ:
+        for individ in population:
+            # Finding save directory and saving genotype:
+            directory = self.ensure_individ_path(individ)
+            with open(os.path.join(directory, "genotype.obj"), "wb") as f_ptr:
+                pickle.dump(individ, f_ptr)
+
+            # Adding shortcut to generation directory
+            self.create_shortcut(directory, os.path.join(generation_dir, f"'{individ.ID}'"))
+
+    def create_shortcut(self, a: str, b: str):
+        """ Creates a shortcut of a stored as b, where a and b are abspaths"""
+        os.system(f"ln -s {a} {b}")
+
+    def ensure_individ_path(self, individ):
+        path = os.path.join(self.individ_store, individ.name, str(individ.version))
+        os.makedirs(path, exist_ok=True)
+        return path
 
 class ComputeDevice(ValidatedInput):
     def __init__(self, device_str: str, allow_memory_growth: bool, memory_per_process: float, concurrency: int):
@@ -55,7 +121,7 @@ class Server(ValidatedInput):
         if self.type == "remote":
             import os
             if not os.path.exists(self.cwd):
-                raise Exception("Work directory (cwd) does not exist...")
+                raise Exception(f"Work directory ({self.cwd}) does not exist...")
 
 
 class Training(ValidatedInput):
@@ -80,16 +146,15 @@ class Configuration(ValidatedInput):
             classes_in_classifier: int,
             population_size: int,
             generations: int,
-            results_name: str,
-            save_all_results: bool,
-            results_location: str,
             initial_min_network_size: int,
             initial_max_network_size: int,
             training: Training,
-            servers: [Server]
+            servers: [Server],
+            result: ResultStore
     ):
         super().__init__()
         # Dataset Properties
+
         self.dataset_name = dataset_name
 
         # Training Properties
@@ -109,9 +174,7 @@ class Configuration(ValidatedInput):
         self.population_size = population_size
 
         # Results properties
-        self.results_name = results_name
-        self.save_all_results = save_all_results
-        self.results_location = results_location
+        self.results = result
 
         # Compute Environment:
         self.MPI = False
@@ -138,13 +201,21 @@ class Configuration(ValidatedInput):
                         dev["concurrency"])
                 ]
 
-            servers += [Server(server['name'], server['type'], server['cwd'], server['address'], compute, server['python'])]
+            servers += [
+                Server(server['name'], server['type'], server['cwd'], server['address'], compute, server['python'])]
         training = Training(
             batch_size=conf["training"]['batch size'],
             epochs=conf["training"]['epochs'],
             learning_rate=conf["training"]['learning rate'],
             fixed_epochs=conf["training"]['fixed epochs'],
             use_restart=conf["training"]['use restart'],
+        )
+
+        result = ResultStore(
+            name= conf['results']['name'],
+            keep_all=conf['results']['keep all'],
+            location=conf['results']['location'] if "location" in conf['results'] else None,
+            load=conf['results']['load'] if "load" in conf['results'] else ""
         )
 
         return Configuration(
@@ -155,11 +226,9 @@ class Configuration(ValidatedInput):
             classes_in_classifier=conf['classes'],
             population_size=conf['population size'],
             generations=conf['generations'],
-            results_name=conf['run id'],
-            save_all_results=conf['keep all results'],
-            results_location=conf["results location"] if "results location" in conf else None,
             initial_min_network_size=conf['initial network size']['min'],
             initial_max_network_size=conf['initial network size']['max'],
             training=training,
-            servers=servers
+            servers=servers,
+            result=result
         )

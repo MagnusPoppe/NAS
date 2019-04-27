@@ -21,17 +21,25 @@
     "min": 3,
     "max": 5
   },
-  "run id": "simulation01",
-  "keep all results": false,
+  "results": {
+    "name": "mnist01",
+    "keep all": true,
+    "location": null
+  },
   "servers": [
     {
-      "name": "COMPUTE",
+      "name": "Telenor001",
       "type": "local",
       "cwd": "/home/magnus/nas",
       "python": "python",
       "address": "192.168.1.2",
       "devices": [
         {
+          "device_str": "/GPU:0",
+          "allow gpu memory growth": true,
+          "memory per process": 1,
+          "concurrency": 1
+        }, {
           "device_str": "/GPU:0",
           "allow gpu memory growth": true,
           "memory per process": 1,

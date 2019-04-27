@@ -21,8 +21,11 @@
     "min": 2,
     "max": 5
   },
-  "run id": "simulation01",
-  "keep all results": false,
+  "results": {
+    "name": "simulation01",
+    "keep all": false,
+    "location": null
+  },
   "servers": [
     {
       "name": "COMPUTE",

@@ -1,5 +1,7 @@
 import random
 
+from src.pattern_nets import evaluation as pattern_evaluation
+from src.training.prepare_training import apply_ea_nas_results
 
 def apply_random_increases(li):
     if not li:
@@ -26,15 +28,21 @@ def fake_report():
     return report
 
 
-def start(population, _):
-    for individ in population:
-        individ.fitness = apply_random_increases(individ.fitness)
-        individ.loss = apply_random_increases(individ.loss)
-        individ.validation_fitness = apply_random_increases(individ.validation_fitness )
-        individ.validation_loss = apply_random_increases(individ.validation_loss)
-        individ.evaluation[10] = random.uniform(0, 1)
-        individ.epochs_trained += 10
-        individ.report[individ.epochs_trained] = fake_report()
-        individ.saved_model = None
-        individ.model_image_path = None
+def start(population, config):
+    for i, individ in enumerate(population):
+        report = fake_report()
+        result = {
+            "job": i,
+            "epochs": 10,
+            "accuracy": apply_random_increases(individ.fitness),
+            "validation accuracy": apply_random_increases(individ.validation_fitness),
+            "test accuracy": report['weighted avg']['precision'],
+            "loss": apply_random_increases(individ.loss),
+            "validation loss": apply_random_increases(individ.validation_loss),
+            "report": report
+        }
+
+        pattern_evaluation.apply_result(individ, result, config.training.learning_rate)
+        apply_ea_nas_results(individ, result, config.training.learning_rate)
+
     return population

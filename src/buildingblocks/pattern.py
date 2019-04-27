@@ -41,10 +41,32 @@ class Pattern(Module):
                 this.report['weighted avg']['f1-score'] >= best.report['weighted avg']['f1-score']
             )
 
-        if len(self.results) >= 1:
+        if len(self.results) > 0:
             best_res = self.results[0]
             for res in self.results[1:]:
                 if is_better(res, best_res):
                     best_res = res
             return best_res
         return None
+
+    def misconfigured(self):
+        try:
+            _ = self.type
+            _ = self.layers
+        except AttributeError:
+            return True
+        try:
+            _ = self.placement
+        except AttributeError:
+            self.placement = 0
+        try: _ = self.preferred_placement
+        except AttributeError:
+            self.preferred_placement = None
+        try: _ = self.used_result
+        except AttributeError:
+            self.used_result = None
+        try: _ = self.results
+        except AttributeError:
+            self.results = []
+
+        return False

@@ -155,14 +155,9 @@ class Module(Base):
             ends += find_end(child, seen)
         return ends
 
-
     def absolute_save_path(self, config):
         """ Reveals the absolute path to storage directory """
-        location = config.results_location if config.results_location else "./"
-        unique_individ_path = 'results/{}/{}/v{}'.format(config.results_name, self.name, self.version)
-        path = os.path.join(location, unique_individ_path)
-        os.makedirs(path, exist_ok=True)
-        return path
+        return config.results.ensure_individ_path(self)
 
     def clean(self):
         """ Removes all traces of keras from the module.

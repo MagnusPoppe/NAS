@@ -2,11 +2,12 @@ import numpy as np
 from tensorflow import keras
 
 # Preparing data:
+TRAINING_CASES = 45000
 (x_train, y_train), (x_test, y_test) = keras.datasets.cifar10.load_data()
-x_val = x_train[50000:] / 255
-y_val = keras.utils.to_categorical(y_train[50000:], num_classes=10)
-x_train = x_train[:50000] / 255
-y_train = keras.utils.to_categorical(y_train[:50000], num_classes=10)
+x_val = x_train[TRAINING_CASES:] / 255
+y_val = keras.utils.to_categorical(y_train[TRAINING_CASES:], num_classes=10)
+x_train = x_train[:TRAINING_CASES] / 255
+y_train = keras.utils.to_categorical(y_train[:TRAINING_CASES], num_classes=10)
 x_test = x_test / 255
 
 

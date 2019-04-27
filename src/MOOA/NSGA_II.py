@@ -117,7 +117,11 @@ def nsga_ii(solutions: list, objectives: [callable], domination_operator: callab
     frontieer = fast_non_dominated_sort(solutions, domination_operator)
 
     # Rewarding diversity by boosting most different types:
-    crowding_distance_assignment(solutions, objectives)
+    try: crowding_distance_assignment(solutions, objectives)
+    except ZeroDivisionError as zde:
+        print("Could not use MOO sort. Using weighted overfit score instead.")
+        solutions.sort(key=weighted_overfit_score(config), reverse=True)
+        return solutions
 
     solutions.sort(
         reverse=False,

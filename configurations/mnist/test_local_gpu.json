@@ -13,7 +13,9 @@
     "batch size": 90,
     "epochs": 10,
     "learning rate": 0.001,
-    "fixed epochs": true
+    "fixed epochs": true,
+    "accepted_accuracy": 0.90,
+    "trial_score":
   },
   "population size": 6,
   "generations": 10,
@@ -21,8 +23,11 @@
     "min": 2,
     "max": 5
   },
-  "run id": "simulation01",
-  "keep all results": false,
+  "results": {
+    "name": "simulation01",
+    "keep all": false,
+    "location": null
+  },
   "servers": [
     {
       "name": "COMPUTE",

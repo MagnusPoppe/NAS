@@ -3,8 +3,10 @@ import tensorflow as tf
 from tensorflow import keras
 from src.frameworks.keras import module_to_model as assemble
 from src.frameworks.weight_transfer import transfer_model_weights
+from src.output import no_stdout
 
 
+@no_stdout
 def get_model(individ, config, device):
     if config.type == "PatternNets":
         return prepare_pattern_model(individ, config, device)
