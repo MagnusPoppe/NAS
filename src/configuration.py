@@ -186,8 +186,8 @@ class Configuration(ValidatedInput):
     def validate(self):
         pass
 
-    def compute_capacity(self):
-        return sum([dev.concurrency for server in self.servers for dev in server.devices])
+    def compute_capacity(self, maximum=True):
+        return sum([dev.concurrency if maximum else 1 for server in self.servers for dev in server.devices])
 
     @staticmethod
     def from_json(json_path):

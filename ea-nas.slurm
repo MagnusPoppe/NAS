@@ -1,12 +1,12 @@
 #!/bin/sh
 #SBATCH --partition=V100-IDI
-#SBATCH --time=3-0:00:00
-#SBATCH --nodes=2
+#SBATCH --time=7-0:00:00
+#SBATCH --nodes=1
 #SBATCH --gres=gpu:2
 #SBATCH --mem=64000
 #SBATCH --ntasks-per-node=1
 #SBATCH --job-name="EA NAS"
-#SBATCH --output=output.log
+#SBATCH --output=v100-5.log
 #SBATCH --mail-user=magnuspw@stud.ntnu.no,
 #SBATCH --mail-type=ALL
 
@@ -20,7 +20,7 @@ echo "The job was run on these nodes: $SLURM_JOB_NODELIST"
 echo "Number of nodes: $SLURM_JOB_NUM_NODES"
 echo "We are using $SLURM_CPUS_ON_NODE cores"
 echo "We are using $SLURM_CPUS_ON_NODE cores per node"
-echo "Total of $SLURM_NTASKS cores"3
+echo "Total of $SLURM_NTASKS cores"
 echo ;
 
 # TENSORFLOW 1.10.1 running on CUDA 9.0 setup:

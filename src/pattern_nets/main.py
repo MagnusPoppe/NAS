@@ -98,7 +98,7 @@ def main(config: Configuration):
         config.type = "ea-nas"
         nets.sort(key=weighted_overfit_score(config), reverse=True)
         config.type = "PatternNets"
-        best_net = nets[0]
+        best_net = nets[-1]
 
         # Performing training step:
         best_net = workers.start([best_net], config)[0]

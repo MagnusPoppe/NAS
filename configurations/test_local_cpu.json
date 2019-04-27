@@ -10,35 +10,35 @@
   "classes": 10,
   "training": {
     "use restart": true,
-    "batch size": 300,
+    "batch size": 90,
     "epochs": 10,
     "learning rate": 0.001,
-    "fixed epochs": true
+    "fixed epochs": true,
+    "accepted_accuracy": 0.90
   },
-  "population size": 10,
-  "generations": 1000,
+  "population size": 6,
+  "generations": 10,
   "initial network size": {
-    "min": 5,
-    "max": 8
+    "min": 2,
+    "max": 5
   },
   "results": {
     "name": "simulation01",
     "keep all": false,
-    "location": "/Users/magnus/Desktop",
-    "load": null
+    "location": null
   },
   "servers": [
     {
       "name": "COMPUTE",
       "type": "local",
-      "cwd": "/Users/magnus/Projects/Python/nas",
-      "python": "python",
-      "address": "localhost",
+      "cwd": "/lhome/magnuspw/ea-nas",
+      "python": "venv/bin/python",
+      "address": "local",
       "devices": [
         {
-          "device_str": "/CPU:0",
+          "device_str": "/GPU:1",
           "allow gpu memory growth": true,
-          "memory per process": 1,
+          "memory per process": 0.5,
           "concurrency": 2
         }
       ]

@@ -32,8 +32,10 @@ def evolve_architecture(selection, config: Configuration):
 
     # Training initial population:
     population = workers.start(population, config)
+    population.sort(key=weighted_overfit_score(config), reverse=True)
     upload_population(population)
     generation_finished(population, config, f"--> Initialization complete. Leaderboards:")
+    best = population[0]
 
     # Running EA algorithm:
     for generation in range(config.generations):
@@ -42,56 +44,39 @@ def evolve_architecture(selection, config: Configuration):
         # Preparation:
         print("\nGeneration", generation)
         builtins.generation = generation
-        children = []
+        offsprings = []
 
         # Mutation:
         print("--> Mutations:")
         update_status("Mutating")
-        for selected in selection(population, config.population_size):
+        for i in range(config.population_size):
             draw = random.uniform(0, 1)
-            mutated = None
-            if draw < 0.9:
-                print("    - Operation Mutation for {}".format(selected.ID))
-                mutated = mutate(selected)
-            else:  # elif draw < 0.9:
-                print("    - Creating new net randomly")
-                mutated = init_population(1, config.input_format, 3, 30)[0]
-
+            mutated = mutate(best) if draw < 0.9 else init_population(1, config.input_format, 3, 30)[0]
             if mutated:
-                children += [mutated]
+                offsprings += [mutated]
 
         # Training networks:
-        children = list(set(children))  # Preventing inbreeding
+        offsprings = list(set(offsprings))  # Preventing inbreeding
 
         # Elitism:
-        population += children
+        population = [best] + offsprings
         population = workers.start(population, config)
-        population = nsga_ii(
-            population,
-            moo.classification_objectives(config),
-            moo.classification_domination_operator(
-                moo.classification_objectives(config)
-            ),
-            config
-        )
+        population.sort(key=weighted_overfit_score(config), reverse=True)
 
-        keep = len(population) - config.population_size
-        population, removed = population[keep:], population[:keep]
+        keep = 1
+        best, removed = population[-1], population[:-1]
 
-        # Removing unused models:
-        # if not config.save_all_results:
-        #     garbage_collector.collect_garbage(removed, population, config)
         upload_population(population)
-        generation_finished(population, config, f"--> Generation {generation} Leaderboards:")
+        generation_finished([best], config, f"--> Generation {generation} Leaderboards:")
         generation_finished(removed, config, "--> The following individs were removed by elitism:")
         config.results.store_generation(population, generation)
 
         if any(ind.validation_fitness[-1] > config.training.acceptable_scores - 0.10 for ind in population):
             trained, solved = try_finish(population, config)
             if solved:
-                config.results.store_generation(solved, generation+1)
+                config.results.store_generation(trained, generation+1)
                 return
-            population += trained
+            population = [best] + trained
             population = nsga_ii(
                 population,
                 moo.classification_objectives(config),
@@ -106,15 +91,16 @@ def evolve_architecture(selection, config: Configuration):
 
 def try_finish(population: [Module], config: Configuration) -> [Module]:
     print(f"--> Possible final solution discovered. Checking...")
+    solved = False
 
     # Changing settings of training steps:
     original_training_settings = copy.deepcopy(config.training)
     config.training.use_restart = False
     config.training.fixed_epochs = True
-    config.training.epochs = 300
+    config.training.epochs = 1
 
     # Finding the best networks:
-    best = population[:config.compute_capacity()]
+    best = population[:config.compute_capacity(maximum=False)]
 
     # Performing training step:
     best = workers.start(best, config)
@@ -124,7 +110,7 @@ def try_finish(population: [Module], config: Configuration) -> [Module]:
 
     best.sort(key=weighted_overfit_score(config), reverse=True)
     if any(ind.validation_fitness[-1] >= config.training.acceptable_scores for ind in best):
-        generation_finished([best], config, "--> Found final solution:")
+        generation_finished(best, config, "--> Found final solution:")
         solved = True
 
     return best, solved
