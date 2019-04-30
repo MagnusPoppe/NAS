@@ -4,8 +4,10 @@ import time
 
 try:
     import setproctitle
+
     setproctitle.setproctitle("NAS-EVOLVE")
-except ImportError: pass
+except ImportError:
+    pass
 
 from src.configuration import Configuration
 from src.output import print_config_stats
@@ -21,6 +23,10 @@ if not os.path.isfile(sys.argv[1]):
 
 config = Configuration.from_json(sys.argv[1])
 config.type = "PatternNets"
+config.dataset_name = config.target_dataset.dataset_name
+config.dataset_file_name = config.target_dataset.dataset_file_name
+config.dataset_file_path = config.target_dataset.dataset_file_path
+
 print_config_stats(config)
 evolve(config=config)
 print("\n\nTraining complete. Total runtime:", time.time() - start_time)

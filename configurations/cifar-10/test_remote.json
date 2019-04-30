@@ -1,7 +1,10 @@
 {
-  "dataset": "CIFAR-10",
-  "dataset path": "./data/cifar10.py",
-  "dataset name": "cifar10",
+  "target dataset": {
+    "dataset": "CIFAR-10",
+    "dataset path": "./data/cifar10.py",
+    "dataset name": "cifar10",
+    "accepted_accuracy": 0.80
+  },
   "input": [
     32,
     32,

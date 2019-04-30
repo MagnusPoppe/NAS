@@ -1,7 +1,10 @@
 {
-  "dataset": "MNIST",
-  "dataset path": "./data/mnist.py",
-  "dataset name": "mnist",
+  "target dataset": {
+    "dataset": "MNIST",
+    "dataset path": "./data/mnist.py",
+    "dataset name": "mnist",
+    "accepted_accuracy": 0.98
+  },
   "input": [
     28,
     28,

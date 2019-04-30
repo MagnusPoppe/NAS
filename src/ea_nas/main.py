@@ -19,23 +19,27 @@ import builtins
 builtins.generation = 0
 
 
-def evolve_architecture(selection, config: Configuration):
+def evolve_architecture(config: Configuration, population: [Module] = None):
     update_status("Creating initial population")
 
     # initializing population
-    population = init_population(
-        individs=config.population_size,
-        in_shape=config.input_format,
-        network_min_layers=config.min_size,
-        network_max_layers=config.max_size
-    )
+    if not population:
+        population = init_population(
+            individs=config.population_size,
+            in_shape=config.input_format,
+            network_min_layers=config.min_size,
+            network_max_layers=config.max_size
+        )
 
-    # Training initial population:
-    population = workers.start(population, config)
-    population.sort(key=weighted_overfit_score(config), reverse=True)
-    upload_population(population)
-    generation_finished(population, config, f"--> Initialization complete. Leaderboards:")
-    best = population[0]
+        # Training initial population:
+        population = workers.start(population, config)
+        population.sort(key=weighted_overfit_score(config), reverse=True)
+        upload_population(population)
+        generation_finished(population, config, f"--> Initialization complete. Leaderboards:")
+        best = population[0]
+    else:
+        population = copy.deepcopy(population)
+        generation_finished(population, config, f"--> Initialization skipped. Leaderboards:")
 
     # Running EA algorithm:
     for generation in range(config.generations):
@@ -72,26 +76,14 @@ def evolve_architecture(selection, config: Configuration):
         config.results.store_generation(population, generation)
 
         if any(ind.validation_fitness[-1] > config.training.acceptable_scores - 0.10 for ind in population):
-            trained, solved = try_finish(population, config)
+            population, solved = try_finish(population, config)
             if solved:
-                config.results.store_generation(trained, generation+1)
-                return
-            population = [best] + trained
-            population = nsga_ii(
-                population,
-                moo.classification_objectives(config),
-                moo.classification_domination_operator(
-                    moo.classification_objectives(config)
-                ),
-                config
-            )
-            keep = len(population) - config.population_size
-            population, removed = population[keep:], population[:keep]
+                return population
+    return population
 
 
 def try_finish(population: [Module], config: Configuration) -> [Module]:
     print(f"--> Possible final solution discovered. Checking...")
-    solved = False
 
     # Changing settings of training steps:
     original_training_settings = copy.deepcopy(config.training)
@@ -111,14 +103,40 @@ def try_finish(population: [Module], config: Configuration) -> [Module]:
     best.sort(key=weighted_overfit_score(config), reverse=True)
     if any(ind.validation_fitness[-1] >= config.training.acceptable_scores for ind in best):
         generation_finished(best, config, "--> Found final solution:")
-        solved = True
-
-    return best, solved
+        config.results.store_generation(best, config.generation + 1)
+        return best, True
+    else:
+        # A final solution was not found... Keep the best individs:
+        population = [best] + population
+        population = nsga_ii(
+            population,
+            moo.classification_objectives(config),
+            moo.classification_domination_operator(
+                moo.classification_objectives(config)
+            ),
+            config
+        )
+        keep = len(population) - config.population_size
+        population, removed = population[keep:], population[:keep]
+        generation_finished(population, config, "--> Leaderboards after final solution try failed:")
+        generation_finished(removed, config, "--> Removed after final solution try failed:")
+        return population, False
 
 
 def run(config):
     print("\n\nEvolving architecture")
     start_time = time.time()
+    population = None
+    if config.pretrain_dataset:
+        print(f"\n\nPre training stage, training on easier dataset {config.pretrain_dataset.dataset_name}")
+        config.dataset_name = config.pretrain_dataset.dataset_name
+        config.dataset_file_name = config.pretrain_dataset.dataset_file_name
+        config.dataset_file_path = config.pretrain_dataset.dataset_file_path
+        population = evolve_architecture(config=config)
 
-    evolve_architecture(selection=tournament, config=config)
+    config.dataset_name = config.target_dataset.dataset_name
+    config.dataset_file_name = config.target_dataset.dataset_file_name
+    config.dataset_file_path = config.target_dataset.dataset_file_path
+    _ = evolve_architecture(config=config, population=population)
+
     print("\n\nTraining complete. Total runtime:", time.time() - start_time)

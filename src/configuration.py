@@ -126,24 +126,31 @@ class Server(ValidatedInput):
 
 class Training(ValidatedInput):
 
-    def __init__(self, epochs: float, batch_size: int, learning_rate: float, fixed_epochs: bool, use_restart: bool, acceptable_scores: float):
+    def __init__(self, epochs: float, batch_size: int, learning_rate: float, fixed_epochs: bool, use_restart: bool):
         super().__init__()
         self.epochs = epochs
         self.batch_size = batch_size
         self.learning_rate = learning_rate
         self.fixed_epochs = fixed_epochs
         self.use_restart = use_restart
-        self.acceptable_scores = acceptable_scores
+        self.acceptable_scores = None
 
+class Dataset(ValidatedInput):
+
+    def __init__(self, dataset_name:str, dataset_file_path: str, dataset_file_name: str, accepted_accuracy):
+        super().__init__()
+        self.dataset_name = dataset_name
+        self.dataset_file_path = dataset_file_path
+        self.dataset_file_name = dataset_file_name
+        self.accepted_accuracy = accepted_accuracy
 
 
 class Configuration(ValidatedInput):
 
     def __init__(
             self,
-            dataset_name: str,
-            dataset_file_path: str,
-            dataset_file_name: str,
+            target_dataset: Dataset,
+            pretrain_dataset: Dataset,
             input_format: (int,),
             classes_in_classifier: int,
             population_size: int,
@@ -155,14 +162,15 @@ class Configuration(ValidatedInput):
             result: ResultStore
     ):
         super().__init__()
-        # Dataset Properties
+        # Dataset Properties (Guides)
+        self.target_dataset = target_dataset
+        self.pretrain_dataset = pretrain_dataset
 
-        self.dataset_name = dataset_name
-
-        # Training Properties
+        # Training Properties (Actually used)
         self.training = training
-        self.dataset_file_path = dataset_file_path
-        self.dataset_file_name = dataset_file_name
+        self.dataset_name = None
+        self.dataset_file_path = None
+        self.dataset_file_name = None
 
         # Network Properties
         self.input_format = input_format
@@ -224,10 +232,22 @@ class Configuration(ValidatedInput):
             load=conf['results']['load'] if "load" in conf['results'] else ""
         )
 
+        target_dataset = Dataset(
+            dataset_name=conf['target dataset']['dataset'],
+            dataset_file_name=conf['target dataset']['dataset name'],
+            dataset_file_path=conf['target dataset']['dataset path'],
+            accepted_accuracy=conf['target dataset']['accepted accuracy']
+        )
+        pretrain_dataset = Dataset(
+            dataset_name=conf['pretrain dataset']['dataset'],
+            dataset_file_name=conf['pretrain dataset']['dataset name'],
+            dataset_file_path=conf['pretrain dataset']['dataset path'],
+            accepted_accuracy=conf['pretrain dataset']['accepted accuracy']
+        ) if "pretrain dataset" in conf else None
+
         return Configuration(
-            dataset_name=conf['dataset'],
-            dataset_file_path=conf['dataset path'],
-            dataset_file_name=conf['dataset name'],
+            target_dataset=target_dataset,
+            pretrain_dataset=pretrain_dataset,
             input_format=tuple(conf['input']),
             classes_in_classifier=conf['classes'],
             population_size=conf['population size'],
