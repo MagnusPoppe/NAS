@@ -5,7 +5,7 @@ from mpi4py import MPI
 
 from src.configuration import Configuration
 import src.ea_nas.main as ea_nas
-from src.jobs.TF_launcher import run_jobs
+from src.jobs.MP import run_jobs
 
 try:
     import setproctitle

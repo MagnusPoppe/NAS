@@ -11,7 +11,7 @@ from src.pattern_nets import moo_objectives as moo
 if len(sys.argv) == 3 and sys.argv[2] == "mock":
     import src.training.mock as workers
 else:
-    import src.jobs.job_initializer as workers
+    import src.jobs.jobs as workers
 
 
 def initialize_population(config, compute_capacity):

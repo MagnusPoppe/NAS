@@ -56,23 +56,6 @@ def collect_garbage(delete_subset: [Module], rest_population: [Module], config: 
     print(f"--> Removed models worth {convert_bytes(storage_space_saved)}")
 
 
-# if __name__ == '__main__':
-#     import json, pickle
-#     with open("./datasets/cifar-10-mp.json", "r") as f:
-#         config = json.load(f)
-#
-#     population = []
-#     res_path = f"./results/{config['run id']}"
-#     for name in os.listdir(res_path):
-#         for version in os.listdir(os.path.join(res_path, name)):
-#             genotype_file = os.path.join(res_path, name, version, "genotype.obj")
-#             if os.path.isfile(genotype_file):
-#                 with open(genotype_file, "rb") as f:
-#                     population += [pickle.load(f)]
-#
-#     subset, population= population[:10], population[10:]
-#     collect_garbage(subset, population, config)
-
 def find_genotypes(original_path):
     size = 0
     for f in os.listdir(original_path):

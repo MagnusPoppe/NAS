@@ -3,7 +3,7 @@ import unittest
 import os
 
 from src.configuration import Configuration
-from src.jobs.TF_launcher import apply_training_results
+from src.jobs.MP import apply_training_results
 from src.output import generation_finished
 from src.pattern_nets import recombine
 from src.pattern_nets.evaluation import apply_results

@@ -11,7 +11,7 @@ from firebase.upload import update_status, upload_population
 from src.output import generation_finished
 from src.ea_nas import operators as moo
 from src.MOOA.NSGA_II import nsga_ii, weighted_overfit_score
-import src.jobs.job_initializer as workers
+import src.jobs.jobs as workers
 from src.jobs import garbage_collector
 
 import builtins
