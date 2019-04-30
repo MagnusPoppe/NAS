@@ -3,13 +3,13 @@
     "dataset": "MNIST",
     "dataset path": "./data/mnist.py",
     "dataset name": "mnist",
-    "accepted_accuracy": 0.98
+    "accepted_accuracy": 0.98,
+    "input": [
+      28,
+      28,
+      1
+    ]
   },
-  "input": [
-    28,
-    28,
-    1
-  ],
   "classes": 10,
   "training": {
     "use restart": false,

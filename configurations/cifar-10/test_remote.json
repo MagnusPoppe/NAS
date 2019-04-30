@@ -3,13 +3,13 @@
     "dataset": "CIFAR-10",
     "dataset path": "./data/cifar10.py",
     "dataset name": "cifar10",
-    "accepted_accuracy": 0.80
+    "accepted_accuracy": 0.80,
+    "input": [
+      32,
+      32,
+      3
+    ]
   },
-  "input": [
-    32,
-    32,
-    3
-  ],
   "classes": 10,
   "training": {
     "use restart": false,

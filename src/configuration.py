@@ -48,7 +48,7 @@ class ResultStore(ValidatedInput):
                 shutil.copy2(src, dst)
         return genotypes
 
-    def store_generation(self, population, generation:int):
+    def store_generation(self, population, generation: int):
         # Creating current generation directory:
         generation_dir = os.path.join(self.generations_store, str(generation))
         os.makedirs(generation_dir, exist_ok=True)
@@ -65,12 +65,13 @@ class ResultStore(ValidatedInput):
 
     def create_shortcut(self, a: str, b: str):
         """ Creates a shortcut of a stored as b, where a and b are abspaths"""
-        os.system(f"ln -s {a} {b}")
+        os.symlink(a, b, target_is_directory=True)
 
     def ensure_individ_path(self, individ):
         path = os.path.join(self.individ_store, individ.name, str(individ.version))
         os.makedirs(path, exist_ok=True)
         return path
+
 
 class ComputeDevice(ValidatedInput):
     def __init__(self, device_str: str, allow_memory_growth: bool, memory_per_process: float, concurrency: int):
@@ -135,14 +136,17 @@ class Training(ValidatedInput):
         self.use_restart = use_restart
         self.acceptable_scores = None
 
+
 class Dataset(ValidatedInput):
 
-    def __init__(self, dataset_name:str, dataset_file_path: str, dataset_file_name: str, accepted_accuracy):
+    def __init__(self, dataset_name: str, dataset_file_path: str, dataset_file_name: str, accepted_accuracy: float,
+                 input: [int]):
         super().__init__()
         self.dataset_name = dataset_name
         self.dataset_file_path = dataset_file_path
         self.dataset_file_name = dataset_file_name
         self.accepted_accuracy = accepted_accuracy
+        self.input = input
 
 
 class Configuration(ValidatedInput):
@@ -159,6 +163,7 @@ class Configuration(ValidatedInput):
             initial_max_network_size: int,
             training: Training,
             servers: [Server],
+            async_verbose: bool,
             result: ResultStore
     ):
         super().__init__()
@@ -187,6 +192,7 @@ class Configuration(ValidatedInput):
         self.results = result
 
         # Compute Environment:
+        self.async_verbose = async_verbose
         self.MPI = False
         self.servers = servers
         self.validate()
@@ -221,12 +227,11 @@ class Configuration(ValidatedInput):
             epochs=conf["training"]['epochs'],
             learning_rate=conf["training"]['learning rate'],
             fixed_epochs=conf["training"]['fixed epochs'],
-            use_restart=conf["training"]['use restart'],
-            acceptable_scores=conf["training"]['accepted_accuracy']
+            use_restart=conf["training"]['use restart']
         )
 
         result = ResultStore(
-            name= conf['results']['name'],
+            name=conf['results']['name'],
             keep_all=conf['results']['keep all'],
             location=conf['results']['location'] if "location" in conf['results'] else None,
             load=conf['results']['load'] if "load" in conf['results'] else ""
@@ -236,19 +241,21 @@ class Configuration(ValidatedInput):
             dataset_name=conf['target dataset']['dataset'],
             dataset_file_name=conf['target dataset']['dataset name'],
             dataset_file_path=conf['target dataset']['dataset path'],
-            accepted_accuracy=conf['target dataset']['accepted accuracy']
+            accepted_accuracy=conf['target dataset']['accepted_accuracy'],
+            input=tuple(conf['target dataset']['input'])
         )
         pretrain_dataset = Dataset(
             dataset_name=conf['pretrain dataset']['dataset'],
             dataset_file_name=conf['pretrain dataset']['dataset name'],
             dataset_file_path=conf['pretrain dataset']['dataset path'],
-            accepted_accuracy=conf['pretrain dataset']['accepted accuracy']
+            accepted_accuracy=conf['pretrain dataset']['accepted_accuracy'],
+            input=tuple(conf['pretrain dataset']['input'])
         ) if "pretrain dataset" in conf else None
 
         return Configuration(
             target_dataset=target_dataset,
             pretrain_dataset=pretrain_dataset,
-            input_format=tuple(conf['input']),
+            input_format=None,
             classes_in_classifier=conf['classes'],
             population_size=conf['population size'],
             generations=conf['generations'],
@@ -256,5 +263,6 @@ class Configuration(ValidatedInput):
             initial_max_network_size=conf['initial network size']['max'],
             training=training,
             servers=servers,
-            result=result
+            result=result,
+            async_verbose=conf['verbose'] if 'verbose' in conf else True
         )

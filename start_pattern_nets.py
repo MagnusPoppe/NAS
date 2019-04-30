@@ -26,6 +26,8 @@ config.type = "PatternNets"
 config.dataset_name = config.target_dataset.dataset_name
 config.dataset_file_name = config.target_dataset.dataset_file_name
 config.dataset_file_path = config.target_dataset.dataset_file_path
+config.training.acceptable_scores = config.target_dataset.accepted_accuracy
+config.input_format = config.target_dataset.input
 
 print_config_stats(config)
 evolve(config=config)

@@ -3,35 +3,41 @@
     "dataset": "MNIST",
     "dataset path": "./data/mnist.py",
     "dataset name": "mnist",
-    "accepted_accuracy": 0.98
+    "accepted_accuracy": 0.98,
+    "input": [
+      28,
+      28,
+      1
+    ]
   },
   "target dataset": {
     "dataset": "CIFAR-10",
     "dataset path": "./data/cifar10.py",
     "dataset name": "cifar10",
-    "accepted_accuracy": 0.80
+    "accepted_accuracy": 0.80,
+    "input": [
+      32,
+      32,
+      3
+    ]
   },
-  "input": [
-    32,
-    32,
-    3
-  ],
+  "verbose": false,
   "classes": 10,
   "training": {
     "use restart": true,
     "batch size": 60,
     "epochs": 10,
     "learning rate": 0.001,
-    "fixed epochs": true,
+    "fixed epochs": true
   },
-  "population size": 4,
+  "population size": 40,
   "generations": 300,
   "initial network size": {
     "min": 2,
     "max": 5
   },
   "results": {
-    "name": "single-pretrained-net-V100-IDI-1",
+    "name": "single-pretrained-net",
     "keep all": false,
     "location": null
   },

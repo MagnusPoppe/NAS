@@ -96,6 +96,7 @@ def run(args):
         compiled
     )
     if config.training.use_restart:
+        training_args += (config.async_verbose,)
         training_history = training.train_until_stale(*training_args)
     else:
         training_history = training.train(*training_args)

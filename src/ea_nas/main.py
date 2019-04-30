@@ -129,14 +129,25 @@ def run(config):
     population = None
     if config.pretrain_dataset:
         print(f"\n\nPre training stage, training on easier dataset {config.pretrain_dataset.dataset_name}")
+
+        # Setting config correctly:
         config.dataset_name = config.pretrain_dataset.dataset_name
         config.dataset_file_name = config.pretrain_dataset.dataset_file_name
         config.dataset_file_path = config.pretrain_dataset.dataset_file_path
+        config.training.acceptable_scores = config.pretrain_dataset.accepted_accuracy
+        config.input_format = config.pretrain_dataset.input
+
+        # Running pretrain stage:
         population = evolve_architecture(config=config)
 
+    # Setting config correctly:
     config.dataset_name = config.target_dataset.dataset_name
     config.dataset_file_name = config.target_dataset.dataset_file_name
     config.dataset_file_path = config.target_dataset.dataset_file_path
+    config.training.acceptable_scores = config.target_dataset.accepted_accuracy
+    config.input_format = config.target_dataset.input
+
+    # Running main training stage:
     _ = evolve_architecture(config=config, population=population)
 
     print("\n\nTraining complete. Total runtime:", time.time() - start_time)

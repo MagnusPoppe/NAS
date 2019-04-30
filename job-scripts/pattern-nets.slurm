@@ -4,7 +4,7 @@
 #SBATCH --nodes=1
 #SBATCH --gres=gpu:2
 #SBATCH --mem=64000
-#SBATCH --ntasks-per-node=3
+#SBATCH --ntasks-per-node=2
 #SBATCH --job-name="EA NAS"
 #SBATCH --output=output.log
 #SBATCH --mail-user=magnuspw@stud.ntnu.no,
@@ -38,5 +38,5 @@ echo "-- OUTPUT OF MAIN PROGRAM --"; echo;
 if [ $SLURM_JOB_NUM_NODES = 1 ]; then
     venv/bin/python start_pattern_nets.py ./configurations/cifar-10/slurm.json
 else
-    mpirun -n $SLURM_JOB_NUM_NODES venv/bin/python start_pattern_nets.py ./configurations/cifar-10/slurm.json
+    mpiexec -n $SLURM_JOB_NUM_NODES venv/bin/python -m mpi4py.futures start_pattern_nets.py ./configurations/cifar-10/slurm.json
 fi

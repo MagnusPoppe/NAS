@@ -3,13 +3,13 @@
     "dataset": "MNIST",
     "dataset path": "./data/mnist.py",
     "dataset name": "mnist",
-    "accepted_accuracy": 0.98
+    "accepted_accuracy": 0.98,
+    "input": [
+      28,
+      28,
+      1
+    ]
   },
-  "input": [
-    28,
-    28,
-    1
-  ],
   "classes": 10,
   "training": {
     "use restart": false,
@@ -43,7 +43,8 @@
           "allow gpu memory growth": true,
           "memory per process": 1,
           "concurrency": 1
-        }, {
+        },
+        {
           "device_str": "/GPU:0",
           "allow gpu memory growth": true,
           "memory per process": 1,
