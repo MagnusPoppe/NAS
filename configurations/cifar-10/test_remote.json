@@ -1,19 +1,23 @@
 {
-  "dataset": "CIFAR-10",
-  "dataset path": "./data/cifar10.py",
-  "dataset name": "cifar10",
-  "input": [
-    32,
-    32,
-    3
-  ],
+  "target dataset": {
+    "dataset": "CIFAR-10",
+    "dataset path": "./data/cifar10.py",
+    "dataset name": "cifar10",
+    "accepted_accuracy": 0.80,
+    "input": [
+      32,
+      32,
+      3
+    ]
+  },
   "classes": 10,
   "training": {
     "use restart": false,
     "batch size": 40,
     "epochs": 1.3,
     "learning rate": 0.001,
-    "fixed epochs": false
+    "fixed epochs": false,
+    "accepted_accuracy": 0.90
   },
   "population size": 5,
   "generations": 15,

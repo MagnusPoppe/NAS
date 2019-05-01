@@ -88,30 +88,29 @@ for address in nodes:
             'python -c \'import subprocess; print(subprocess.check_output(["nvidia-smi", "-L"]))\''
         ],
     )
-    # if err:
-    #     raise Exception(err)
-    server = {
-        "name": "EPIC-" + address,
-        "type": "remote" if len(nodes) > 1 else "local",
-        "cwd": os.getcwd(),
-        "address": address,
-        "python": os.path.join(os.getcwd(), "venv/bin/python"),
-        "devices": [],
-    }
+
     gpu_strings = [g for g in out.split("\n") if g]
     for gpu_line in gpu_strings:
+        server = {
+            "name": "EPIC-" + address,
+            "type": "remote" if len(nodes) > 1 else "local",
+            "cwd": os.getcwd(),
+            "address": address,
+            "python": os.path.join(os.getcwd(), "venv/bin/python"),
+            "devices": [],
+        }
         gpu_id = gpu_line.split(":")[0].split(" ")[1]
-        concurreny = 2 if "Tesla V100" in gpu_line else 1
+        concurrency = 2 if "Tesla V100" in gpu_line else 1
         if gpu_id.isnumeric():
             server["devices"] += [
                 {
                     "device_str": f"/GPU:{gpu_id}",
                     "allow gpu memory growth": True,
-                    "memory per process": 1 / concurreny,
-                    "concurrency": concurreny,
+                    "memory per process": 1,  # 1 / concurrency,
+                    "concurrency": 1  # concurrency,
                 }
             ]
-    servers += [server]
+        servers += [server]
 
 config["servers"] = servers
 with open(config_json, "w") as f:

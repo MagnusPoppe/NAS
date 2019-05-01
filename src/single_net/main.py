@@ -1,4 +1,3 @@
-import copy
 import time
 import random
 
@@ -6,21 +5,19 @@ from src.buildingblocks.module import Module
 from src.configuration import Configuration
 from src.ea_nas.evolutionary_operations.initialization import init_population
 from src.ea_nas.evolutionary_operations.mutation_for_operators import mutate
-from src.ea_nas.evolutionary_operations.selection import tournament
 from firebase.upload import update_status, upload_population
 from src.ea_nas.finalize import try_finish
 from src.output import generation_finished
 from src.ea_nas import operators as moo
-from src.MOOA.NSGA_II import nsga_ii, weighted_overfit_score
+from src.MOOA.NSGA_II import weighted_overfit_score
 import src.jobs.jobs as workers
-from src.jobs import garbage_collector
 
 import builtins
 
 builtins.generation = 0
 
 
-def evolve_architecture(selection: callable, config: Configuration, population: [Module] = None):
+def evolve_architecture(config: Configuration, population: [Module] = None):
     update_status("Creating initial population")
 
     # initializing population
@@ -31,12 +28,14 @@ def evolve_architecture(selection: callable, config: Configuration, population: 
             network_min_layers=config.min_size,
             network_max_layers=config.max_size
         )
+
         # Training initial population:
         population = workers.start(population, config)
 
     population.sort(key=weighted_overfit_score(config), reverse=True)
     upload_population(population)
     generation_finished(population, config, f"--> Initialization complete. Leaderboards:")
+    best = population[-1]
 
     # Running EA algorithm:
     for generation in range(config.generations):
@@ -45,49 +44,48 @@ def evolve_architecture(selection: callable, config: Configuration, population: 
         # Preparation:
         print("\nGeneration", generation)
         builtins.generation = generation
-        children = []
+        offsprings = []
 
         # Mutation:
         print("--> Mutations:")
         update_status("Mutating")
-        for selected in selection(population, config.population_size):
+        stats = {"init": 0, "single": 0, "multi": 0}
+        for i in range(config.population_size):
             draw = random.uniform(0, 1)
             mutated = None
             if draw < 0.9:
-                print("    - Operation Mutation for {}".format(selected.ID))
-                mutated = mutate(selected)
-            else:  # elif draw < 0.9:
-                print("    - Creating new net randomly")
+                mutations = 1 if random.uniform(0, 1) < .90 else random.randint(1, 3)
+                for x in range(mutations):
+                    mutated = mutate(best, make_copy=(x == mutations - 1))
+                if mutations == 1: stats['single'] += 1
+                if mutations >= 2: stats['multi'] += 1
+            else:
                 mutated = init_population(1, config.input_format, 3, 30)[0]
-
+                stats['init'] += 1
             if mutated:
-                children += [mutated]
-
-        # Training networks:
-        children = list(set(children))  # Preventing inbreeding
-
-        # Elitism:
-        population += children
-        population = workers.start(population, config)
-        population = nsga_ii(
-            population,
-            moo.classification_objectives(config),
-            moo.classification_domination_operator(
-                moo.classification_objectives(config)
-            ),
-            config
+                offsprings += [mutated]
+        print(
+            f"\n  Single mutation:     {stats['single']}"
+            f"\n  Multiple mutations:  {stats['multi']}"
+            f"\n  Spawned individuals: {stats['init']}"
         )
 
-        keep = len(population) - config.population_size
-        population, removed = population[keep:], population[:keep]
+        # Training networks:
+        offsprings = list(set(offsprings))  # Preventing inbreeding
 
-        # Removing unused models:
-        # if not config.save_all_results:
-        #     garbage_collector.collect_garbage(removed, population, config)
-        upload_population(population)
-        generation_finished(population, config, f"--> Generation {generation} Leaderboards:")
-        generation_finished(removed, config, "--> The following individs were removed by elitism:")
+        # Elitism:
+        population = [best] + offsprings
+        population = workers.start(population, config)
+        population.sort(key=weighted_overfit_score(config), reverse=True)
+        keep = 1
+        best, removed = population[-1], population[:-1]
+
         config.results.store_generation(population, generation)
+
+        # User feedback:
+        upload_population(population)
+        generation_finished([best], config, f"--> Generation {generation} Leaderboards:")
+        generation_finished(removed, config, "--> The following individs were removed by elitism:")
 
         # Checking for a satisfactory solution
         if any(ind.val_acc() > config.training.acceptable_scores - 0.10 for ind in population):
@@ -95,6 +93,8 @@ def evolve_architecture(selection: callable, config: Configuration, population: 
             if solved:
                 return population
     return population
+
+
 
 
 def run(config):
@@ -112,7 +112,7 @@ def run(config):
         config.input_format = config.pretrain_dataset.input
 
         # Running pretrain stage:
-        population = evolve_architecture(selection=tournament, config=config)
+        population = evolve_architecture(config=config)
 
     # Setting config correctly:
     config.dataset_name = config.target_dataset.dataset_name
@@ -122,5 +122,6 @@ def run(config):
     config.input_format = config.target_dataset.input
 
     # Running main training stage:
-    _ = evolve_architecture(selection=tournament, config=config, population=population)
+    _ = evolve_architecture(config=config, population=population)
+
     print("\n\nTraining complete. Total runtime:", time.time() - start_time)

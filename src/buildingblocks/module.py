@@ -100,6 +100,23 @@ class Module(Base):
                 new_mod.children[i].prev += [new_mod.children[self.children.index(cp)]]
         return new_mod
 
+    def acc(self):
+        try:
+            return self.fitness[-1]
+        except IndexError:
+            return 0.0
+
+    def val_acc(self):
+        try:
+            return self.validation_fitness[-1]
+        except IndexError:
+            return 0.0
+
+    def latest_report(self):
+        keys = list(self.report.keys())
+        keys.sort()
+        return self.report[keys[-1]]
+
     def number_of_operations(self) -> int:
         """ Calculates how many operations are in this Module.
             Including operations of sub-modules

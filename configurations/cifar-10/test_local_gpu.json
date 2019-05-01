@@ -1,25 +1,25 @@
 {
   "target dataset": {
-    "dataset": "MNIST",
-    "dataset path": "./data/mnist.py",
-    "dataset name": "mnist",
-    "accepted_accuracy": 0.98,
+    "dataset": "CIFAR-10",
+    "dataset path": "./data/cifar10.py",
+    "dataset name": "cifar10",
+    "accepted_accuracy": 0.80,
     "input": [
-      28,
-      28,
-      1
+      32,
+      32,
+      3
     ]
   },
   "classes": 10,
   "training": {
-    "use restart": false,
+    "use restart": true,
     "batch size": 90,
-    "epochs": 1,
+    "epochs": 10,
     "learning rate": 0.001,
     "fixed epochs": true,
-    "accepted_accuracy": 0.98
+    "accepted_accuracy": 0.90
   },
-  "population size": 2,
+  "population size": 6,
   "generations": 10,
   "initial network size": {
     "min": 2,

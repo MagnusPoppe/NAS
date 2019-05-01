@@ -1,19 +1,23 @@
 {
-  "dataset": "MNIST",
-  "dataset path": "./data/mnist.py",
-  "dataset name": "mnist",
-  "input": [
-    28,
-    28,
-    1
-  ],
+  "target dataset": {
+    "dataset": "MNIST",
+    "dataset path": "./data/mnist.py",
+    "dataset name": "mnist",
+    "accepted_accuracy": 0.98,
+    "input": [
+      28,
+      28,
+      1
+    ]
+  },
   "classes": 10,
   "training": {
     "use restart": false,
     "batch size": 100,
     "epochs": 1,
     "learning rate": 0.005,
-    "fixed epochs": true
+    "fixed epochs": true,
+    "accepted_accuracy": 0.98
   },
   "population size": 6,
   "generations": 10,
@@ -39,7 +43,8 @@
           "allow gpu memory growth": true,
           "memory per process": 1,
           "concurrency": 1
-        }, {
+        },
+        {
           "device_str": "/GPU:0",
           "allow gpu memory growth": true,
           "memory per process": 1,

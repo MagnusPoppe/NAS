@@ -3,10 +3,12 @@ import json
 import os
 
 
-def stop_firebase():
+def stop_firebase(printing=False):
     global cred, app, db, run
-    print("--> Firebase not in use.")
+    if printing:
+        print("--> Firebase not in use.")
     cred = app = db = run = None
+
 
 if "EA_NAS_UPLOAD_TO_FIREBASE" in os.environ and os.environ["EA_NAS_UPLOAD_TO_FIREBASE"] == "1":
     import firebase_admin
@@ -35,10 +37,12 @@ else:
 def blob_filename(run, module):
     return module.absolute_save_path({"run id": run.id}) + module.ID + ".png"
 
+
 def save_model_image(model, filepath):
     keras.utils.plot_model(model, to_file=filepath)
 
-def upload_image(module, model=None, run_id = None):
+
+def upload_image(module, model=None, run_id=None):
     global run, db
     if not db: return
 
@@ -100,6 +104,7 @@ def upload_population(modules):
         module.db_ref = 'runs/{}/modules/{}'.format(run.id, module.ID)
     batch.commit()
 
+
 def update_status(msg):
     global db, run
     if not db: return
@@ -107,7 +112,7 @@ def update_status(msg):
     generation = builtins.generation
     db.collection("runs/{}/programOutput".format(run.id)).add({
         u'time': datetime.datetime.now(),
-        u'generation': generation+1,
+        u'generation': generation + 1,
         u'msg': msg
     })
 
@@ -129,6 +134,7 @@ def create_new_run(config):
     run = ref
     print("--> Created run {} in firebase!".format(run.id))
     return run.id
+
 
 def update_run(config, status):
     global db, run

@@ -9,6 +9,14 @@ from src.buildingblocks.ops.dense import (
 from src.buildingblocks.ops.pooling import MaxPooling2x2, AvgPooling2x2
 
 
+def system_short_name():
+    try:
+        import os
+        sysname, nodename, release, version, machine = os.uname()
+        return nodename.split(".")[0] if "." in nodename else nodename
+    except Exception:
+        return "?"
+
 def random_sample(collection: list) -> object:
     # Selecting a random operation and creating an instance of it.
     if len(collection) == 1:

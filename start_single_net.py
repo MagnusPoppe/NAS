@@ -10,7 +10,7 @@ try:
 except ImportError: pass
 from firebase.upload import create_new_run, update_run
 
-import src.ea_nas.main as ea_nas
+import src.single_net.main as ea_nas
 
 if __name__ == '__main__':
     # Reading input arguments:
