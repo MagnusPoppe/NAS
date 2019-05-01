@@ -35,7 +35,7 @@ def store_weights_in_patterns(individ, model, config):
         pattern.results[-1].model_path = try_save_model(pattern_model, model_path, pattern.ID)
 
 
-def try_save_model(model, model_path, identity):
+def try_save_model(model, model_path, identity, max_tries=5, wait_time=5):
     """ Saving models will sometimes run out of workers.
         I cant control how others use the servers, so
         just retry up to 3 times and give up if not able
@@ -54,8 +54,8 @@ def try_save_model(model, model_path, identity):
         except OSError:
             tries += 1
             print("   - Failed to save model, retrying...")
-            if tries == 3:
+            if tries >= max_tries:
                 print(f"   - Failed to save model for {identity}... Training data lost.")
                 return None
-            time.sleep(3)
+            time.sleep(wait_time)
     return model_path

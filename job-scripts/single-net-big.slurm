@@ -1,12 +1,12 @@
 #!/bin/sh
 #SBATCH --partition=EPICALL
 #SBATCH --time=7-0:00:00
-#SBATCH --nodes=22
+#SBATCH --nodes=25
 #SBATCH --gres=gpu:2
 #SBATCH --mem=64000
 #SBATCH --ntasks-per-node=2
-#SBATCH --job-name="SINGLE NAS Pre-train"
-#SBATCH --output=mnist-cifar.log
+#SBATCH --job-name="NAS-SINGLE"
+#SBATCH --output=SINGLE-NET-CIFAR-FULL-SIM.log
 #SBATCH --mail-user=magnuspw@stud.ntnu.no
 #SBATCH --mail-type=ALL
 
@@ -34,11 +34,7 @@ module load Python/3.6.3
 export EA_NAS_UPLOAD_TO_FIREBASE="0"
 
 echo "-- SETTING UP SERVERS --"; echo;
-venv/bin/python slurm_nodes.py $SLURM_JOB_NODELIST "./configurations/pretrain/slurm.json"
+venv/bin/python slurm_nodes.py $SLURM_JOB_NODELIST "./configurations/cifar-10/slurm.json"
 
 echo "-- OUTPUT OF MAIN PROGRAM --"; echo;
-if [ $SLURM_JOB_NUM_NODES = 1 ]; then
-    venv/bin/python start_ea_nas.py ./configurations/pretrain/slurm.json
-else
-    mpiexec -n $SLURM_JOB_NUM_NODES venv/bin/python -m mpi4py.futures start_ea_nas.py ./configurations/pretrain/slurm.json
-fi
+mpiexec -n $SLURM_NTASKS venv/bin/python -m mpi4py.futures start_ea_nas.py ./configurations/cifar-10/slurm-big.json
