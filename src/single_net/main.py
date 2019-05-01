@@ -7,6 +7,7 @@ from src.configuration import Configuration
 from src.ea_nas.evolutionary_operations.initialization import init_population
 from src.ea_nas.evolutionary_operations.mutation_for_operators import mutate
 from firebase.upload import update_status, upload_population
+from src.ea_nas.finalize import try_finish
 from src.output import generation_finished
 from src.ea_nas import operators as moo
 from src.MOOA.NSGA_II import nsga_ii, weighted_overfit_score
@@ -89,51 +90,12 @@ def evolve_architecture(config: Configuration, population: [Module] = None):
 
         # Checking for a satisfactory solution
         if any(ind.val_acc() > config.training.acceptable_scores - 0.10 for ind in population):
-            population, solved = try_finish(population, config)
+            population, solved = try_finish(population, config, moo)
             if solved:
                 return population
     return population
 
 
-def try_finish(population: [Module], config: Configuration) -> [Module]:
-    print(f"--> Possible final solution discovered. Checking...")
-
-    # Changing settings of training steps:
-    original_training_settings = copy.deepcopy(config.training)
-    config.training.use_restart = False
-    config.training.fixed_epochs = True
-    config.training.epochs = 1
-
-    # Finding the best networks:
-    best = population[:config.compute_capacity(maximum=False)]
-
-    # Performing training step:
-    best = workers.start(best, config)
-
-    # Reset settings and return:
-    config.training = original_training_settings
-
-    best.sort(key=weighted_overfit_score(config), reverse=True)
-    if any(ind.validation_fitness[-1] >= config.training.acceptable_scores for ind in best):
-        generation_finished(best, config, "--> Found final solution:")
-        config.results.store_generation(best, config.generation + 1)
-        return best, True
-    else:
-        # A final solution was not found... Keep the best individs:
-        population = best + population
-        population = nsga_ii(
-            population,
-            moo.classification_objectives(config),
-            moo.classification_domination_operator(
-                moo.classification_objectives(config)
-            ),
-            config
-        )
-        keep = len(population) - config.population_size
-        population, removed = population[keep:], population[:keep]
-        generation_finished(population, config, "--> Leaderboards after final solution try failed:")
-        generation_finished(removed, config, "--> Removed after final solution try failed:")
-        return population, False
 
 
 def run(config):
