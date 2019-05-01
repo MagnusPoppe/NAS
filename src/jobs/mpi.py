@@ -2,7 +2,6 @@ import pickle
 
 from mpi4py import MPI
 from mpi4py.futures import MPIPoolExecutor
-from mpi4py.futures import MPICommExecutor
 
 from src.training import prepare_training as trainer
 

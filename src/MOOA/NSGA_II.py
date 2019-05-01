@@ -84,12 +84,10 @@ def weighted_overfit_score(config: Configuration) -> callable:
     inverse of overfit + validation accuracy
     """
     def _module_test_score(x):
-        keys = list(x.report.keys())
-        keys.sort()
-        return 1 - x.report[keys[-1]]['weighted avg']['f1-score']
+        return 1 - x.latest_report()['weighted avg']['f1-score']
 
     def _module_overfit(x):
-        return abs(x.fitness[-1] - x.validation_fitness[-1])
+        return abs(x.acc() - x.val_acc())
 
     def _pattern_test_score(x):
         return 1 - x.optimal_result().report['weighted avg']['f1-score']
@@ -114,7 +112,7 @@ def nsga_ii(solutions: list, objectives: [callable], domination_operator: callab
 
     # TODO: Removing networks without scores:
 
-    if len(solutions) < 20:
+    if len(solutions) < 60:
         solutions.sort(key=weighted_overfit_score(config), reverse=True)
         return solutions
 

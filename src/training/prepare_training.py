@@ -7,6 +7,7 @@ from src.training.prepare_model import get_model
 from src.training import train as training
 from src.training.evaluate import evaluate
 from src.pattern_nets import evaluation as pattern_evaluation
+from src.helpers import system_short_name
 
 
 def module_from_file(module_name, file_path):
@@ -72,6 +73,7 @@ def run(args):
     individ = pickle.loads(individ_bytes)
     config = pickle.loads(config_str)
     storage_directory = individ.absolute_save_path(config)
+    print(f"[{system_short_name()}]: Training {individ.ID}")
 
     # Running setup
     device = setup(config, server_id, device_id)

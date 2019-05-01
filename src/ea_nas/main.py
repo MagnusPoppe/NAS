@@ -33,13 +33,11 @@ def evolve_architecture(config: Configuration, population: [Module] = None):
 
         # Training initial population:
         population = workers.start(population, config)
-        population.sort(key=weighted_overfit_score(config), reverse=True)
-        upload_population(population)
-        generation_finished(population, config, f"--> Initialization complete. Leaderboards:")
-        best = population[0]
-    else:
-        population = copy.deepcopy(population)
-        generation_finished(population, config, f"--> Initialization skipped. Leaderboards:")
+
+    population.sort(key=weighted_overfit_score(config), reverse=True)
+    upload_population(population)
+    generation_finished(population, config, f"--> Initialization complete. Leaderboards:")
+    best = population[-1]
 
     # Running EA algorithm:
     for generation in range(config.generations):
@@ -53,11 +51,26 @@ def evolve_architecture(config: Configuration, population: [Module] = None):
         # Mutation:
         print("--> Mutations:")
         update_status("Mutating")
+        stats = {"init": 0, "single": 0, "multi": 0}
         for i in range(config.population_size):
             draw = random.uniform(0, 1)
-            mutated = mutate(best) if draw < 0.9 else init_population(1, config.input_format, 3, 30)[0]
+            mutated = None
+            if draw < 0.9:
+                mutations = 1 if random.uniform(0, 1) < .90 else random.randint(1, 3)
+                for x in range(mutations):
+                    mutated = mutate(best, make_copy=(x == mutations - 1))
+                if mutations == 1: stats['single'] += 1
+                if mutations >= 2: stats['multi'] += 1
+            else:
+                mutated = init_population(1, config.input_format, 3, 30)[0]
+                stats['init'] += 1
             if mutated:
                 offsprings += [mutated]
+        print(
+            f"\n  Single mutation:     {stats['single']}"
+            f"\n  Multiple mutations:  {stats['multi']}"
+            f"\n  Spawned individuals: {stats['init']}"
+        )
 
         # Training networks:
         offsprings = list(set(offsprings))  # Preventing inbreeding
@@ -66,16 +79,18 @@ def evolve_architecture(config: Configuration, population: [Module] = None):
         population = [best] + offsprings
         population = workers.start(population, config)
         population.sort(key=weighted_overfit_score(config), reverse=True)
-
         keep = 1
         best, removed = population[-1], population[:-1]
 
+        config.results.store_generation(population, generation)
+
+        # User feedback:
         upload_population(population)
         generation_finished([best], config, f"--> Generation {generation} Leaderboards:")
         generation_finished(removed, config, "--> The following individs were removed by elitism:")
-        config.results.store_generation(population, generation)
 
-        if any(ind.validation_fitness[-1] > config.training.acceptable_scores - 0.10 for ind in population):
+        # Checking for a satisfactory solution
+        if any(ind.val_acc() > config.training.acceptable_scores - 0.10 for ind in population):
             population, solved = try_finish(population, config)
             if solved:
                 return population
@@ -107,7 +122,7 @@ def try_finish(population: [Module], config: Configuration) -> [Module]:
         return best, True
     else:
         # A final solution was not found... Keep the best individs:
-        population = [best] + population
+        population = best + population
         population = nsga_ii(
             population,
             moo.classification_objectives(config),

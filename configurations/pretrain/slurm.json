@@ -30,14 +30,14 @@
     "learning rate": 0.001,
     "fixed epochs": true
   },
-  "population size": 40,
+  "population size": 44,
   "generations": 300,
   "initial network size": {
-    "min": 2,
-    "max": 5
+    "min": 6,
+    "max": 13
   },
   "results": {
-    "name": "single-pretrained-net",
+    "name": "pretrained-nets02",
     "keep all": false,
     "location": null
   },

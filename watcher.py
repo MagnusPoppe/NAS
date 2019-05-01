@@ -3,8 +3,8 @@ import time
 import sys
 import os
 
-
 def read_on_interval(file, interval):
+    os.system("clear")
     buffer = []
     while True:
         with open(file, "r") as f:
@@ -13,10 +13,10 @@ def read_on_interval(file, interval):
             # Reset condition:
             if len(new_lines) < len(buffer):
                 buffer = []
-                os.system('clear')
+
             new_lines = new_lines[len(buffer):]
             for line in new_lines:
-                print(line)
+               sys.stdout.write(line)
             buffer += new_lines
         time.sleep(interval)
 
