@@ -73,11 +73,10 @@ def run(args):
     individ = pickle.loads(individ_bytes)
     config = pickle.loads(config_str)
     storage_directory = individ.absolute_save_path(config)
-    print(f"[{system_short_name()}]: Training {individ.ID}")
-
     try:
         # Running setup
         device = setup(config, server_id, device_id)
+        print(f"[{system_short_name()} {device.device}]:\tTraining {individ.ID}")
 
         # Getting or creating models:
         compiled, model = get_model(individ, config, device)

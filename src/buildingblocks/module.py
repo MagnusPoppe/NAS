@@ -117,6 +117,15 @@ class Module(Base):
         keys.sort()
         return self.report[keys[-1]]
 
+    def get_improvement(self):
+        if len(self.report) >= 1 and self.predecessor and len(self.predecessor.report) >= 1:
+            acc = self.latest_report()['weighted avg']["f1-score"]
+            pred_acc = self.predecessor.latest_report()['weighted avg']["f1-score"]
+            impr = acc - pred_acc
+            return impr
+        else:
+            return 0.0
+
     def number_of_operations(self) -> int:
         """ Calculates how many operations are in this Module.
             Including operations of sub-modules

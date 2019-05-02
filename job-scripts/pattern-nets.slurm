@@ -6,7 +6,7 @@
 #SBATCH --mem=64000
 #SBATCH --ntasks-per-node=2
 #SBATCH --job-name="PATTERN-NAS"
-#SBATCH --output=pattern-nas.log
+#SBATCH --output=logs/pattern-nas.log
 #SBATCH --mail-user=magnuspw@stud.ntnu.no,
 #SBATCH --mail-type=ALL
 

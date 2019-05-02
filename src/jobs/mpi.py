@@ -27,14 +27,17 @@ def launch_with_MPI_futures(population, config):
 
     args = pack_args(population, config)
 
-    print(f"Starting MPI Pool executor. {len(args)} jobs running on {len(config.servers)} servers")
+    print(f"--> Starting MPI Pool executor. {len(args)} jobs running on {len(config.servers)} servers")
     with MPIPoolExecutor() as executor:
         results = [result for result in executor.map(trainer.run, args)]
         executor.shutdown(wait=True)
 
     # Exceptions may occur inside the async training loop.
     # The failed solutions will be discarded:
+    original = len(results)
     results = [individ for individ in results if not individ.failed]
+    filtered = len(results)
+    print(f"--> Entire population trained. {original-filtered}/{original} failed.")
     for individ in results:
         del individ.failed
 

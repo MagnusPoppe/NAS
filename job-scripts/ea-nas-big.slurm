@@ -1,12 +1,12 @@
 #!/bin/sh
-#SBATCH --partition=EPICALL
+#SBATCH --partition=EPICALL,V100-IDI
 #SBATCH --time=7-0:00:00
-#SBATCH --nodes=25
+#SBATCH --nodes=12
 #SBATCH --gres=gpu:2
 #SBATCH --mem=64000
 #SBATCH --ntasks-per-node=2
-#SBATCH --job-name="EA NAS"
-#SBATCH --output=EA-NAS-CIFAR-FULL-SIM.log
+#SBATCH --job-name="EA-NAS"
+#SBATCH --output=logs/EA-NAS-CIFAR-FULL-SIM.log
 #SBATCH --mail-user=magnuspw@stud.ntnu.no
 #SBATCH --mail-type=ALL
 
@@ -34,7 +34,7 @@ module load Python/3.6.3
 export EA_NAS_UPLOAD_TO_FIREBASE="0"
 
 echo "-- SETTING UP SERVERS --"; echo;
-venv/bin/python slurm_nodes.py $SLURM_JOB_NODELIST "./configurations/cifar-10/slurm.json"
+venv/bin/python slurm_nodes.py $SLURM_JOB_NODELIST "./configurations/cifar-10/slurm-big-ea-nas.json"
 
 echo "-- OUTPUT OF MAIN PROGRAM --"; echo;
-mpiexec -n $SLURM_NTASKS venv/bin/python -m mpi4py.futures start_ea_nas.py ./configurations/cifar-10/slurm-big.json
+mpiexec -n $SLURM_NTASKS venv/bin/python -m mpi4py.futures start_ea_nas.py ./configurations/cifar-10/slurm-big-ea-nas.json

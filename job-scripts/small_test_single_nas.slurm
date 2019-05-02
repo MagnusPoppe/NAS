@@ -1,12 +1,12 @@
 #!/bin/sh
-#SBATCH --partition=EPICALL
-#SBATCH --time=7-0:00:00
-#SBATCH --nodes=22
+#SBATCH --partition=EPICALL,V100-IDI,DEBUG
+#SBATCH --time=1-0:00:00
+#SBATCH --nodes=2
 #SBATCH --gres=gpu:2
 #SBATCH --mem=64000
 #SBATCH --ntasks-per-node=2
-#SBATCH --job-name="NAS-SINGLE"
-#SBATCH --output=logs/mnist-cifar.log
+#SBATCH --job-name="EA-NAS-SMALL"
+#SBATCH --output=./logs/LOCAL-NAS-SMALL.log
 #SBATCH --mail-user=magnuspw@stud.ntnu.no
 #SBATCH --mail-type=ALL
 
@@ -28,17 +28,14 @@ module load OpenMPI/2.1.1
 module load cuDNN/7
 module load Python/3.6.3
 
-# export PATH="/usr/local/cuda-9.0:$PATH"
-# export CUDA_HOME="/usr/local/cuda-9.0"
-# export LD_LIBRARY_PATH="/usr/local/cuda-9.0/lib64:$LD_LIBRARY_PATH"
 export EA_NAS_UPLOAD_TO_FIREBASE="0"
 
 echo "-- SETTING UP SERVERS --"; echo;
-venv/bin/python slurm_nodes.py $SLURM_JOB_NODELIST "./configurations/pretrain/slurm.json"
+venv/bin/python slurm_nodes.py $SLURM_JOB_NODELIST "./configurations/cifar-10/small-test.json"
 
 echo "-- OUTPUT OF MAIN PROGRAM --"; echo;
 if [ $SLURM_JOB_NUM_NODES = 1 ]; then
-    venv/bin/python start_ea_nas.py ./configurations/pretrain/slurm.json
+    venv/bin/python start_single_net.py ./configurations/cifar-10/small-test.json
 else
-    mpiexec -n $SLURM_JOB_NUM_NODES venv/bin/python -m mpi4py.futures start_ea_nas.py ./configurations/pretrain/slurm.json
+    mpiexec -n $SLURM_NTASKS venv/bin/python -m mpi4py.futures start_single_net.py ./configurations/cifar-10/small-test.json
 fi

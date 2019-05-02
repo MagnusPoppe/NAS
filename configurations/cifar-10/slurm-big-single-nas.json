@@ -19,14 +19,14 @@
     "fixed epochs": true
   },
   "verbose": false,
-  "population size": 60,
-  "generations": 300,
+  "population size": 30,
+  "generations": 100,
   "initial network size": {
     "min": 6,
     "max": 13
   },
   "results": {
-    "name": "EA-NAS-CIFAR-FULL-SIM",
+    "name": "CIFAR-FULL-SIM",
     "keep all": false,
     "location": null
   },

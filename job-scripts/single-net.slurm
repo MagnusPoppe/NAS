@@ -6,7 +6,7 @@
 #SBATCH --mem=64000
 #SBATCH --ntasks-per-node=2
 #SBATCH --job-name="NAS-SINGLE"
-#SBATCH --output=SINGLE-NET-CIFAR.log
+#SBATCH --output=logs/SINGLE-NET-CIFAR.log
 #SBATCH --mail-user=magnuspw@stud.ntnu.no
 #SBATCH --mail-type=ALL
 

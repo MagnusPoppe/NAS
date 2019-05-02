@@ -6,13 +6,15 @@ from src.output import print_config_stats
 
 try:
     import setproctitle
+
     setproctitle.setproctitle("NAS-EVOLVE")
-except ImportError: pass
+except ImportError:
+    pass
 from firebase.upload import create_new_run, update_run
 
 import src.ea_nas.main as ea_nas
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Reading input arguments:
     if len(sys.argv) > 2:
         raise IOError("Program requires dataset config file.")
@@ -23,6 +25,7 @@ if __name__ == '__main__':
     config = Configuration.from_json(sys.argv[1])
     config.MPI = True
     config.type = "ea-nas"
+    config.results.name += f"_ea_nas"
     run_id = create_new_run(config)
     if run_id:
         config.results_name = run_id

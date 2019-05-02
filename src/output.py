@@ -25,15 +25,6 @@ def matrix_print(matrix):
         string += "\n"
     return string
 
-def get_improvement(individ):
-    if len(individ.report) > 1:
-        keys = list(individ.report.keys())
-        impr = individ.report[keys[-1]]['weighted avg']["f1-score"] \
-               - individ.report[keys[-2]]['weighted avg']["f1-score"]
-        return str(round(impr, 1))
-    else:
-        return "-"
-
 
 def col(val: str, cols: int):
     return val + " " * (cols - len(val))
@@ -42,7 +33,7 @@ def col(val: str, cols: int):
 def generation_finished(population, config, prefix):
     print(prefix)
     matrix = [
-        ["SPECIMIN", "ACC", "VACC", "IMPR", "LR", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "MIAVG", "MAAVG", "WAVG"]
+        ["SPECIMIN", "ACC", "VACC", "IMPR", "OPS", "LR", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "MIAVG", "MAAVG", "WAVG"]
     ]
 
     if config.type == "ea-nas":
@@ -52,7 +43,8 @@ def generation_finished(population, config, prefix):
                     individ.ID,
                     round(individ.fitness[-1] * 100, 1),
                     round(individ.validation_fitness[-1] * 100, 1),
-                    get_improvement(individ),
+                    str(round(individ.get_improvement() *100, 1)) if individ.get_improvement() != 0.0 else "-",
+                    individ.number_of_operations(),
                     config.training.learning_rate
                 ] + [
                     round(report["f1-score"] * 100, 1)
@@ -68,6 +60,7 @@ def generation_finished(population, config, prefix):
                     round(result.accuracy[-1] * 100, 1),
                     round(result.val_accuracy[-1] * 100, 1),
                     "-",
+                    individ.number_of_operations(),
                     result.learning_rate
                 ] + [
                     round(report["f1-score"] * 100, 1)

@@ -6,7 +6,7 @@
 #SBATCH --mem=64000
 #SBATCH --ntasks-per-node=2
 #SBATCH --job-name="EA NAS"
-#SBATCH --output=EA-NAS-CIFAR.log
+#SBATCH --output=logs/EA-NAS-CIFAR.log
 #SBATCH --mail-user=magnuspw@stud.ntnu.no
 #SBATCH --mail-type=ALL
 
