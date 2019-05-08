@@ -1,12 +1,12 @@
 #!/bin/sh
-#SBATCH --partition=EPICALL,V100-IDI,DEBUG
+#SBATCH --partition=EPICALL
 #SBATCH --time=7-0:00:00
 #SBATCH --nodes=9
 #SBATCH --gres=gpu:2
 #SBATCH --mem=64000
 #SBATCH --ntasks-per-node=2
-#SBATCH --job-name="NAS-SINGLE"
-#SBATCH --output=logs/SINGLE-NET-CIFAR.log
+#SBATCH --job-name="EA-NAS"
+#SBATCH --output=logs/EA-NAS-CIFAR-AUG-SIM.log
 #SBATCH --mail-user=magnuspw@stud.ntnu.no
 #SBATCH --mail-type=ALL
 
@@ -37,8 +37,4 @@ echo "-- SETTING UP SERVERS --"; echo;
 venv/bin/python slurm_nodes.py $SLURM_JOB_NODELIST "./configurations/cifar-10/slurm.json"
 
 echo "-- OUTPUT OF MAIN PROGRAM --"; echo;
-if [ $SLURM_JOB_NUM_NODES = 1 ]; then
-    venv/bin/python start_ea_nas.py ./configurations/cifar-10/slurm.json
-else
-    mpiexec -n $SLURM_NTASKS venv/bin/python -m mpi4py.futures start_ea_nas.py ./configurations/cifar-10/slurm.json
-fi
+mpiexec -n $SLURM_NTASKS venv/bin/python -m mpi4py.futures start_ea_nas.py ./configurations/cifar-10/slurm.json

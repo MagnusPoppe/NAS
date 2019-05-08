@@ -25,7 +25,7 @@ if __name__ == "__main__":
     config = Configuration.from_json(sys.argv[1])
     config.MPI = True
     config.type = "ea-nas"
-    config.results.name += "_single_nas"
+    config.results.set_name(config.results.name + "_single_nas")
     run_id = create_new_run(config)
     if run_id:
         config.results_name = run_id

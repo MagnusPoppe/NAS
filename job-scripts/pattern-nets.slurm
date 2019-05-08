@@ -1,7 +1,7 @@
 #!/bin/sh
-#SBATCH --partition=EPIC
+#SBATCH --partition=EPICALL
 #SBATCH --time=7-0:00:00
-#SBATCH --nodes=1
+#SBATCH --nodes=2
 #SBATCH --gres=gpu:2
 #SBATCH --mem=64000
 #SBATCH --ntasks-per-node=2
@@ -17,10 +17,8 @@ echo "we are running from this directory: $SLURM_SUBMIT_DIR"
 echo "The name of the job is: $SLURM_JOB_NAME"
 echo "The job ID is $SLURM_JOB_ID"
 echo "The job was run on these nodes: $SLURM_JOB_NODELIST"
-echo "Number of nodes: $SLURM_JOB_NUM_NODES"
-echo "We are using $SLURM_CPUS_ON_NODE cores"
-echo "We are using $SLURM_CPUS_ON_NODE cores per node"
-echo "Total of $SLURM_NTASKS cores"3
+echo "$SLURM_JOB_NUM_NODES compute nodes with $SLURM_CPUS_ON_NODE processes each"
+echo "Total of $SLURM_NTASKS processes with GPUs"
 echo ;
 
 # TENSORFLOW 1.10.1 running on CUDA 9.0 setup:
@@ -32,11 +30,11 @@ module load Python/3.6.3
 
 export EA_NAS_UPLOAD_TO_FIREBASE="0"
 
-venv/bin/python slurm_nodes.py $SLURM_JOB_NODELIST "./configurations/cifar-10/slurm.json"
+venv/bin/python slurm_nodes.py $SLURM_JOB_NODELIST "./configurations/cifar-10/slurm-pattern-nas.json"
 
 echo "-- OUTPUT OF MAIN PROGRAM --"; echo;
 if [ $SLURM_JOB_NUM_NODES = 1 ]; then
-    venv/bin/python start_pattern_nets.py ./configurations/cifar-10/slurm.json
+    venv/bin/python start_pattern_nets.py ./configurations/cifar-10/slurm-pattern-nas.json
 else
-    mpiexec -n $SLURM_JOB_NUM_NODES venv/bin/python -m mpi4py.futures start_pattern_nets.py ./configurations/cifar-10/slurm.json
+    mpiexec -n $SLURM_NTASKS venv/bin/python -m mpi4py.futures start_pattern_nets.py ./configurations/cifar-10/slurm-pattern-nas.json
 fi

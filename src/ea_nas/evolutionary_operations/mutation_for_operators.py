@@ -23,11 +23,11 @@ from src.buildingblocks.module import Module
 
 
 OPERATOR_WEIGHTS = [
-    ("append", 2),
-    ("connect", 0),
+    ("append", 0),
+    ("connect", 1),
     ("insert", 2),
-    ("insert-between", 30),
-    ("remove", 30)
+    ("insert-between", 13),
+    ("remove", 14)
     # ("identity", 20)
 ]
 

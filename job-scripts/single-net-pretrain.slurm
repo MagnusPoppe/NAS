@@ -1,7 +1,7 @@
 #!/bin/sh
-#SBATCH --partition=EPICALL
+#SBATCH --partition=V100-IDI
 #SBATCH --time=7-0:00:00
-#SBATCH --nodes=22
+#SBATCH --nodes=2
 #SBATCH --gres=gpu:2
 #SBATCH --mem=64000
 #SBATCH --ntasks-per-node=2

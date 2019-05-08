@@ -18,12 +18,16 @@ class ResultStore(ValidatedInput):
         super().__init__()
         self.name = name
         self.location = location if location else os.path.join(os.getcwd(), "results")
+        self.set_name(name)
         self.keep_all = keep_all
-        self.individ_store = os.path.join(self.location, self.name, "individs")
-        self.generations_store = os.path.join(self.location, self.name, "generations")
         self.load = load
         os.makedirs(self.individ_store, exist_ok=True)
         os.makedirs(self.generations_store, exist_ok=True)
+
+    def set_name(self, name):
+        self.name = name
+        self.individ_store = os.path.join(self.location, self.name, "individs")
+        self.generations_store = os.path.join(self.location, self.name, "generations")
 
     def transfer_and_load_population(self):
         # Checking load directory:
@@ -140,13 +144,14 @@ class Training(ValidatedInput):
 class Dataset(ValidatedInput):
 
     def __init__(self, dataset_name: str, dataset_file_path: str, dataset_file_name: str, accepted_accuracy: float,
-                 input: [int]):
+                 input: [int], augmentations: bool = False):
         super().__init__()
         self.dataset_name = dataset_name
         self.dataset_file_path = dataset_file_path
         self.dataset_file_name = dataset_file_name
         self.accepted_accuracy = accepted_accuracy
         self.input = input
+        self.augmentations = augmentations
 
 
 class Configuration(ValidatedInput):
@@ -164,7 +169,9 @@ class Configuration(ValidatedInput):
             training: Training,
             servers: [Server],
             async_verbose: bool,
-            result: ResultStore
+            result: ResultStore,
+            MPI: bool = False,
+            optimize_architectures: bool = False
     ):
         super().__init__()
         # Dataset Properties (Guides)
@@ -176,6 +183,7 @@ class Configuration(ValidatedInput):
         self.dataset_name = None
         self.dataset_file_path = None
         self.dataset_file_name = None
+        self.augmentations = None
 
         # Network Properties
         self.input_format = input_format
@@ -187,13 +195,14 @@ class Configuration(ValidatedInput):
         self.generation = 0
         self.generations = generations
         self.population_size = population_size
+        self.optimize_architectures = optimize_architectures
 
         # Results properties
         self.results = result
 
         # Compute Environment:
         self.async_verbose = async_verbose
-        self.MPI = False
+        self.MPI = MPI
         self.servers = servers
         self.validate()
 
@@ -244,15 +253,22 @@ class Configuration(ValidatedInput):
             accepted_accuracy=conf['target dataset']['accepted_accuracy'],
             input=tuple(conf['target dataset']['input'])
         )
-        pretrain_dataset = Dataset(
-            dataset_name=conf['pretrain dataset']['dataset'],
-            dataset_file_name=conf['pretrain dataset']['dataset name'],
-            dataset_file_path=conf['pretrain dataset']['dataset path'],
-            accepted_accuracy=conf['pretrain dataset']['accepted_accuracy'],
-            input=tuple(conf['pretrain dataset']['input'])
-        ) if "pretrain dataset" in conf else None
+        if "augmentation" in conf['target dataset']:
+            target_dataset.augmentations = conf['target dataset']["augmentation"]
+        if "pretrain dataset" in conf:
+            pretrain_dataset = Dataset(
+                dataset_name=conf['pretrain dataset']['dataset'],
+                dataset_file_name=conf['pretrain dataset']['dataset name'],
+                dataset_file_path=conf['pretrain dataset']['dataset path'],
+                accepted_accuracy=conf['pretrain dataset']['accepted_accuracy'],
+                input=tuple(conf['pretrain dataset']['input'])
+            )
+            if "augmentation" in conf['pretrain dataset']:
+                pretrain_dataset.augmentations = conf['pretrain dataset']["augmentation"]
+        else:
+            pretrain_dataset = None
 
-        return Configuration(
+        config = Configuration(
             target_dataset=target_dataset,
             pretrain_dataset=pretrain_dataset,
             input_format=None,
@@ -264,5 +280,10 @@ class Configuration(ValidatedInput):
             training=training,
             servers=servers,
             result=result,
-            async_verbose=conf['verbose'] if 'verbose' in conf else True
+            async_verbose=conf['verbose'] if 'verbose' in conf else True,
         )
+        if "MPI" in conf: config.MPI = conf['MPI']
+        elif "mpi" in conf: config.MPI = conf['mpi']
+        if "optimize architectures" in conf:
+            config.optimize_architectures = conf['optimize architectures']
+        return config

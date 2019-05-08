@@ -12,18 +12,19 @@
   },
   "classes": 10,
   "training": {
-    "use restart": true,
+    "use restart": false,
     "batch size": 90,
-    "epochs": 10,
+    "epochs": 100,
     "learning rate": 0.001,
     "fixed epochs": true,
     "accepted_accuracy": 0.90
   },
-  "population size": 6,
+  "population size": 2,
   "generations": 10,
+  "optimize architectures": true,
   "initial network size": {
-    "min": 2,
-    "max": 5
+    "min": 7,
+    "max": 14
   },
   "results": {
     "name": "simulation01",
@@ -39,10 +40,24 @@
       "address": "local",
       "devices": [
         {
+          "device_str": "/GPU:0",
+          "allow gpu memory growth": true,
+          "memory per process": 1,
+          "concurrency": 2
+        }
+      ]
+    }, {
+      "name": "COMPUTE",
+      "type": "local",
+      "cwd": "/lhome/magnuspw/ea-nas",
+      "python": "venv/bin/python",
+      "address": "local",
+      "devices": [
+        {
           "device_str": "/GPU:1",
           "allow gpu memory growth": true,
-          "memory per process": 0.5,
-          "concurrency": 2
+          "memory per process": 1,
+          "concurrency": 1
         }
       ]
     }

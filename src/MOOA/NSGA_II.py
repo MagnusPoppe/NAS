@@ -105,14 +105,14 @@ def weighted_overfit_score(config: Configuration) -> callable:
     return lambda x: abs(overfit(x) * 0.30 + test_score(x) * 0.70)
 
 
-def nsga_ii(solutions: list, objectives: [callable], domination_operator: callable, config: Configuration):
+def nsga_ii(solutions: list, objectives: [callable], domination_operator: callable, config: Configuration, force_moo=False):
     """
     https://ieeexplore.ieee.org/document/996017
     """
 
     # TODO: Removing networks without scores:
 
-    if len(solutions) < 60:
+    if len(solutions) < 60 and not force_moo:
         solutions.sort(key=weighted_overfit_score(config), reverse=True)
         return solutions
 
@@ -124,7 +124,8 @@ def nsga_ii(solutions: list, objectives: [callable], domination_operator: callab
         crowding_distance_assignment(solutions, objectives)
     except ZeroDivisionError as zde:
         print("Could not use MOO sort. Using weighted overfit score instead.")
-        solutions.sort(key=weighted_overfit_score(config), reverse=True)
+        if not force_moo:
+            solutions.sort(key=weighted_overfit_score(config), reverse=True)
         return solutions
 
     solutions.sort(

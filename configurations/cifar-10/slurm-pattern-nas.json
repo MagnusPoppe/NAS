@@ -1,43 +1,33 @@
 {
-  "pretrain dataset": {
-    "dataset": "MNIST",
-    "dataset path": "./data/mnist.py",
-    "dataset name": "mnist",
-    "accepted_accuracy": 0.98,
-    "input": [
-      28,
-      28,
-      1
-    ]
-  },
   "target dataset": {
     "dataset": "CIFAR-10",
     "dataset path": "./data/cifar10.py",
     "dataset name": "cifar10",
-    "accepted_accuracy": 0.80,
+    "augmentation": true,
+    "accepted_accuracy": 0.85,
     "input": [
       32,
       32,
       3
     ]
   },
-  "verbose": false,
   "classes": 10,
   "training": {
     "use restart": true,
     "batch size": 60,
-    "epochs": 10,
+    "epochs": 100,
     "learning rate": 0.001,
     "fixed epochs": true
   },
-  "population size": 4,
-  "generations": 300,
+  "verbose": false,
+  "population size": 10,
+  "generations": 50,
   "initial network size": {
-    "min": 10,
-    "max": 30
+    "min": 4,
+    "max": 12
   },
   "results": {
-    "name": "pretrained-nets02",
+    "name": "PATTERN-NAS-FULL-SIM-AUG",
     "keep all": false,
     "location": null
   },

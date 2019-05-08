@@ -3,10 +3,10 @@
 #SBATCH --time=7-0:00:00
 #SBATCH --nodes=12
 #SBATCH --gres=gpu:2
-#SBATCH --mem=64000
+#SBATCH --mem=80000
 #SBATCH --ntasks-per-node=2
-#SBATCH --job-name="EA-NAS"
-#SBATCH --output=logs/EA-NAS-CIFAR-FULL-SIM.log
+#SBATCH --job-name="EA-NAS-AUG"
+#SBATCH --output=logs/EA-NAS-BIG-CIFAR-AUG-SIM.log
 #SBATCH --mail-user=magnuspw@stud.ntnu.no
 #SBATCH --mail-type=ALL
 

@@ -6,6 +6,7 @@ from src.buildingblocks.module import Module
 from src.configuration import Configuration
 from src.ea_nas.evolutionary_operations.initialization import init_population
 from src.ea_nas.evolutionary_operations.mutation_for_operators import mutate
+from src.ea_nas.evolutionary_operations.optimize_architecture import optimize
 from src.ea_nas.evolutionary_operations.selection import tournament
 from firebase.upload import update_status, upload_population
 from src.ea_nas.finalize import try_finish
@@ -13,11 +14,30 @@ from src.output import generation_finished
 from src.ea_nas import operators as moo
 from src.MOOA.NSGA_II import nsga_ii, weighted_overfit_score
 import src.jobs.jobs as workers
-from src.jobs import garbage_collector
 
 import builtins
 
 builtins.generation = 0
+
+
+def mutation(population, selection, config):
+    children = []
+    if config.optimize_architectures:
+        print("    - Optimizing architectures")
+        children = optimize(population, selection, steps=10, config=config)
+    else:
+        for selected in selection(population, config.population_size):
+            draw = random.uniform(0, 1)
+            if draw < 0.9:
+                print("    - Operation Mutation for {}".format(selected.ID))
+                mutated = mutate(selected)
+            else:  # elif draw < 0.9:
+                print("    - Creating new net randomly")
+                mutated = init_population(1, config.input_format, 3, 30)[0]
+
+            if mutated:
+                children += [mutated]
+    return list(set(children))
 
 
 def evolve_architecture(selection: callable, config: Configuration, population: [Module] = None):
@@ -44,31 +64,17 @@ def evolve_architecture(selection: callable, config: Configuration, population: 
 
         # Preparation:
         print("\nGeneration", generation)
-        builtins.generation = generation
-        children = []
 
         # Mutation:
         print("--> Mutations:")
         update_status("Mutating")
-        for selected in selection(population, config.population_size):
-            draw = random.uniform(0, 1)
-            mutated = None
-            if draw < 0.9:
-                print("    - Operation Mutation for {}".format(selected.ID))
-                mutated = mutate(selected)
-            else:  # elif draw < 0.9:
-                print("    - Creating new net randomly")
-                mutated = init_population(1, config.input_format, 3, 30)[0]
-
-            if mutated:
-                children += [mutated]
+        children = mutation(population, selection, config)
 
         # Training networks:
-        children = list(set(children))  # Preventing inbreeding
-
-        # Elitism:
         population += children
         population = workers.start(population, config)
+
+        # Sorting
         population = nsga_ii(
             population,
             moo.classification_objectives(config),
@@ -78,12 +84,11 @@ def evolve_architecture(selection: callable, config: Configuration, population: 
             config
         )
 
+        # Elitism:
         keep = len(population) - config.population_size
         population, removed = population[keep:], population[:keep]
 
-        # Removing unused models:
-        # if not config.save_all_results:
-        #     garbage_collector.collect_garbage(removed, population, config)
+        # User feedback:
         upload_population(population)
         generation_finished(population, config, f"--> Generation {generation} Leaderboards:")
         generation_finished(removed, config, "--> The following individs were removed by elitism:")
@@ -110,6 +115,7 @@ def run(config):
         config.dataset_file_path = config.pretrain_dataset.dataset_file_path
         config.training.acceptable_scores = config.pretrain_dataset.accepted_accuracy
         config.input_format = config.pretrain_dataset.input
+        config.augmentations = config.pretrain_dataset.augmentations
 
         # Running pretrain stage:
         population = evolve_architecture(selection=tournament, config=config)
@@ -120,6 +126,7 @@ def run(config):
     config.dataset_file_path = config.target_dataset.dataset_file_path
     config.training.acceptable_scores = config.target_dataset.accepted_accuracy
     config.input_format = config.target_dataset.input
+    config.augmentations = config.target_dataset.augmentations
 
     # Running main training stage:
     _ = evolve_architecture(selection=tournament, config=config, population=population)

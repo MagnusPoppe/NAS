@@ -57,7 +57,8 @@ class Dense(Operation):
 
 class DenseS(Dense):
     _min_units = 10
-    _max_units = 30
+    _max_units = 100
+    _definite_units = 150
 
     def __init__(self, ID=None, dropout=True, dropout_probability=0.3):
         global counter
@@ -66,7 +67,7 @@ class DenseS(Dense):
             counter += 1
         super().__init__(
             ID=ID,
-            units=random.randint(self._min_units, self._max_units),
+            units=self._definite_units,  # random.randint(self._min_units, self._max_units),
             dropout=dropout,
             dropout_probability=dropout_probability
         )
@@ -75,8 +76,9 @@ class DenseS(Dense):
         return self.transfer_values(DenseS())
 
 class DenseM(Dense):
-    _min_units = 30
-    _max_units = 100
+    _min_units = 100
+    _max_units = 500
+    _definite_units = 750
 
     def __init__(self, ID=None, dropout=True, dropout_probability=0.3):
         global counter
@@ -85,7 +87,7 @@ class DenseM(Dense):
             counter += 1
         super().__init__(
             ID=ID,
-            units=random.randint(self._min_units, self._max_units),
+            units=self._definite_units,  # random.randint(self._min_units, self._max_units),
             dropout=dropout,
             dropout_probability=dropout_probability
         )
@@ -94,8 +96,9 @@ class DenseM(Dense):
         return self.transfer_values(DenseM())
 
 class DenseL(Dense):
-    _min_units = 100
-    _max_units = 400
+    _min_units = 1000
+    _max_units = 2500
+    _definite_units = 1500
 
     def __init__(self, ID=None, dropout=True, dropout_probability=0.3):
         global counter
@@ -104,7 +107,7 @@ class DenseL(Dense):
             counter += 1
         super().__init__(
             ID=ID,
-            units=random.randint(self._min_units, self._max_units),
+            units=self._definite_units,  # random.randint(self._min_units, self._max_units),
             dropout=dropout,
             dropout_probability=dropout_probability
         )

@@ -76,7 +76,7 @@ def run(args):
     try:
         # Running setup
         device = setup(config, server_id, device_id)
-        print(f"[{system_short_name()} {device.device}]:\tTraining {individ.ID}")
+        print(f"[{system_short_name()} {device.device}]: Training {individ.ID}")
 
         # Getting or creating models:
         compiled, model = get_model(individ, config, device)
@@ -93,7 +93,7 @@ def run(args):
             model,
             device,
             epochs,
-            *dataset.get_training_data(),
+            *dataset.get_training_data(augment=config.augmentations),
             *dataset.get_validation_data(),
             config.training.batch_size,
             learning_rate,

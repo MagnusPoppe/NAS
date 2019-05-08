@@ -13,7 +13,7 @@ x_train = np.reshape(x_train, [50000, 28, 28, 1])
 x_val = np.reshape(x_val, [10000, 28, 28, 1])
 x_test = np.reshape(x_test, [10000, 28, 28, 1])
 
-def get_training_data() -> (np.ndarray, np.ndarray):
+def get_training_data(augment=False) -> (np.ndarray, np.ndarray):
     return x_train, y_train
 
 

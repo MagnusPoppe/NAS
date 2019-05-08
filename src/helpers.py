@@ -61,7 +61,7 @@ operators2D = [Conv3x3, Conv5x5, MaxPooling2x2, AvgPooling2x2]
 operators1D = [DenseSmall, DenseMedium, DenseLarge]
 OPERATORS_2D_WEIGHTS = [
     (Conv3x3, 10),
-    (Conv5x5, 7),
+    (Conv5x5, 10),
     (MaxPooling2x2, 3),
     (AvgPooling2x2, 3),
 ]
@@ -75,5 +75,5 @@ OPERATORS_1D_WEIGHTS = [
 
 operators2D_votes = generate_votes(OPERATORS_2D_WEIGHTS)
 operators1D_votes = generate_votes(OPERATORS_1D_WEIGHTS)
-operators_votes = operators1D_votes + operators2D_votes
+operators_votes = operators2D_votes # operators1D_votes
 registered_modules = []

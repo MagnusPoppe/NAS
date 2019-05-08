@@ -1,43 +1,33 @@
 {
-  "pretrain dataset": {
-    "dataset": "MNIST",
-    "dataset path": "./data/mnist.py",
-    "dataset name": "mnist",
-    "accepted_accuracy": 0.98,
-    "input": [
-      28,
-      28,
-      1
-    ]
-  },
   "target dataset": {
     "dataset": "CIFAR-10",
     "dataset path": "./data/cifar10.py",
     "dataset name": "cifar10",
-    "accepted_accuracy": 0.80,
+    "augmentation": false,
+    "accepted_accuracy": 0.95,
     "input": [
       32,
       32,
       3
     ]
   },
-  "verbose": false,
   "classes": 10,
   "training": {
     "use restart": true,
     "batch size": 60,
-    "epochs": 10,
+    "epochs": 50,
     "learning rate": 0.001,
     "fixed epochs": true
   },
-  "population size": 4,
-  "generations": 300,
+  "verbose": false,
+  "population size": 30,
+  "generations": 100,
   "initial network size": {
     "min": 10,
     "max": 30
   },
   "results": {
-    "name": "pretrained-nets02",
+    "name": "CIFAR-NO-AUGMENTED-SIM",
     "keep all": false,
     "location": null
   },

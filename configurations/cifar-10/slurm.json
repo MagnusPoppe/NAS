@@ -3,6 +3,7 @@
     "dataset": "CIFAR-10",
     "dataset path": "./data/cifar10.py",
     "dataset name": "cifar10",
+    "augmentation": true,
     "accepted_accuracy": 0.85,
     "input": [
       32,
@@ -14,19 +15,19 @@
   "training": {
     "use restart": true,
     "batch size": 60,
-    "epochs": 10,
+    "epochs": 100,
     "learning rate": 0.001,
     "fixed epochs": true
   },
   "verbose": false,
-  "population size": 19,
-  "generations": 300,
+  "population size": 12,
+  "generations": 50,
   "initial network size": {
-    "min": 6,
-    "max": 13
+    "min": 20,
+    "max": 30
   },
   "results": {
-    "name": "cifar-10-single-net03",
+    "name": "cifar-10-augmentation-small",
     "keep all": false,
     "location": null
   },

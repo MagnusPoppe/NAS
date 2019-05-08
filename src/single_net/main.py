@@ -3,6 +3,7 @@ import random
 
 from src.buildingblocks.module import Module
 from src.configuration import Configuration
+from src.ea_nas.evolutionary_operations import selection
 from src.ea_nas.evolutionary_operations.initialization import init_population
 from src.ea_nas.evolutionary_operations.mutation_for_operators import mutate
 from firebase.upload import update_status, upload_population
@@ -22,13 +23,25 @@ def evolve_architecture(config: Configuration, population: [Module] = None):
 
     # initializing population
     if not population:
+        population_size = config.population_size
+        if config.optimize_architectures:
+            config.population_size = config.population_size * 10
+            print(f"Optimizing the architecture of {config.population_size} individuals. Only {population_size} will be kept.")
+
         population = init_population(
             individs=config.population_size,
             in_shape=config.input_format,
             network_min_layers=config.min_size,
             network_max_layers=config.max_size
         )
+        if config.optimize_architectures:
+            from src.ea_nas.evolutionary_operations.optimize_architecture import optimize
+            population = optimize(population, selection.tournament, steps=30, config=config)
+            config.population_size = population_size
+            population = [x for x in population if len(x.children) <= config.max_size*1.10]
+            population = population[-config.population_size:]
 
+        del population_size
         # Training initial population:
         population = workers.start(population, config)
 
