@@ -1,5 +1,4 @@
 import pickle
-from mpi4py import MPI
 from mpi4py.futures import MPIPoolExecutor
 from src.training import prepare_training as trainer
 
@@ -28,28 +27,22 @@ def launch_with_MPI_futures(population, config):
 
     args = pack_args(population, config)
 
-    mpi_size = MPI.Comm.Get_size(MPI.COMM_WORLD) -1
-    results = []
-    for i in range(0, len(args), mpi_size):
-        # Calculating TensorFlow job size:
-        jobs = i + mpi_size if i + mpi_size < len(args) else len(args)
-        print(
-            "--> Starting MPI Pool executor. " +
-            f"Jobs running {i}-{jobs} of {len(args)} on {len(config.servers)} servers"
-        )
+    # Calculating TensorFlow job size:
+    print(
+        "--> Fitness calculation using MPI Pool executor.\n" +
+        f"    - Jobs running: {len(args)} - on {len(config.servers)} servers"
+    )
 
-        # Running TensorFlow jobs with MPI
-        with MPIPoolExecutor(max_workers=mpi_size) as executor:
-            results += [result for result in executor.map(trainer.run, args[i:jobs])]
-            executor.shutdown(wait=True)
+    # Running TensorFlow jobs with MPI
+    with MPIPoolExecutor() as executor:
+        results = [result for result in executor.map(trainer.run, args)]
+        executor.shutdown(wait=True)
 
-    # Exceptions may occur inside the async training loop.
-    # The failed solutions will be discarded:
-    original = len(results)
-    results = [individ for individ in results if not individ.failed]
-    filtered = len(results)
-    print(f"--> Entire population trained. {original-filtered}/{original} failed.")
+    results = [x for x in results if not x.failed]
     for individ in results:
         del individ.failed
 
+    # Exceptions may occur inside the async training loop.
+    # The failed solutions will be discarded:
+    print(f"    - Entire population trained. {len(population) - len(results)}/{len(population)} failed.")
     return results

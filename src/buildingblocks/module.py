@@ -72,6 +72,7 @@ class Module(Base):
         self.model_image_link = None
         self.saved_model = None
         self.epochs_trained = 0
+        self.immediate_transferred_knowledge_epochs = 0
         self.transferred_knowledge_epochs = 0
 
     def __str__(self):
@@ -88,6 +89,7 @@ class Module(Base):
         # Identity and version-control:
         new_mod.name, new_mod.version = get_name_and_version(self.name)
         new_mod.ID = "{} v{}".format(new_mod.name, new_mod.version)
+        new_mod.immediate_transferred_knowledge_epochs = self.epochs_trained
         new_mod.transferred_knowledge_epochs = self.transferred_knowledge_epochs + self.epochs_trained
 
         # Connectivity:
@@ -119,13 +121,22 @@ class Module(Base):
 
     def get_improvement(self):
         if len(self.report) >= 1 and self.predecessor and len(self.predecessor.report) >= 1:
-            acc = self.latest_report()['weighted avg']["f1-score"]
-            pred_acc = self.predecessor.latest_report()['weighted avg']["f1-score"]
+            acc = self.latest_report()['weighted avg']["precision"]
+            pred_acc = self.predecessor.latest_report()['weighted avg']["precision"]
             impr = acc - pred_acc
             return impr
         else:
             return 0.0
 
+    def get_session_improvement(self):
+        if len(self.report) > 1:
+            keys = list(self.report.keys())
+            keys.sort()
+            return self.report[keys[-1]]['weighted avg']["precision"] - self.report[keys[-2]]['weighted avg']["precision"]
+        elif len(self.report) == 1 and self.predecessor:
+            return self.get_improvement()
+        else:
+            return self.latest_report()['weighted avg']["precision"]
     def number_of_operations(self) -> int:
         """ Calculates how many operations are in this Module.
             Including operations of sub-modules

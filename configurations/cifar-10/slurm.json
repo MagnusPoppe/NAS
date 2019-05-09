@@ -22,6 +22,7 @@
   "verbose": false,
   "population size": 12,
   "generations": 50,
+  "mpi": true,
   "initial network size": {
     "min": 20,
     "max": 30

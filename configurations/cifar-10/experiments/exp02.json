@@ -4,7 +4,7 @@
     "dataset path": "./data/cifar10.py",
     "dataset name": "cifar10",
     "augmentation": true,
-    "accepted_accuracy": 0.85,
+    "accepted_accuracy": 0.90,
     "input": [
       32,
       32,
@@ -13,22 +13,25 @@
   },
   "classes": 10,
   "training": {
-    "use restart": true,
-    "batch size": 60,
-    "epochs": 100,
-    "learning rate": 0.001,
+    "use restart": false,
+    "batch size": 90,
+    "epochs": 30,
+    "learning rate": 0.0001,
     "fixed epochs": true
   },
   "verbose": false,
-  "population size": 10,
-  "generations": 50,
+  "population size": 8,
+  "generations": 150,
+  "optimize architectures": false,
+  "optimize classification": true,
+  "moo": true,
   "mpi": true,
   "initial network size": {
-    "min": 4,
-    "max": 12
+    "min": 20,
+    "max": 30
   },
   "results": {
-    "name": "PATTERN-NAS-FULL-SIM-AUG",
+    "name": "exp02",
     "keep all": false,
     "location": null
   },

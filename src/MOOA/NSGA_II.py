@@ -112,7 +112,7 @@ def nsga_ii(solutions: list, objectives: [callable], domination_operator: callab
 
     # TODO: Removing networks without scores:
 
-    if len(solutions) < 60 and not force_moo:
+    if len(solutions) < 10 and not force_moo:
         solutions.sort(key=weighted_overfit_score(config), reverse=True)
         return solutions
 
@@ -125,7 +125,7 @@ def nsga_ii(solutions: list, objectives: [callable], domination_operator: callab
     except ZeroDivisionError as zde:
         print("Could not use MOO sort. Using weighted overfit score instead.")
         if not force_moo:
-            solutions.sort(key=weighted_overfit_score(config), reverse=True)
+            solutions.sort(key=lambda x: 1 - x.latest_report()['weighted avg']['f1-score'], reverse=True)
         return solutions
 
     solutions.sort(

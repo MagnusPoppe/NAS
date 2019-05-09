@@ -171,7 +171,9 @@ class Configuration(ValidatedInput):
             async_verbose: bool,
             result: ResultStore,
             MPI: bool = False,
-            optimize_architectures: bool = False
+            force_moo = False,
+            optimize_architectures: bool = False,
+            optimize_classifier_tasks: bool = False
     ):
         super().__init__()
         # Dataset Properties (Guides)
@@ -195,7 +197,9 @@ class Configuration(ValidatedInput):
         self.generation = 0
         self.generations = generations
         self.population_size = population_size
+        self.force_moo = force_moo
         self.optimize_architectures = optimize_architectures
+        self.optimize_classifier_tasks = optimize_classifier_tasks
 
         # Results properties
         self.results = result
@@ -286,4 +290,7 @@ class Configuration(ValidatedInput):
         elif "mpi" in conf: config.MPI = conf['mpi']
         if "optimize architectures" in conf:
             config.optimize_architectures = conf['optimize architectures']
+        if "optimize classification" in conf:
+            config.optimize_classifier_tasks = conf['optimize classification']
+        if "moo" in conf: config.force_moo = conf['moo']
         return config

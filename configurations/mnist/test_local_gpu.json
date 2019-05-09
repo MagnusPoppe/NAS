@@ -21,6 +21,7 @@
   },
   "population size": 2,
   "generations": 10,
+  "mpi": true,
   "initial network size": {
     "min": 2,
     "max": 5
@@ -32,20 +33,6 @@
   },
   "servers": [
     {
-      "name": "COMPUTE",
-      "type": "local",
-      "cwd": "/lhome/magnuspw/ea-nas",
-      "python": "venv/bin/python",
-      "address": "local",
-      "devices": [
-        {
-          "device_str": "/GPU:0",
-          "allow gpu memory growth": true,
-          "memory per process": 0.5,
-          "concurrency": 1
-        }
-      ]
-    }, {
       "name": "COMPUTE",
       "type": "local",
       "cwd": "/lhome/magnuspw/ea-nas",

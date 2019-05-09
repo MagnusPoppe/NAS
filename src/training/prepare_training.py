@@ -99,21 +99,21 @@ def run(args):
             learning_rate,
             compiled
         )
+
         if config.training.use_restart:
             training_args += (config.async_verbose,)
             training_history = training.train_until_stale(*training_args)
         else:
             training_history = training.train(*training_args)
         report = evaluate(model, *dataset.get_test_data(), device)
-
         result = {
             "job": job_id,
             "epochs": epochs,
             "accuracy": training_history["acc"],
-            "validation accuracy": training_history["val_acc"],
+            "validation accuracy": training_history["val_acc"] if "val_acc" in training_history else [],
             "test accuracy": report['weighted avg']['precision'],
             "loss": training_history["loss"],
-            "validation loss": training_history["val_loss"],
+            "validation loss": training_history["val_loss"] if "val_loss" in training_history else [],
             "report": report
         }
 

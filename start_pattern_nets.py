@@ -26,8 +26,6 @@ print(f"Using JSON configuration {sys.argv[1]}")
 print(sys.argv)
 config = Configuration.from_json(sys.argv[1])
 config.type = "PatternNets"
-config.MPI = True
-config.results.set_name(config.results.name + "_pattern_nas")
 config.dataset_name = config.target_dataset.dataset_name
 config.dataset_file_name = config.target_dataset.dataset_file_name
 config.dataset_file_path = config.target_dataset.dataset_file_path

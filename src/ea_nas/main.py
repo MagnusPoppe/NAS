@@ -1,4 +1,3 @@
-import copy
 import time
 import random
 
@@ -11,9 +10,12 @@ from src.ea_nas.evolutionary_operations.selection import tournament
 from firebase.upload import update_status, upload_population
 from src.ea_nas.finalize import try_finish
 from src.output import generation_finished
-from src.ea_nas import operators as moo
 from src.MOOA.NSGA_II import nsga_ii, weighted_overfit_score
 import src.jobs.jobs as workers
+
+from src.ea_nas.moo_operators import architectural, classification_tasks, accuracy
+
+moo = accuracy
 
 import builtins
 
@@ -22,21 +24,21 @@ builtins.generation = 0
 
 def mutation(population, selection, config):
     children = []
-    if config.optimize_architectures:
-        print("    - Optimizing architectures")
-        children = optimize(population, selection, steps=10, config=config)
-    else:
-        for selected in selection(population, config.population_size):
-            draw = random.uniform(0, 1)
-            if draw < 0.9:
-                print("    - Operation Mutation for {}".format(selected.ID))
-                mutated = mutate(selected)
-            else:  # elif draw < 0.9:
-                print("    - Creating new net randomly")
-                mutated = init_population(1, config.input_format, 3, 30)[0]
+    # if config.optimize_architectures:
+    #     print("    - Optimizing architectures")
+    #     children = optimize(population, selection, steps=10, config=config)
+    # else:
+    for selected in selection(population, config.population_size):
+        draw = random.uniform(0, 1)
+        if draw < 0.9:
+            print("    - Operation Mutation for {}".format(selected.ID))
+            mutated = mutate(selected)
+        else:  # elif draw < 0.9:
+            print("    - Creating new net randomly")
+            mutated = init_population(1, config.input_format, 3, 30)[0]
 
-            if mutated:
-                children += [mutated]
+        if mutated:
+            children += [mutated]
     return list(set(children))
 
 
@@ -54,7 +56,14 @@ def evolve_architecture(selection: callable, config: Configuration, population: 
         # Training initial population:
         population = workers.start(population, config)
 
-    population.sort(key=weighted_overfit_score(config), reverse=True)
+    population = nsga_ii(
+        population,
+        moo.objectives(config),
+        moo.domination_operator(
+            moo.objectives(config)
+        ),
+        config
+    )
     upload_population(population)
     generation_finished(population, config, f"--> Initialization complete. Leaderboards:")
 
@@ -77,9 +86,9 @@ def evolve_architecture(selection: callable, config: Configuration, population: 
         # Sorting
         population = nsga_ii(
             population,
-            moo.classification_objectives(config),
-            moo.classification_domination_operator(
-                moo.classification_objectives(config)
+            moo.objectives(config),
+            moo.domination_operator(
+                moo.objectives(config)
             ),
             config
         )
@@ -103,6 +112,14 @@ def evolve_architecture(selection: callable, config: Configuration, population: 
 
 
 def run(config):
+    global moo
+    if config.optimize_classifier_tasks:
+        moo = classification_tasks
+    elif config.optimize_architectures:
+        moo = architectural
+    else:
+        moo = accuracy
+
     print("\n\nEvolving architecture")
     start_time = time.time()
     population = None

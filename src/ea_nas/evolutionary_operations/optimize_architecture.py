@@ -1,7 +1,5 @@
-import random
-
 from src.MOOA.NSGA_II import nsga_ii
-from src.ea_nas import architectural_operators as moo
+from src.ea_nas.moo_operators import architectural as moo
 from src.ea_nas.evolutionary_operations.mutation_for_operators import mutate
 
 

@@ -22,15 +22,25 @@ def train(
             model.compile(loss=loss, optimizer=optimizer, metrics=["accuracy"])
 
         # RUNNING TRAINING:
-        metric = model.fit(
-            x=data,
-            y=labels,
-            epochs=epochs,
-            batch_size=batch_size,
-            verbose=0,
-            shuffle=True,
-            validation_data=(val_data, val_labels),
-        )
+        if val_data:
+            metric = model.fit(
+                x=data,
+                y=labels,
+                epochs=epochs,
+                batch_size=batch_size,
+                verbose=0,
+                shuffle=True,
+                validation_data=(val_data, val_labels),
+            )
+        else:
+            metric = model.fit(
+                x=data,
+                y=labels,
+                epochs=epochs,
+                batch_size=batch_size,
+                verbose=0,
+                shuffle=True
+            )
     return metric.history
 
 
@@ -58,20 +68,30 @@ def train_until_stale(
 
         # RUNNING TRAINING:
         while not stalling(history, verbose):
-            metric = model.fit(
-                x=data,
-                y=labels,
-                epochs=epochs,
-                batch_size=batch_size,
-                verbose=0,
-                shuffle=True,
-                validation_data=(val_data, val_labels),
-            )
+            if val_data:
+                metric = model.fit(
+                    x=data,
+                    y=labels,
+                    epochs=epochs,
+                    batch_size=batch_size,
+                    verbose=0,
+                    shuffle=True,
+                    validation_data=(val_data, val_labels),
+                )
+            else:
+                metric = model.fit(
+                    x=data,
+                    y=labels,
+                    epochs=epochs,
+                    batch_size=batch_size,
+                    verbose=0,
+                    shuffle=True
+                )
             # Recording training data:
             history["acc"] += metric.history["acc"]
-            history["val_acc"] += metric.history["val_acc"]
+            history["val_acc"] += metric.history["val_acc"] if metric.history["val_acc"] else []
             history["loss"] += metric.history["loss"]
-            history["val_loss"] += metric.history["val_loss"]
+            history["val_loss"] += metric.history["val_loss"] if metric.history["val_loss"] else []
     return history
 
 

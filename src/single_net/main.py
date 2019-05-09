@@ -9,7 +9,7 @@ from src.ea_nas.evolutionary_operations.mutation_for_operators import mutate
 from firebase.upload import update_status, upload_population
 from src.ea_nas.finalize import try_finish
 from src.output import generation_finished
-from src.ea_nas import operators as moo
+from src.ea_nas.moo_operators import classification_tasks as moo
 from src.MOOA.NSGA_II import weighted_overfit_score
 import src.jobs.jobs as workers
 
