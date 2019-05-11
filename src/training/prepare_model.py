@@ -19,12 +19,12 @@ def prepare_ea_nas_model(individ, config, device):
 
     # Checking if already trained:
     if individ.saved_model and os.path.isfile(individ.saved_model):
-        with tf.device(device.device):
+        with tf.device(device):
             model = keras.models.load_model(individ.saved_model)
         compiled = True
     # Is not trained. Apply transfer learning if possible:
     else:
-        with tf.device(device.device):
+        with tf.device(device):
             model = assemble(individ, config.input_format, config.classes_in_classifier)
 
             # Can transfer learn?
@@ -43,10 +43,11 @@ def prepare_pattern_model(individ, config, device):
     from src.frameworks.keras import module_to_model as assemble
     model = assemble(individ, config.input_format, config.classes_in_classifier)
 
-    for pattern in individ.patterns:
-        pattern.model_file_exists(config)
-        if pattern.used_result and pattern.used_result.model_path:
-            pattern_model = keras.models.load_model(pattern.used_result.model_path)
-            transfer_model_weights(model, pattern_model)
+    with tf.device(device):
+        for pattern in individ.patterns:
+            pattern.model_file_exists(config)
+            if pattern.used_result and pattern.used_result.model_path:
+                pattern_model = keras.models.load_model(pattern.used_result.model_path)
+                transfer_model_weights(model, pattern_model)
 
     return False, model

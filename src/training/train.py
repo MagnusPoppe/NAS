@@ -14,7 +14,7 @@ def train(
         learning_rate=0.001,
         compiled=False
 ):
-    with tf.device(device.device):
+    with tf.device(device):
         # DEFINING FUNCTIONS FOR COMPILATION
         if not compiled:
             optimizer = keras.optimizers.Adam(lr=learning_rate)
@@ -59,7 +59,7 @@ def train_until_stale(
 ):
     history = {"acc": [], "val_acc": [], "loss": [], "val_loss": []}
 
-    with tf.device(device.device):
+    with tf.device(device):
         # DEFINING FUNCTIONS FOR COMPILATION
         if not compiled:
             optimizer = keras.optimizers.Adam(lr=learning_rate)
@@ -78,6 +78,9 @@ def train_until_stale(
                     shuffle=True,
                     validation_data=(val_data, val_labels),
                 )
+                # Recording training data:
+                history["val_acc"] += metric.history["val_acc"]
+                history["val_loss"] += metric.history["val_loss"]
             else:
                 metric = model.fit(
                     x=data,
@@ -89,9 +92,8 @@ def train_until_stale(
                 )
             # Recording training data:
             history["acc"] += metric.history["acc"]
-            history["val_acc"] += metric.history["val_acc"] if metric.history["val_acc"] else []
             history["loss"] += metric.history["loss"]
-            history["val_loss"] += metric.history["val_loss"] if metric.history["val_loss"] else []
+
     return history
 
 

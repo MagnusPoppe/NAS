@@ -33,7 +33,7 @@ def col(val: str, cols: int):
 def generation_finished(population, config, prefix):
     print(prefix)
     matrix = [
-        ["SPECIMIN", "ACC", "VACC", "IMPR", "SESS IMPR" "OPS", "LR", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "MIAVG", "MAAVG", "WAVG"]
+        ["SPECIMIN", "ACC", "VACC", "IMPR", "SESS IMPR", "OPS", "LR", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "MIAVG", "MAAVG", "WAVG"]
     ]
 
     if config.type == "ea-nas":
@@ -76,7 +76,7 @@ def print_config_stats(config: Configuration):
     import os
     sort_type = 'Multi-objective' if config.population_size > 15 else 'Weighted scoring'
     epochs_fixed = "(Fixed)" if config.training.fixed_epochs else "(Multiplied by network size)"
-    storage_area = f"{config.results.location}/results/{config.results.name}" \
+    storage_area = f"{config.results.location}/{config.results.name}" \
                  if config.results.location \
                  else f"{os.getcwd()}/results/{config.results.name}"
 

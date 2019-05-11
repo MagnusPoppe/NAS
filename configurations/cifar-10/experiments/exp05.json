@@ -27,8 +27,8 @@
   "moo": false,
   "mpi": true,
   "initial network size": {
-    "min": 20,
-    "max": 30
+    "min": 7,
+    "max": 14
   },
   "results": {
     "name": "exp05",

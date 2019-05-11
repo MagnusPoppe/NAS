@@ -27,22 +27,18 @@ def launch_with_MPI_futures(population, config):
 
     args = pack_args(population, config)
 
-    # Calculating TensorFlow job size:
-    print(
-        "--> Fitness calculation using MPI Pool executor.\n" +
-        f"    - Jobs running: {len(args)} - on {len(config.servers)} servers"
-    )
-
-    # Running TensorFlow jobs with MPI
+    print(f"--> Starting MPI Pool executor. {len(args)} jobs running on {len(config.servers)} servers")
     with MPIPoolExecutor() as executor:
         results = [result for result in executor.map(trainer.run, args)]
         executor.shutdown(wait=True)
 
-    results = [x for x in results if not x.failed]
+    # Exceptions may occur inside the async training loop.
+    # The failed solutions will be discarded:
+    original = len(results)
+    results = [individ for individ in results if not individ.failed]
+    filtered = len(results)
+    print(f"--> Entire population trained. {original-filtered}/{original} failed.")
     for individ in results:
         del individ.failed
 
-    # Exceptions may occur inside the async training loop.
-    # The failed solutions will be discarded:
-    print(f"    - Entire population trained. {len(population) - len(results)}/{len(population)} failed.")
     return results

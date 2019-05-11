@@ -15,7 +15,7 @@
   "training": {
     "use restart": false,
     "batch size": 90,
-    "epochs": 30,
+    "epochs": 10,
     "learning rate": 0.0001,
     "fixed epochs": true
   },
@@ -27,8 +27,8 @@
   "moo": true,
   "mpi": true,
   "initial network size": {
-    "min": 20,
-    "max": 30
+    "min": 7,
+    "max": 14
   },
   "results": {
     "name": "exp03",

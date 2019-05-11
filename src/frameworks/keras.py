@@ -1,6 +1,5 @@
 from src.buildingblocks.ops.convolution import Conv2D
 from src.buildingblocks.ops.dense import Dense
-import tensorflow as tf
 from tensorflow import keras
 
 from src.buildingblocks.ops.pooling import AvgPooling2x2, MaxPooling2x2

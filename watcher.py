@@ -36,7 +36,7 @@ def read_on_interval(file, interval):
         with open(file, "r") as f:
             new_lines = f.readlines()[len(buffer):]
 
-            if new_lines: status = status_check(buffer, new_lines)
+            if new_lines: status = None  # status_check(buffer, new_lines)
 
             if status and prev_status:
                 sys.stdout.write(CURSOR_UP_ONE + ERASE_LINE)

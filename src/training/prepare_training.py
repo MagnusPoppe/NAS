@@ -18,14 +18,14 @@ def module_from_file(module_name, file_path):
     return module
 
 
-def set_new_session(device):
-    with tf.device(device.device):
+def set_new_session(device, allow_memory_growth, memory_per_process):
+    with tf.device(device):
         keras.backend.set_session(
             tf.Session(
                 config=tf.ConfigProto(
                     gpu_options=tf.GPUOptions(
-                        allow_growth=device.allow_memory_growth,
-                        per_process_gpu_memory_fraction=device.memory_per_process,
+                        allow_growth=allow_memory_growth,
+                        per_process_gpu_memory_fraction=memory_per_process,
                     ),
                     allow_soft_placement=True
                 )
@@ -36,18 +36,23 @@ def set_new_session(device):
 def setup(config, server_id, device_id):
     # Finding current compute device:
     device = config.servers[server_id].devices[device_id]
-    os.environ["CUDA_VISIBLE_DEVICES"] = device.device.split(":")[-1]
+    from src.jobs import device_query
+
+    id = device_query.get_least_used_gpu(server_id % 2)
+    device_str = f"/GPU:{id}"
+
     os.environ["TF_CPP_MIN_LOG_LEVEL"] = "1"
+    os.environ["CUDA_VISIBLE_DEVICES"] = str(id)
 
     # Setting process name:
     try:
         import setproctitle
-        setproctitle.setproctitle("NAS-TRAINER " + device.device)
+        setproctitle.setproctitle("NAS-TRAINER " + device_str)
     except ImportError:
         pass
 
-    set_new_session(device)
-    return device
+    set_new_session(device_str, device.allow_memory_growth, device.memory_per_process)
+    return device, device_str
 
 
 def finalize(individ, storage_directory, model, config):
@@ -75,11 +80,11 @@ def run(args):
     storage_directory = individ.absolute_save_path(config)
     try:
         # Running setup
-        device = setup(config, server_id, device_id)
-        print(f"[{system_short_name()} {device.device}]: Training {individ.ID}")
+        device, device_str = setup(config, server_id, device_id)
+        print(f"[{system_short_name()} {device_str}]: Training {individ.ID}")
 
         # Getting or creating models:
-        compiled, model = get_model(individ, config, device)
+        compiled, model = get_model(individ, config, device_str)
 
         # Finding learning rate:
         try:
@@ -91,7 +96,7 @@ def run(args):
         dataset = module_from_file(config.dataset_file_name, config.dataset_file_path)
         training_args = (
             model,
-            device,
+            device_str,
             epochs,
             *dataset.get_training_data(augment=config.augmentations),
             *dataset.get_validation_data(),
@@ -105,7 +110,7 @@ def run(args):
             training_history = training.train_until_stale(*training_args)
         else:
             training_history = training.train(*training_args)
-        report = evaluate(model, *dataset.get_test_data(), device)
+        report = evaluate(model, *dataset.get_test_data(), device_str)
         result = {
             "job": job_id,
             "epochs": epochs,
@@ -116,7 +121,6 @@ def run(args):
             "validation loss": training_history["val_loss"] if "val_loss" in training_history else [],
             "report": report
         }
-
         if config.type == "PatternNets":
             pattern_evaluation.apply_result(individ, result, learning_rate)
         apply_ea_nas_results(individ, result, learning_rate)
