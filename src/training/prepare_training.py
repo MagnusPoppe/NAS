@@ -128,10 +128,9 @@ def run(args):
         # Finalizing and storing results:
         finalize(individ, storage_directory, model, config)
 
-    except OSError as e:
+    except Exception as e:
         print(e)
         individ.failed = True
-
     finally:
         return individ
 

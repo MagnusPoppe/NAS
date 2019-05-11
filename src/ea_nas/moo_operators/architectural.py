@@ -29,17 +29,7 @@ def objectives(*args, **kwargs) -> [callable]:
 
     def convolution_count(p: Module):
         return len([child for child in p.children if isinstance(child, Conv2D)])
-
-    # def dense_count(p: Module):
-    #     return len([child for child in p.children if isinstance(child, Dense)])
-
-    # def conv_pooling_factor(p: Module):
-    #     return len([
-    #         child
-    #         for child in p.children
-    #         if isinstance(child, Conv2D) and any([isinstance(n, Pooling) for n in child.next])
-    #     ])
-
+    
     def double_pooling(p: Module):
         return len([
             child
@@ -51,7 +41,7 @@ def objectives(*args, **kwargs) -> [callable]:
         return len(p.children)
 
     def fitness(p: Module):
-        return p.latest_report()['weighted avg']['precision']
+        return p.test_acc()
 
     return [
         fitness,  # Maximize

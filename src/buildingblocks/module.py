@@ -114,6 +114,12 @@ class Module(Base):
         except IndexError:
             return 0.0
 
+    def test_acc(self):
+        try:
+            return self.latest_report()['weighted avg']["precision"]
+        except (KeyError, IndexError):
+            return 0.0
+
     def latest_report(self):
         keys = list(self.report.keys())
         keys.sort()
@@ -121,8 +127,8 @@ class Module(Base):
 
     def get_improvement(self):
         if len(self.report) >= 1 and self.predecessor and len(self.predecessor.report) >= 1:
-            acc = self.latest_report()['weighted avg']["precision"]
-            pred_acc = self.predecessor.latest_report()['weighted avg']["precision"]
+            acc = self.test_acc()
+            pred_acc = self.predecessor.test_acc()
             impr = acc - pred_acc
             return impr
         else:
@@ -136,7 +142,7 @@ class Module(Base):
         elif len(self.report) == 1 and self.predecessor:
             return self.get_improvement()
         else:
-            return self.latest_report()['weighted avg']["precision"]
+            return self.test_acc()
     def number_of_operations(self) -> int:
         """ Calculates how many operations are in this Module.
             Including operations of sub-modules

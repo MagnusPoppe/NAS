@@ -66,6 +66,11 @@ def crowding_distance_assignment(solutions: list, objectives: [callable]):
         objective_min = min([objective(s) for s in solutions])
         objective_max = max([objective(s) for s in solutions])
 
+        # Fallback, all objectives have an equal score.
+        if objective_min == objective_max:
+            # No added bonus for this objective.
+            continue
+
         # Initializing values for objective:
         solutions.sort(key=objective)
         solutions[0].distance = len(solutions) * 1.0  # (sys.maxsize) Max reward per category
@@ -73,9 +78,8 @@ def crowding_distance_assignment(solutions: list, objectives: [callable]):
 
         # Setting distances:
         for i in range(1, len(solutions) - 1):
-            solutions[i].distance += (
-                                             objective(solutions[i + 1]) - objective(solutions[i - 1])
-                                     ) / (objective_max - objective_min)
+            solutions[i].distance += (objective(solutions[i + 1]) - objective(solutions[i - 1])) / (
+                        objective_max - objective_min)
 
 
 def weighted_overfit_score(config: Configuration) -> callable:
@@ -83,8 +87,9 @@ def weighted_overfit_score(config: Configuration) -> callable:
     Alternative sort, find the least overfitted with the best validation accuracy:
     inverse of overfit + validation accuracy
     """
+
     def _module_test_score(x):
-        return 1 - x.latest_report()['weighted avg']['f1-score']
+        return 1 - x.test_acc()
 
     def _module_overfit(x):
         return abs(x.acc() - x.val_acc())
@@ -105,7 +110,8 @@ def weighted_overfit_score(config: Configuration) -> callable:
     return lambda x: abs(overfit(x) * 0.30 + test_score(x) * 0.70)
 
 
-def nsga_ii(solutions: list, objectives: [callable], domination_operator: callable, config: Configuration, force_moo=False):
+def nsga_ii(solutions: list, objectives: [callable], domination_operator: callable, config: Configuration,
+            force_moo=False):
     """
     https://ieeexplore.ieee.org/document/996017
     """
@@ -125,7 +131,7 @@ def nsga_ii(solutions: list, objectives: [callable], domination_operator: callab
     except ZeroDivisionError as zde:
         print("Could not use MOO sort. Using weighted overfit score instead.")
         if not force_moo:
-            solutions.sort(key=lambda x: 1 - x.latest_report()['weighted avg']['f1-score'], reverse=True)
+            solutions.sort(key=lambda x: 1 - x.test_acc(), reverse=True)
         return solutions
 
     solutions.sort(
