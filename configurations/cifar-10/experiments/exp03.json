@@ -21,7 +21,7 @@
   },
   "verbose": false,
   "population size": 8,
-  "generations": 150,
+  "generations": 300,
   "optimize architectures": true,
   "optimize classification": false,
   "moo": true,

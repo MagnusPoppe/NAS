@@ -101,7 +101,7 @@ def evolve_architecture(config: Configuration, population: [Module] = None):
         generation_finished(removed, config, "--> The following individs were removed by elitism:")
 
         # Checking for a satisfactory solution
-        if any(ind.val_acc() > config.training.acceptable_scores - 0.10 for ind in population):
+        if any(ind.test_acc() > config.training.acceptable_scores - 0.10 for ind in population):
             population, solved = try_finish(population, config, moo)
             if solved:
                 return population

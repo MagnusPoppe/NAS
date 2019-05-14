@@ -20,7 +20,12 @@
     "accepted_accuracy": 0.90
   },
   "population size": 6,
-  "generations": 10,
+  "generations": 5,
+  "verbose": false,
+  "optimize architectures": false,
+  "optimize classification": false,
+  "moo": false,
+  "mpi": true,
   "initial network size": {
     "min": 3,
     "max": 5

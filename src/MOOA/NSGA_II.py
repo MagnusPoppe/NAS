@@ -116,9 +116,7 @@ def nsga_ii(solutions: list, objectives: [callable], domination_operator: callab
     https://ieeexplore.ieee.org/document/996017
     """
 
-    # TODO: Removing networks without scores:
-
-    if len(solutions) < 10 and not force_moo:
+    if not force_moo:
         solutions.sort(key=weighted_overfit_score(config), reverse=True)
         return solutions
 

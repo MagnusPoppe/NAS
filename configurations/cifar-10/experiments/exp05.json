@@ -13,15 +13,15 @@
   },
   "classes": 10,
   "training": {
-    "use restart": true,
+    "use restart": false,
     "batch size": 90,
-    "epochs": 30,
+    "epochs": 50,
     "learning rate": 0.0001,
     "fixed epochs": true
   },
   "verbose": false,
   "population size": 11,
-  "generations": 50,
+  "generations": 150,
   "optimize architectures": false,
   "optimize classification": false,
   "moo": false,
