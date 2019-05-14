@@ -58,8 +58,8 @@ def generation_finished(population, config, prefix):
             matrix += [
                 [
                     individ.ID,
-                    round(result.accuracy[-1] * 100, 1),
-                    round(result.val_accuracy[-1] * 100, 1) if len(result.val_accuracy) > 0 else "-",
+                    round(result.acc() * 100, 1),
+                    round(result.val_acc() * 100, 1) if len(result.val_acc()) > 0 else "-",
                     "-",
                     "-",
                     individ.number_of_operations(),
@@ -74,7 +74,15 @@ def generation_finished(population, config, prefix):
 
 def print_config_stats(config: Configuration):
     import os
-    sort_type = 'Multi-objective' if config.population_size > 15 else 'Weighted scoring'
+    sort_type = "Weighted sorting"
+    if config.force_moo:
+        sort_type = "Multi-objective - "
+        if config.optimize_architectures:
+            sort_type += "Architecture"
+        elif config.optimize_classifier_tasks:
+            sort_type += "Classifier tasks"
+        else:
+            sort_type += "Accuracy/Overfit/Size"
     epochs_fixed = "(Fixed)" if config.training.fixed_epochs else "(Multiplied by network size)"
     storage_area = f"{config.results.location}/{config.results.name}" \
                  if config.results.location \
@@ -92,7 +100,9 @@ def print_config_stats(config: Configuration):
     print(f"\tMinibatch size:                {config.training.batch_size}")
     print(f"\tLearning rate:                 {config.training.learning_rate}")
     print(f"\tUse restarting:                {config.training.use_restart}")
+    print(f"\tUsing transfer learning:       {config.use_transfer_learning}")
     print(f"Servers:")
+    print(f"\tUsing MPI:                     {config.MPI}")
     print(f"\tNumber of servers:             {len(config.servers)}")
     print(f"\tNumber of compute devices:     {sum(len(server.devices) for server in config.servers)}")
     print(f"\tResults save location:         {storage_area}")

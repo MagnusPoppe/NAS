@@ -106,7 +106,7 @@ def main(config: Configuration):
         # Reset settings and return:
         config.training = original_training_settings
 
-        if best_net.validation_fitness[-1] >= config.training.acceptable_scores:
+        if best_net.test_acc() >= config.training.acceptable_scores:
             print("Found good network! ")
             solved = True
 

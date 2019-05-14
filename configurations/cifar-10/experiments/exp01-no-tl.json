@@ -20,18 +20,19 @@
     "fixed epochs": true
   },
   "verbose": false,
-  "population size": 16,
+  "population size": 8,
   "generations": 300,
   "optimize architectures": false,
-  "optimize classification": true,
-  "moo": true,
+  "optimize classification": false,
+  "moo": false,
   "mpi": true,
+  "use transfer learning": false,
   "initial network size": {
     "min": 7,
     "max": 14
   },
   "results": {
-    "name": "exp02",
+    "name": "exp01-no-tl",
     "keep all": false,
     "location": null
   },

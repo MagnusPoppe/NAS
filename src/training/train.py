@@ -68,29 +68,24 @@ def train_until_stale(
 
         # RUNNING TRAINING:
         while not stalling(history, verbose):
+            kwargs = {
+                "x": data,
+                "y": labels,
+                "epochs": epochs,
+                "batch_size": batch_size,
+                "verbose": 0,
+                "shuffle": True
+            }
             if val_data:
-                metric = model.fit(
-                    x=data,
-                    y=labels,
-                    epochs=epochs,
-                    batch_size=batch_size,
-                    verbose=0,
-                    shuffle=True,
-                    validation_data=(val_data, val_labels),
-                )
-                # Recording training data:
+                kwargs["validation_data"] = (val_data, val_labels)
+
+            # Training
+            metric = model.fit(**kwargs)
+
+            # Recording training data:
+            if val_data:
                 history["val_acc"] += metric.history["val_acc"]
                 history["val_loss"] += metric.history["val_loss"]
-            else:
-                metric = model.fit(
-                    x=data,
-                    y=labels,
-                    epochs=epochs,
-                    batch_size=batch_size,
-                    verbose=0,
-                    shuffle=True
-                )
-            # Recording training data:
             history["acc"] += metric.history["acc"]
             history["loss"] += metric.history["loss"]
 

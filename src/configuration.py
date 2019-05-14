@@ -186,6 +186,7 @@ class Configuration(ValidatedInput):
         self.dataset_file_path = None
         self.dataset_file_name = None
         self.augmentations = None
+        self.use_transfer_learning = True
 
         # Network Properties
         self.input_format = input_format
@@ -293,4 +294,6 @@ class Configuration(ValidatedInput):
         if "optimize classification" in conf:
             config.optimize_classifier_tasks = conf['optimize classification']
         if "moo" in conf: config.force_moo = conf['moo']
+        if "use transfer learning" in conf:
+            config.use_transfer_learning = conf['use transfer learning']
         return config

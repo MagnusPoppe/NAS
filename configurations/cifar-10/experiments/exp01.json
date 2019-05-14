@@ -21,10 +21,10 @@
   },
   "verbose": false,
   "population size": 8,
-  "generations": 150,
+  "generations": 300,
   "optimize architectures": false,
   "optimize classification": false,
-  "moo": true,
+  "moo": false,
   "mpi": true,
   "initial network size": {
     "min": 7,

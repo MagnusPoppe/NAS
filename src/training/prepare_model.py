@@ -28,14 +28,15 @@ def prepare_ea_nas_model(individ, config, device):
             model = assemble(individ, config.input_format, config.classes_in_classifier)
 
             # Can transfer learn?
-            try:
-                if individ.predecessor:
-                    file = individ.predecessor.saved_model
-                    if file and os.path.isfile(file):
-                        predecessor_model = keras.models.load_model(individ.predecessor.saved_model)
-                        transfer_model_weights(model, predecessor_model)
-            except KeyError:
-                print("Could not use transfer learning due to bad file...")
+            if config.use_transfer_learning:
+                try:
+                    if individ.predecessor:
+                        file = individ.predecessor.saved_model
+                        if file and os.path.isfile(file):
+                            predecessor_model = keras.models.load_model(individ.predecessor.saved_model)
+                            transfer_model_weights(model, predecessor_model)
+                except KeyError:
+                    print("Could not use transfer learning due to bad file...")
     return compiled, model
 
 

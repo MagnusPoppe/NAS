@@ -18,6 +18,23 @@ class Result():
                + self.val_accuracy[-1] * 0.4 \
                + self.report['weighted avg']['f1-score'] * 0.4
 
+    def acc(self):
+        try:
+            return self.accuracy[-1]
+        except IndexError:
+            return 0.0
+
+    def val_acc(self):
+        try:
+            return self.val_accuracy[-1]
+        except IndexError:
+            return 0.0
+
+    def test_acc(self):
+        try:
+            return self.report['weighted avg']["precision"]
+        except (KeyError, IndexError):
+            return 0.0
 
 def apply_result(net, result, learning_rate):
     for dist, pattern in enumerate(net.patterns):

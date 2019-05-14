@@ -95,19 +95,20 @@ def evolve_architecture(selection: callable, config: Configuration, population: 
 
         # Elitism:
         keep = len(population) - config.population_size
-        population, removed = population[keep:], population[:keep]
+        if len(population) > keep:
+            population, removed = population[keep:], population[:keep]
+            generation_finished(removed, config, "--> The following individs were removed by elitism:")
+        generation_finished(population, config, f"--> Generation {generation} Leaderboards:")
 
         # User feedback:
         upload_population(population)
-        generation_finished(population, config, f"--> Generation {generation} Leaderboards:")
-        generation_finished(removed, config, "--> The following individs were removed by elitism:")
         config.results.store_generation(population, generation)
 
         # Checking for a satisfactory solution
-        if any(ind.val_acc() > config.training.acceptable_scores - 0.10 for ind in population):
-            population, solved = try_finish(population, config, moo)
-            if solved:
-                return population
+        # if any(ind.test_acc() > config.training.acceptable_scores - 0.10 for ind in population):
+        #     population, solved = try_finish(population, config, moo)
+        #     if solved:
+        #         return population
     return population
 
 

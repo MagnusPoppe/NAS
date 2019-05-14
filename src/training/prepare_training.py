@@ -27,7 +27,9 @@ def set_new_session(device, allow_memory_growth, memory_per_process):
                         allow_growth=allow_memory_growth,
                         per_process_gpu_memory_fraction=memory_per_process,
                     ),
-                    allow_soft_placement=True
+                    allow_soft_placement=True,
+                    intra_op_parallelism_threads=1,
+                    inter_op_parallelism_threads=1
                 )
             )
         )
@@ -128,7 +130,7 @@ def run(args):
         # Finalizing and storing results:
         finalize(individ, storage_directory, model, config)
 
-    except Exception as e:
+    except BaseException as e:
         print(e)
         individ.failed = True
     finally:

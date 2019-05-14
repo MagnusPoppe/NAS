@@ -21,7 +21,11 @@
   },
   "population size": 2,
   "generations": 10,
-  "mpi": true,
+  "mpi": false,
+  "use transfer learning": false,
+  "optimize architectures": true,
+  "optimize classification": false,
+  "moo": true,
   "initial network size": {
     "min": 2,
     "max": 5

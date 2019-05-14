@@ -14,7 +14,7 @@ def try_finish(population: [Module], config: Configuration, moo_ops: callable) -
     original_training_settings = copy.deepcopy(config.training)
     config.training.use_restart = False
     config.training.fixed_epochs = True
-    config.training.epochs = 1
+    config.training.epochs = 100
 
     # Finding the best networks:
     best = population[:config.compute_capacity(maximum=False)]
@@ -26,7 +26,7 @@ def try_finish(population: [Module], config: Configuration, moo_ops: callable) -
     config.training = original_training_settings
 
     best.sort(key=weighted_overfit_score(config), reverse=True)
-    if any(ind.validation_fitness[-1] >= config.training.acceptable_scores for ind in best):
+    if any(ind.test_acc() >= config.training.acceptable_scores for ind in best):
         generation_finished(best, config, "--> Found final solution:")
         config.results.store_generation(best, config.generation + 1)
         return best, True

@@ -5,8 +5,8 @@
 #SBATCH --gres=gpu:2
 #SBATCH --mem=80000
 #SBATCH --ntasks-per-node=2
-#SBATCH --job-name="exp04"
-#SBATCH --output=logs/exp04.log
+#SBATCH --job-name="exp01-no-tl"
+#SBATCH --output=logs/exp01-no-tl.log
 #SBATCH --mail-user=magnuspw@stud.ntnu.no
 #SBATCH --mail-type=ALL
 
@@ -34,12 +34,12 @@ module load Python/3.6.3
 # export LD_LIBRARY_PATH="/usr/local/cuda-9.0/lib64:$LD_LIBRARY_PATH"
 export EA_NAS_UPLOAD_TO_FIREBASE="0"
 
-venv/bin/python slurm_nodes.py $SLURM_JOB_NODELIST "./configurations/cifar-10/experiments/exp04.json"
+venv/bin/python slurm_nodes.py $SLURM_JOB_NODELIST "./configurations/cifar-10/experiments/exp01-no-tl.json"
 echo "SERVER SETUP:        COMPLETE!";
 
 echo "OUTPUT OF MAIN PROGRAM:"
 if [ $SLURM_JOB_NUM_NODES = 1 ]; then
-    venv/bin/python start_ea_nas.py ./configurations/cifar-10/experiments/exp04.json
+    venv/bin/python start_ea_nas.py ./configurations/cifar-10/experiments/exp01-no-tl.json
 else
-    mpiexec -n $SLURM_NTASKS venv/bin/python -m mpi4py.futures start_pattern_nets.py ./configurations/cifar-10/experiments/exp04.json
+    mpiexec -n $SLURM_NTASKS venv/bin/python -m mpi4py.futures start_ea_nas.py ./configurations/cifar-10/experiments/exp01-no-tl.json
 fi
