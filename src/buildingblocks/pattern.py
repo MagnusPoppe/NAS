@@ -36,9 +36,9 @@ class Pattern(Module):
     def optimal_result(self):
         def is_better(this: Result, best: Result):
             return (
-                this.val_accuracy[-1] >= best.val_accuracy[-1] and
-                this.accuracy[-1] >= best.accuracy[-1] and
-                this.report['weighted avg']['f1-score'] >= best.report['weighted avg']['f1-score']
+                this.test_acc() >= best.test_acc() and
+                this.acc() >= best.acc() and
+                this.val_acc() >= best.val_acc()
             )
 
         if len(self.results) > 0:

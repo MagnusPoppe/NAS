@@ -4,6 +4,7 @@ import sys
 from firebase.upload import upload_population
 from src.configuration import Configuration
 
+
 def matrix_print(matrix):
     # Finding width of columns:
     colwise_max = []
@@ -33,7 +34,10 @@ def col(val: str, cols: int):
 def generation_finished(population, config, prefix):
     print(prefix)
     matrix = [
-        ["SPECIMIN", "ACC", "VACC", "IMPR", "SESS IMPR", "OPS", "LR", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "MIAVG", "MAAVG", "WAVG"]
+        [
+            "SPECIMIN", "ACC", "VACC", "IMPR", "SESS IMPR", "OPS", "LR",
+            "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "MIAVG", "MAAVG", "WAVG"
+        ]
     ]
 
     if config.type == "ea-nas":
@@ -43,7 +47,7 @@ def generation_finished(population, config, prefix):
                     individ.ID,
                     round(individ.fitness[-1] * 100, 1),
                     round(individ.validation_fitness[-1] * 100, 1) if len(individ.validation_fitness) > 0 else "-",
-                    str(round(individ.get_improvement() *100, 1)) if individ.get_improvement() != 0.0 else "-",
+                    str(round(individ.get_improvement() * 100, 1)) if individ.get_improvement() != 0.0 else "-",
                     str(round(individ.get_session_improvement() * 100, 1)),
                     individ.number_of_operations(),
                     config.training.learning_rate
@@ -55,22 +59,36 @@ def generation_finished(population, config, prefix):
     else:
         for individ in population:
             result = individ.optimal_result()
-            matrix += [
-                [
-                    individ.ID,
-                    round(result.acc() * 100, 1),
-                    round(result.val_acc() * 100, 1) if len(result.val_acc()) > 0 else "-",
-                    "-",
-                    "-",
-                    individ.number_of_operations(),
-                    result.learning_rate
-                ] + [
-                    round(report["precision"] * 100, 1)
-                    for report in result.report.values()
+            if result:
+                matrix += [
+                    [
+                        individ.ID,
+                        round(result.acc() * 100, 1),
+                        round(result.val_acc() * 100, 1) if result.val_acc() != 0.0 else "-",
+                        "-",
+                        "-",
+                        individ.number_of_operations(),
+                        result.learning_rate
+                    ] + [
+                        round(report["precision"] * 100, 1)
+                        for report in result.report.values()
+                    ]
                 ]
-            ]
+            else:
+                matrix += [
+                    [
+                        individ.ID,
+                        "-",
+                        "-",
+                        "-",
+                        "-",
+                        individ.number_of_operations(),
+                        result.learning_rate
+                    ] + (["-"] * 13)
+                ]
     print(matrix_print(matrix))
     upload_population(population)
+
 
 def print_config_stats(config: Configuration):
     import os
@@ -85,8 +103,8 @@ def print_config_stats(config: Configuration):
             sort_type += "Accuracy/Overfit/Size"
     epochs_fixed = "(Fixed)" if config.training.fixed_epochs else "(Multiplied by network size)"
     storage_area = f"{config.results.location}/{config.results.name}" \
-                 if config.results.location \
-                 else f"{os.getcwd()}/results/{config.results.name}"
+        if config.results.location \
+        else f"{os.getcwd()}/results/{config.results.name}"
 
     print(f"\nConfiguration for {config.dataset_name}:")
     print(f"Evolutionary algorithm parameters:")
@@ -108,6 +126,7 @@ def print_config_stats(config: Configuration):
     print(f"\tResults save location:         {storage_area}")
     print(f"\tDelete unused results:         {not config.results.keep_all}")
     print()
+
 
 def print_population(population):
     print("Current population:")
