@@ -14,9 +14,9 @@ class Result():
         self.model_path = ""
 
     def score(self):
-        return self.accuracy[-1] * 0.2 \
-               + self.val_accuracy[-1] * 0.4 \
-               + self.report['weighted avg']['f1-score'] * 0.4
+        return self.acc() * 0.2 \
+               + self.val_acc() * 0.4 \
+               + self.test_acc() * 0.4
 
     def acc(self):
         try:

@@ -95,10 +95,10 @@ def weighted_overfit_score(config: Configuration) -> callable:
         return abs(x.acc() - x.val_acc())
 
     def _pattern_test_score(x):
-        return 1 - x.optimal_result().report['weighted avg']['f1-score']
+        return 1 - x.optimal_result().test_acc()
 
     def _pattern_overfit(x):
-        return abs(x.optimal_result().accuracy[-1] - x.results[-1].val_accuracy[-1])
+        return abs(x.optimal_result().acc() - x.results[-1].test_acc())
 
     if config.type == "ea-nas":
         overfit = _module_overfit
