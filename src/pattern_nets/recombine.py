@@ -5,7 +5,7 @@ import random
 
 from src.buildingblocks.module import Module
 from src.helpers import randomized_index, shuffle
-from src.learning_rate import set_learning_rate
+# from src.learning_rate import set_learning_rate
 
 
 def select_result(pattern):
@@ -70,8 +70,8 @@ def combine(patterns, num_nets, min_size, max_size, include_optimal=False):
 
     # Checking for duplicated networks:
     remove_duplicates(nets)
-    for net in nets:
-        set_learning_rate(net)
+    # for net in nets:
+    #     set_learning_rate(net)
     return nets
 
 

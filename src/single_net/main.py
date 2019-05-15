@@ -90,10 +90,9 @@ def evolve_architecture(config: Configuration, population: [Module] = None):
         population = [best] + offsprings
         population = workers.start(population, config)
         population.sort(key=weighted_overfit_score(config), reverse=True)
-        keep = 1
         best, removed = population[-1], population[:-1]
 
-        config.results.store_generation(population, generation)
+        config.results.store_generation([best], generation)
 
         # User feedback:
         upload_population(population)
@@ -101,10 +100,10 @@ def evolve_architecture(config: Configuration, population: [Module] = None):
         generation_finished(removed, config, "--> The following individs were removed by elitism:")
 
         # Checking for a satisfactory solution
-        if any(ind.test_acc() > config.training.acceptable_scores - 0.10 for ind in population):
-            population, solved = try_finish(population, config, moo)
-            if solved:
-                return population
+        # if any(ind.test_acc() > config.training.acceptable_scores - 0.10 for ind in population):
+        #     population, solved = try_finish(population, config, moo)
+        #     if solved:
+        #         return population
     return population
 
 

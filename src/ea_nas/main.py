@@ -95,9 +95,9 @@ def evolve_architecture(selection: callable, config: Configuration, population: 
 
         # Elitism:
         keep = len(population) - config.population_size
-        if len(population) > keep:
+        if len(population[keep:]) >= config.population_size:
             population, removed = population[keep:], population[:keep]
-            generation_finished(removed, config, "--> The following individs were removed by elitism:")
+        generation_finished(removed, config, "--> The following individs were removed by elitism:")
         generation_finished(population, config, f"--> Generation {generation} Leaderboards:")
 
         # User feedback:
