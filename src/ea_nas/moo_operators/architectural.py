@@ -14,12 +14,12 @@ def objectives(*args, **kwargs) -> [callable]:
             for _next in current.next:
                 factor += [max(
                     branching,
-                    recursive_branching(_next, branching + len(current.next) - 1, seen)
+                    recursive_branching(_next, branching + (len(current.next) - 1), seen)
                 )]
             for _prev in current.prev:
                 factor += [max(
                     branching,
-                    recursive_branching(_prev, branching - len(current.next) - 1, seen)
+                    recursive_branching(_prev, branching - (len(current.prev) - 1), seen)
                 )]
             return max(factor)
 

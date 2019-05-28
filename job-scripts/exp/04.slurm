@@ -41,5 +41,5 @@ echo "OUTPUT OF MAIN PROGRAM:"
 if [ $SLURM_JOB_NUM_NODES = 1 ]; then
     venv/bin/python start_ea_nas.py ./configurations/cifar-10/experiments/exp04.json
 else
-    mpiexec -n $SLURM_NTASKS venv/bin/python -m mpi4py.futures start_pattern_nets.py ./configurations/cifar-10/experiments/exp04.json
+    mpiexec -n $SLURM_NTASKS venv/bin/python -m mpi4py.futures start_pattern_nets.py "./configurations/cifar-10/experiments/exp04.json"
 fi

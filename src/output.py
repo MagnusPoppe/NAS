@@ -2,6 +2,7 @@ import io
 import sys
 
 from firebase.upload import upload_population
+from src.buildingblocks.pattern import Pattern
 from src.configuration import Configuration
 
 
@@ -40,24 +41,8 @@ def generation_finished(population, config, prefix):
         ]
     ]
 
-    if config.type == "ea-nas":
-        for individ in population:
-            matrix += [
-                [
-                    individ.ID,
-                    round(individ.fitness[-1] * 100, 1),
-                    round(individ.validation_fitness[-1] * 100, 1) if len(individ.validation_fitness) > 0 else "-",
-                    str(round(individ.get_improvement() * 100, 1)) if individ.get_improvement() != 0.0 else "-",
-                    str(round(individ.get_session_improvement() * 100, 1)),
-                    individ.number_of_operations(),
-                    config.training.learning_rate
-                ] + [
-                    round(report["precision"] * 100, 1)
-                    for report in individ.report[individ.epochs_trained].values()
-                ]
-            ]
-    else:
-        for individ in population:
+    for individ in population:
+        if isinstance(individ, Pattern):
             result = individ.optimal_result()
             if result:
                 matrix += [
@@ -86,6 +71,21 @@ def generation_finished(population, config, prefix):
                         result.learning_rate
                     ] + (["-"] * 13)
                 ]
+        else:
+            matrix += [
+                [
+                    individ.ID,
+                    round(individ.fitness[-1] * 100, 1),
+                    round(individ.validation_fitness[-1] * 100, 1) if len(individ.validation_fitness) > 0 else "-",
+                    str(round(individ.get_improvement() * 100, 1)) if individ.get_improvement() != 0.0 else "-",
+                    str(round(individ.get_session_improvement() * 100, 1)),
+                    individ.number_of_operations(),
+                    config.training.learning_rate
+                ] + [
+                    round(report["precision"] * 100, 1)
+                    for report in individ.report[individ.epochs_trained].values()
+                ]
+            ]
     print(matrix_print(matrix))
     upload_population(population)
 
@@ -148,3 +148,13 @@ def no_stdout(fn):
         return output
 
     return wrapper
+
+if __name__ == '__main__':
+    storage_dir = r"/Users/magnus/Desktop/Results"
+    config_dir = f"{storage_dir}/configs"
+    results_dir = f"{storage_dir}/results"
+    from LAB.common import Simulation
+    exp06 = Simulation.read_all_genotypes_per_generation(config_dir, results_dir, "exp04")
+    for gen in exp06.generations:
+        print(generation_finished(gen, exp06.config, ""))
+

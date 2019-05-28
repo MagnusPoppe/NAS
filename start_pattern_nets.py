@@ -16,7 +16,7 @@ from src.pattern_nets.main import main as evolve
 if __name__ == '__main__':
     print("\n\nEvolving architecture")
     start_time = time.time()
-
+    print(f"Using Workdirectory {os.getcwd()}")
     if len(sys.argv) < 2:
         raise IOError("Program requires dataset config file.")
     if not os.path.isfile(sys.argv[1]):

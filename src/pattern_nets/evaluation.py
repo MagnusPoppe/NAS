@@ -36,20 +36,30 @@ class Result():
         except (KeyError, IndexError):
             return 0.0
 
+
 def apply_result(net, result, learning_rate):
     for dist, pattern in enumerate(net.patterns):
-        pattern.results += [
-            Result(
-                accuracy=result['accuracy'],
-                val_accuracy=result['validation accuracy'],
-                loss=result['test accuracy'],
-                val_loss=result['validation loss'],
-                learning_rate=learning_rate,
-                distance=dist / len(net.patterns),
-                report=result['report'],
-                preferred_inputs=net.patterns[dist - 1].find_last() if dist > 0 else None
-            )
-        ]
+        preferred_inputs = None
+        try:
+            preferred_inputs = net.patterns[dist - 1].find_last() if dist > 0 else None
+        except KeyError:
+            print("Found KeyError")
+
+        try:
+            pattern.results += [
+                Result(
+                    accuracy=result['accuracy'],
+                    val_accuracy=result['validation accuracy'],
+                    loss=result['test accuracy'],
+                    val_loss=result['validation loss'],
+                    learning_rate=learning_rate,
+                    distance=dist / len(net.patterns),
+                    report=result['report'],
+                    preferred_inputs=preferred_inputs
+                )
+            ]
+        except KeyError:
+            print(f"Results was lost for Pattern {pattern.ID}")
 
 
 def inherit_results(patterns, nets):

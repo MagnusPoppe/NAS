@@ -70,12 +70,12 @@ def main(config: Configuration):
             patterns = nsga_ii(patterns, moo_objectives, domination_operator, config)
 
             # 3.5 Evolution of the fittest. Elitism
-            patterns = patterns[:config.population_size]
+            patterns = patterns[-config.population_size:]
 
             # 3.6 Feedback:
             print(f"--> Generation {generation} Leaderboards")
             generation_finished(patterns, config, "    - Patterns:")
-            generation_finished(patterns, config, "    - Neural networks:")
+            generation_finished(nets, config, "    - Neural networks:")
             config.results.store_generation(patterns, generation)
             config.results.store_generation(nets, generation)
 

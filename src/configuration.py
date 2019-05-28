@@ -109,7 +109,8 @@ class Server(ValidatedInput):
             cwd: str,
             address: str = "localhost",
             devices: [ComputeDevice] = None,
-            python: str = "python3"
+            python: str = "python3",
+            validation=False
     ):
         super().__init__()
         self.name = name
@@ -118,7 +119,8 @@ class Server(ValidatedInput):
         self.address = address
         self.devices = devices if devices else []
         self.python = python
-        self.validate()
+        if validation:
+            self.validate()
 
     def validate(self):
         if self.type not in ["local", "remote"]:
@@ -218,7 +220,7 @@ class Configuration(ValidatedInput):
         return sum([dev.concurrency if maximum else 1 for server in self.servers for dev in server.devices])
 
     @staticmethod
-    def from_json(json_path):
+    def from_json(json_path, validation=True):
         import json
         with open(json_path, "r") as f:
             conf = json.load(f)
@@ -235,7 +237,16 @@ class Configuration(ValidatedInput):
                 ]
 
             servers += [
-                Server(server['name'], server['type'], server['cwd'], server['address'], compute, server['python'])]
+                Server(
+                    server['name'],
+                    server['type'],
+                    server['cwd'],
+                    server['address'],
+                    compute,
+                    server['python'],
+                    validation=validation
+                )
+            ]
         training = Training(
             batch_size=conf["training"]['batch size'],
             epochs=conf["training"]['epochs'],

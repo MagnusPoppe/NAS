@@ -39,8 +39,7 @@ def setup(config, server_id, device_id):
     # Finding current compute device:
     device = config.servers[server_id].devices[device_id]
     from src.jobs import device_query
-
-    id = device_query.get_least_used_gpu(server_id % 2)
+    id = device_query.get_least_used_gpu(int(device.device[-1]))
     device_str = f"/GPU:{id}"
 
     os.environ["TF_CPP_MIN_LOG_LEVEL"] = "1"
@@ -130,7 +129,7 @@ def run(args):
         # Finalizing and storing results:
         finalize(individ, storage_directory, model, config)
 
-    except BaseException as e:
+    except (BaseException, KeyError) as e:
         print(e)
         individ.failed = True
     finally:

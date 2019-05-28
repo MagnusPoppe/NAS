@@ -6,7 +6,6 @@ from src.training import prepare_training as trainer
 def pack_args(population, config):
     server_job_args = []
     config_str = pickle.dumps(config)
-    # jobs_per_server = int(len(population) / len(config.servers))
     epochs = config.training.epochs if config.training.fixed_epochs else 20
     for i, individ in enumerate(population):
         server_id = i % len(config.servers)

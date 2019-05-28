@@ -15,7 +15,7 @@
   "training": {
     "use restart": false,
     "batch size": 90,
-    "epochs": 50,
+    "epochs": 30,
     "learning rate": 0.0001,
     "fixed epochs": true
   },
