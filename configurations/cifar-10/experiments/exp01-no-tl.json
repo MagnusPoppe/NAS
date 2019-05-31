@@ -3,7 +3,7 @@
     "dataset": "CIFAR-10",
     "dataset path": "./data/cifar10.py",
     "dataset name": "cifar10",
-    "augmentation": true,
+    "augmentation": false,
     "accepted_accuracy": 0.90,
     "input": [
       32,
