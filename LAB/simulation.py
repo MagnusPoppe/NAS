@@ -24,10 +24,15 @@ def isint(string):
 
 
 class Simulation:
-    def __init__(self, config, population, generations):
+    def __init__(self, config, population, generations, patterns=None, pattern_generations=None):
         self.config = config  # type: Configuration
         self.population = population  # type: [Module]
         self.generations = generations  # type: [[Module]]
+        self.patterns = patterns
+        self.pattern_generations = pattern_generations
+        self.set_acc_metrics()
+        
+    def set_acc_metrics(self):
         self.avg_acc = []
         self.avg_val_acc = []
         self.avg_test_acc = []
@@ -78,6 +83,7 @@ class Simulation:
         experiment_results = os.path.join(results_dir, experiment_name)
         # Read all genotypes first
         population = []
+        patterns = []
 
         files = find_filetype_recursivly(experiment_results, filetype=".obj")
         for file_path in files:
@@ -85,26 +91,36 @@ class Simulation:
                 obj = pickle.load(ptr)
                 if not isinstance(obj, Pattern):
                     population += [obj]
+                else:
+                    patterns += [obj]
                 print(
-                    f" - Reading files, {len(population) / len(files) * 100:.0f}% complete"
+                    f" - Reading files, {(len(population) + len(patterns)) / len(files) * 100:.0f}% complete"
                     + "\t" * 3,
                     end="\r",
                 )
         print()
         # Map genotype to generation
         generations = []
+        pattern_generations = []
         directory = os.path.join(experiment_results, "generations")
         gens = [int(generation) for generation in os.listdir(directory) if isint(generation)]
         gens.sort()
         for gen in gens:
             gen_dir = os.path.join(directory, str(gen))
             generation = []
+            p_generation = []
             for identifier in os.listdir(gen_dir):
                 identifier = identifier.strip("'")
                 for ind in population:
                     if ind.ID == identifier:
                         generation += [ind]
                         break
+                else:
+                    for ind in patterns:
+                        if ind.ID == identifier:
+                            p_generation += [ind]
+                            break
             generations += [generation]
+            pattern_generations += [p_generation]
         print(" - population sorted into generations")
-        return Simulation(config, population, generations)
+        return Simulation(config, population, generations, patterns, pattern_generations)

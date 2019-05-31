@@ -6,6 +6,7 @@ from src.pattern_nets.pattern_connector import get_connections_between
 
 global_id = 1
 
+
 def load_name_list():
     with open("./resources/names_clean.json", "r", encoding="utf-8") as file:
         return json.load(file)
@@ -138,11 +139,13 @@ class Module(Base):
         if len(self.report) > 1:
             keys = list(self.report.keys())
             keys.sort()
-            return self.report[keys[-1]]['weighted avg']["precision"] - self.report[keys[-2]]['weighted avg']["precision"]
+            return self.report[keys[-1]]['weighted avg']["precision"] - self.report[keys[-2]]['weighted avg'][
+                "precision"]
         elif len(self.report) == 1 and self.predecessor:
             return self.get_improvement()
         else:
             return self.test_acc()
+
     def number_of_operations(self) -> int:
         """ Calculates how many operations are in this Module.
             Including operations of sub-modules
@@ -152,13 +155,16 @@ class Module(Base):
 
     def find_first(self) -> Base:
         """ Find first node in module directional graph of operations """
+
         def on(operation):
             if operation.prev: return on(operation.prev[0])
             return operation
+
         return on(self.children[0])
 
     def find_firsts(self) -> [Base]:
         """ Finds all first nodes in module directional graph of operations """
+
         def find_start(comp, seen):
             starts = []
             if comp in seen:
@@ -179,7 +185,8 @@ class Module(Base):
 
     def find_last(self) -> [Base]:
         """ Finds all ends in the directional graph of operations """
-        def find_end(comp:Base, seen) -> list:
+
+        def find_end(comp: Base, seen) -> list:
             ends = []
             if comp in seen:
                 return ends
@@ -206,15 +213,24 @@ class Module(Base):
         """ Removes all traces of keras from the module.
             This is needed to serialize object.
         """
+
         def detach_keras(obj):
-            try: del obj.keras_operation
-            except AttributeError: pass
-            try: del obj.keras_tensor
-            except AttributeError: pass
-            try: del obj.layer
-            except AttributeError: pass
-            try: del obj.tensor
-            except AttributeError: pass
+            try:
+                del obj.keras_operation
+            except AttributeError:
+                pass
+            try:
+                del obj.keras_tensor
+            except AttributeError:
+                pass
+            try:
+                del obj.layer
+            except AttributeError:
+                pass
+            try:
+                del obj.tensor
+            except AttributeError:
+                pass
 
         detach_keras(self)
         for child in self.children:
@@ -267,4 +283,3 @@ class Module(Base):
                 if i == len(self.children) - 1:
                     ops += y.children
         return ops
-
