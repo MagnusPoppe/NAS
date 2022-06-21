@@ -21,7 +21,7 @@ idna==2.8
 Markdown==3.0.1
 msgpack==0.6.0
 mpi4py==3.0.1
-numpy==1.14.5
+numpy==1.22.0
 protobuf==3.6.1
 pyasn1==0.4.5
 pyasn1-modules==0.2.3
