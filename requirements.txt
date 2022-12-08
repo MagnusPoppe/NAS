@@ -3,7 +3,7 @@ apipkg==1.5
 astor==0.7.1
 CacheControl==0.12.5
 cachetools==3.0.0
-certifi==2018.11.29
+certifi==2022.12.7
 chardet==3.0.4
 execnet==1.5.0
 firebase-admin==2.15.0
